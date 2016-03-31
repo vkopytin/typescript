@@ -35,7 +35,8 @@ define(function (require) {
         },
         draw: function () {
             var data = {},
-                html = template(data);
+                html = template(data),
+                res = $.Deferred();
                 
             this.$el.html(html);
             
@@ -63,11 +64,12 @@ define(function (require) {
                         }
                     }]
                 }]
-            }, this);
+            }, this).done(_.bind(function () {
+                this.handlers.onDraw.call(this);
+                res.resolve(this);
+            }, this));    
             
-            this.handlers.onDraw.call(this);
-            
-            return this;              
+            return res.promise();  
         }
     });
 });

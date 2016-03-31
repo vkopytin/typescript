@@ -37,7 +37,8 @@ define(function (require) {
                     inst.view = new View({
                         el: $(document.body),
                         viewModel: new ViewModel()
-                    }).draw();
+                    });
+                    inst.view.draw();
                     
                     _.defer(_.bind(inst.view.onNavigateTo, inst.view), 0);
                 });

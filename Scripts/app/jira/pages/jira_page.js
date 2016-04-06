@@ -54,14 +54,20 @@ define(function (require) {
                             }
                         }
                     }],
-                    epicsView: ['app/jira/views/epics_view', {
-                        el: '.filter-items-epics',
-                        viewModel: this.viewModel,
-                        bindings: {
-                            'change:epics': function (view, viewModel) {
-                                view.setItems(viewModel.getEpics());
+                    panelView: ['app/jira/views/panel_view', {
+                        el: '.epics-panel',
+                        title: 'Filter by Epic',
+                        viewModel: this.viewModel
+                    }, {
+                        epicsView: ['app/jira/views/epics_view', {
+                            el: '.filter-items-epics',
+                            viewModel: this.viewModel,
+                            bindings: {
+                                'change:epics': function (view, viewModel) {
+                                    view.setItems(viewModel.getEpics());
+                                }
                             }
-                        }
+                        }]
                     }]
                 }]
             }, this).done(_.bind(function () {

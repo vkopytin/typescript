@@ -50,7 +50,7 @@ define(function (require) {
                 return inst;
             }
         
-            return inst = new Navigation();
+            return inst = new Navigation({});
         }
     });
 });

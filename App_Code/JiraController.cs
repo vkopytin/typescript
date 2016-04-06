@@ -15,9 +15,9 @@ namespace hellomvc.Controllers
 {
     public class JiraController : Controller
     {
-        static string URL = "https://rebelmouse.atlassian.net";
-        static string jUserID = "volodymyr.kopytin";
-        static string jPassword = "OK-ei9hi";
+        static string URL = Config.JiraConfig["url"];
+        static string jUserID = Config.JiraConfig["user"];
+        static string jPassword = Config.JiraConfig["password"];
 
         public ActionResult Index ()
         {

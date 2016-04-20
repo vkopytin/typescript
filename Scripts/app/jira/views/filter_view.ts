@@ -1,6 +1,5 @@
 /// <reference path="../base/base_view.ts" />
 /// <reference path="filter_item_view.ts" />
-
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');

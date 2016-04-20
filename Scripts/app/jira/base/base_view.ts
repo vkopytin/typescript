@@ -1,5 +1,6 @@
+/// <reference path="../../../vendor.d.ts" />
 /// <reference path="base.ts" />
-
+/// <reference path="base_view_model.ts" />
 import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');

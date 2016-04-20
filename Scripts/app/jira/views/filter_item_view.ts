@@ -36,9 +36,9 @@ class FilterItemView extends BaseView {
         var data = this.viewModel.toJSON(),
             html = template(data);
             
-        //var fit = new FilterItemTemplate(data);
-        //ReactDOM.render(fit.render(), this.$el.get(0));
-        this.$el.html(html);
+        var fit = new FilterItemTemplate(data);
+        ReactDOM.render(fit.render(), this.$el.get(0));
+        //this.$el.html(html);
         
         return this;
     }

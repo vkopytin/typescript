@@ -10,9 +10,9 @@ window.__extends = function (child, base) {
 };
 
 class Base {
-	__name: any
+	__name: string
 	
-	isFinish: any = false
+	isFinish: boolean = false
 	
 	constructor () {
     	//console.log('Created: ' + this.constructor.name);

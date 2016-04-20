@@ -15,6 +15,7 @@ class EmailView extends BaseView {
         
         $(this.viewModel).on('change:issues', _.bind(this.draw, this));
     }
+    
     draw () {
         var data = {
                 issues: _.map(this.viewModel.getIssues(), (viewModel) => viewModel.toJSON())

@@ -242,8 +242,7 @@ define("app/jira/ui_dispatcher", ["require", "exports", "app/jira/base/base_even
     inst = new UIDispatcher({});
     return inst;
 });
-/// <reference path="base.ts" />
-define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base"], function (require, exports, $, _, base_1) {
+define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base"], function (require, exports, $, _, Base) {
     "use strict";
     var BaseView = (function (_super) {
         __extends(BaseView, _super);
@@ -309,7 +308,7 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             return this;
         };
         return BaseView;
-    }(base_1["default"]));
+    }(Base));
     return BaseView;
 });
 /// <reference path="base.ts" />
@@ -424,9 +423,28 @@ define("app/jira/models/model", ["require", "exports", 'underscore', 'jquery', "
     }(ModelBase));
     return JiraModel;
 });
-/// <reference path="../base/base.ts" />
-/// <reference path="../base/base_view.ts" />
-/// <reference path="../utils.ts" />
+define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/base/base_view_model", "app/jira/command"], function (require, exports, BaseViewModel, Command) {
+    "use strict";
+    var PageViewModel = (function (_super) {
+        __extends(PageViewModel, _super);
+        function PageViewModel() {
+            _super.apply(this, arguments);
+        }
+        PageViewModel.prototype.init = function (opts) {
+            _super.prototype.init.call(this, opts);
+            this.DeployEmailNavigateCommand = new Command({ execute: this.onDeployEmailNavigateCommand, scope: this });
+            this.JiraReportNavigateCommand = new Command({ execute: this.onJiraReportNavigateCommand, scope: this });
+        };
+        PageViewModel.prototype.onDeployEmailNavigateCommand = function () {
+            this.navigation.navigateTo('deploy-email');
+        };
+        PageViewModel.prototype.onJiraReportNavigateCommand = function () {
+            this.navigation.navigateTo('jira-report');
+        };
+        return PageViewModel;
+    }(BaseViewModel));
+    return PageViewModel;
+});
 define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template'], function (require, exports, _, $, BaseView, Base, Utils, template) {
     "use strict";
     var EmailPage = (function (_super) {
@@ -546,28 +564,6 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
         return JiraPage;
     }(BaseView));
     return JiraPage;
-});
-define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/base/base_view_model", "app/jira/command"], function (require, exports, BaseViewModel, Command) {
-    "use strict";
-    var PageViewModel = (function (_super) {
-        __extends(PageViewModel, _super);
-        function PageViewModel() {
-            _super.apply(this, arguments);
-        }
-        PageViewModel.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-            this.DeployEmailNavigateCommand = new Command({ execute: this.onDeployEmailNavigateCommand, scope: this });
-            this.JiraReportNavigateCommand = new Command({ execute: this.onJiraReportNavigateCommand, scope: this });
-        };
-        PageViewModel.prototype.onDeployEmailNavigateCommand = function () {
-            this.navigation.navigateTo('deploy-email');
-        };
-        PageViewModel.prototype.onJiraReportNavigateCommand = function () {
-            this.navigation.navigateTo('jira-report');
-        };
-        return PageViewModel;
-    }(BaseViewModel));
-    return PageViewModel;
 });
 define("app/jira/view_models/issue_entry_view_model", ["require", "exports", "app/jira/base/base_view_model"], function (require, exports, BaseViewModel) {
     "use strict";
@@ -906,13 +902,13 @@ define("app/jira/templates/filter_item_template", ["require", "exports", 'react'
             _super.apply(this, arguments);
         }
         FilterItemTemplate.prototype.render = function () {
-            return React.createElement("button", {type: "button", class: "btn btn-sm btn-{{#selected}}primary{{/selected}}{{^selected}}default{{/selected}} status-name", title: "{{description}}", "x-style": "margin: 4px 6px;"}, this.props.name);
+            return React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.props.selected ? 'primary' : 'default') + " status-name", title: this.props.description, style: { margin: '4px 6px' }}, this.props.name);
         };
         return FilterItemTemplate;
     }(React.Component));
     return FilterItemTemplate;
 });
-define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'hgn!app/jira/templates/filter_item_template'], function (require, exports, _, $, BaseView, template) {
+define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'hgn!app/jira/templates/filter_item_template', 'app/jira/templates/filter_item_template', 'react-dom'], function (require, exports, _, $, BaseView, template, FilterItemTemplate, ReactDOM) {
     "use strict";
     var FilterItemView = (function (_super) {
         __extends(FilterItemView, _super);
@@ -939,9 +935,9 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
         };
         FilterItemView.prototype.draw = function () {
             var data = this.viewModel.toJSON(), html = template(data);
-            //var fit = new FilterItemTemplate(data);
-            //ReactDOM.render(fit.render(), this.$el.get(0));
-            this.$el.html(html);
+            var fit = new FilterItemTemplate(data);
+            ReactDOM.render(fit.render(), this.$el.get(0));
+            //this.$el.html(html);
             return this;
         };
         return FilterItemView;
@@ -992,8 +988,6 @@ define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery
     }(BaseView));
     return EpicsView;
 });
-/// <reference path="../base/base_view.ts" />
-/// <reference path="filter_item_view.ts" />
 define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view"], function (require, exports, _, $, BaseView, FilterItemView) {
     "use strict";
     var FilterView = (function (_super) {

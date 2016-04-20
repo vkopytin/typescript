@@ -9,9 +9,9 @@ import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import EpicsEntryViewModel = require('app/jira/view_models/filter_epic_view_model');
 
 class EpicsView extends BaseView<JiraViewModel> {
-    views = []
+    views: FilterItemView<EpicsEntryViewModel>[] = []
     
-    setItems (items) {
+    setItems (items: EpicsEntryViewModel[]) {
         this.views = [];
         _.each(items, (item) => {
             var view = new FilterItemView<EpicsEntryViewModel>({

@@ -34,8 +34,8 @@ module utils {
 
         return child;
     }
-    export function loadViews (jsml, view) {
-        var queue = null;
+    export function loadViews (jsml, view): JQueryPromise<{}> {
+        var queue: JQueryPromise<{}> = null;
         _.each(jsml, function (item, propName: string) {
             var res = $.Deferred(),
                 typeName: string = item[0],
@@ -47,7 +47,7 @@ module utils {
                     el: $(options.el, view.$el)
                 }));
                 
-                $.when(view[propName].draw(), utils.loadViews(subViews, view[propName])).done(function () {
+                $.when(view[propName].draw(), utils.loadViews(subViews, view[propName])).done(() => {
                     res.resolve(view[propName]);
                 });
             });

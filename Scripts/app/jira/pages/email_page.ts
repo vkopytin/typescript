@@ -19,7 +19,7 @@ class EmailPage extends BaseView<EmailViewModel> {
         };
     }
     handlers = {
-        onDraw: function () {
+        onDraw: () => {
             $('#main-menu').metisMenu();
         }
     }

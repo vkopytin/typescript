@@ -2,6 +2,7 @@
     "compilerOptions": {
         "target": "ES3",
         "module": "amd",
+        "jsx": "react",
         "declaration": false,
         "noImplicitAny": false,
         "removeComments": false,
@@ -9,7 +10,7 @@
         "rootDir": "Scripts",
         "outDir": "Scripts",
         "noEmitHelpers": true, // manages emmiting __extends method
-        "out": "app/jira.js"
+        "out": "Scripts/app/jira.js"
         //"sourceMap": true
     },
     //"files": [],

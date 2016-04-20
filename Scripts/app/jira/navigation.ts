@@ -1,3 +1,5 @@
+/// <reference path="../../vendor.d.ts" />
+/// <reference path="base/base.ts" />
 import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');

@@ -52,6 +52,8 @@
     require.config({
         baseUrl: '@Url.Content("~/Scripts")',
         paths: {
+            'react': 'libs/react',
+            'react-dom': 'libs/react-dom',
             'jquery': 'libs/jquery-1.11.3',
             'backbone': 'libs/backbone',
             'underscore': 'libs/underscore',
@@ -69,8 +71,11 @@
                 deps: ['jquery', 'jquery.steps'],
                 exports: 'jQuery.fn.metisMenu'
             },
+            'reactDOM': {
+                deps: ['react']
+            },
             'jira': {
-                deps: ['jquery', 'underscore', 'hogan', 'jquery.metisMenu']
+                deps: ['jquery', 'underscore', 'hogan', 'jquery.metisMenu', 'react']
             }
         }
     });

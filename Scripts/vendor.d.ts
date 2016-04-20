@@ -1,3 +1,6 @@
+/// <reference path="react.d.ts" />
+/// <reference path="react-dom.d.ts" />
+
 interface Window {
     __extends: Function;
     report: any;
@@ -49,4 +52,9 @@ declare module "hgn!app/jira/templates/panel_template" {
 declare var pageTemplate: any;
 declare module "hgn!app/jira/templates/page_template" {
   export = pageTemplate;
+}
+
+declare var FilterItemTemplate: any;
+declare module "app/jira/templates/filter_item_template" {
+  export = FilterItemTemplate;
 }

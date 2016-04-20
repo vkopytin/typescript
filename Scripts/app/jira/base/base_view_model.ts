@@ -4,7 +4,7 @@ import Base = require('app/jira/base/base');
 
 class ViewModelBase extends Base {
     opts: any
-    navigation: any
+    navigation: ViewModelBase
     
     constructor (opts) {
         super();

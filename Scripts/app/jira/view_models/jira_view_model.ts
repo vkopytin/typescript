@@ -44,17 +44,17 @@ class JiraViewModel extends BaseViewModel {
     changeStatusesDelegate: any
     changeEpicsDelegate: any
     
-    issues: any
-    filterItems: any
-    epics: any
+    issues: IssueEntryViewModel[]
+    filterItems: FilterEntryViewModel[]
+    epics: FilterEpicViewModel[]
     currentFiler: any
     
     ResetFiltersCommand: Command
     
-    getIssues () {
+    getIssues () : IssueEntryViewModel[] {
         return this.issues;
     }
-    setIssues (value) {
+    setIssues (value: IssueEntryViewModel[]) {
         var issues = this.issues;
         _.defer(() => {
             _.each(issues, (viewModel) => {
@@ -64,10 +64,10 @@ class JiraViewModel extends BaseViewModel {
         this.issues = value;
         this.triggerProperyChanged('change:issues');
     }
-    getFilterItems () {
+    getFilterItems () : FilterEntryViewModel[] {
         return this.filterItems;
     }
-    setStatuses (value) {
+    setStatuses (value: FilterEntryViewModel[]) {
         var filterItems = this.filterItems;
         _.defer(() => {
             _.each(filterItems, (viewModel) => {
@@ -77,10 +77,10 @@ class JiraViewModel extends BaseViewModel {
         this.filterItems = value;
         this.triggerProperyChanged('change:statuses');
     }
-    getEpics () {
+    getEpics () : FilterEpicViewModel[] {
         return this.epics;
     }
-    setEpics (value) {
+    setEpics (value: FilterEpicViewModel[]) {
         var epics = this.epics;
         _.defer(() => {
             _.each(epics, (viewModel) => {
@@ -140,7 +140,7 @@ class JiraViewModel extends BaseViewModel {
     }
     onResetFilters () {
         var model = Model.getCurrent();
-        model.resetFilter();
+        model.resetFilter({});
     }
     changeIssues () {
         var model = Model.getCurrent(),
@@ -169,7 +169,7 @@ class JiraViewModel extends BaseViewModel {
     }
     fetchIssues () {
         var model = Model.getCurrent();
-        model.resetFilter();
+        model.resetFilter({});
     }
     fetchStatuses () {
         var model = Model.getCurrent();

@@ -4,8 +4,9 @@ import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import FilterItemView = require('app/jira/views/filter_item_view');
+import JiraViewModel = require('app/jira/view_models/jira_view_model');
 
-class FilterView extends BaseView {
+class FilterView extends BaseView<JiraViewModel> {
     views = []
     
     setItems (items) {

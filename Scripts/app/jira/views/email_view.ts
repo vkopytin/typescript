@@ -5,8 +5,9 @@ import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import template = require('hgn!app/jira/templates/email_template');
 import emailTemplate = require('hgn!app/main/templates/deploy_email.email_template');
-    
-class EmailView extends BaseView {
+import JiraViewModel = require('app/jira/view_models/jira_view_model');
+
+class EmailView extends BaseView<JiraViewModel> {
     $el: any
     
     init (opts) {

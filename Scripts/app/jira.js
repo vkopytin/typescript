@@ -338,6 +338,9 @@ define("app/jira/models/model", ["require", "exports", 'underscore', 'jquery', "
         __extends(JiraModel, _super);
         function JiraModel() {
             _super.apply(this, arguments);
+            this.issues = [];
+            this.statuses = [];
+            this.epics = [];
         }
         JiraModel.prototype.getIssues = function () {
             return this.issues;
@@ -445,126 +448,6 @@ define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/
     }(BaseViewModel));
     return PageViewModel;
 });
-define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template'], function (require, exports, _, $, BaseView, Base, Utils, template) {
-    "use strict";
-    var EmailPage = (function (_super) {
-        __extends(EmailPage, _super);
-        function EmailPage() {
-            _super.apply(this, arguments);
-            this.handlers = {
-                onDraw: function () {
-                    $('#main-menu').metisMenu();
-                }
-            };
-        }
-        EmailPage.prototype.commands = function () {
-            return {
-                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
-                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
-            };
-        };
-        EmailPage.prototype.init = function (options) {
-            this.$el = options.el || $(document.body);
-            _.extend(this.handlers, options.handlers || {});
-            _super.prototype.init.call(this, options);
-        };
-        EmailPage.prototype.finish = function () {
-            this.$el.off();
-            this.$el.empty();
-            delete this.$el;
-            Base.prototype.finish.apply(this, arguments);
-        };
-        EmailPage.prototype.draw = function () {
-            var data = {}, html = template(data);
-            this.$el.html(html);
-            Utils.loadViews({
-                emailView: ['app/jira/views/email_view', {
-                        el: '#page-wrapper',
-                        viewModel: this.viewModel
-                    }]
-            }, this);
-            this.handlers.onDraw.call(this);
-            return this;
-        };
-        return EmailPage;
-    }(BaseView));
-    return EmailPage;
-});
-/// <reference path="../base/base.ts" />
-/// <reference path="../base/base_view.ts" />
-/// <reference path="../utils.ts" />
-define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template'], function (require, exports, _, $, BaseView, Base, Utils, template) {
-    "use strict";
-    var JiraPage = (function (_super) {
-        __extends(JiraPage, _super);
-        function JiraPage() {
-            _super.apply(this, arguments);
-            this.handlers = {
-                onDraw: function () {
-                    $('#main-menu').metisMenu();
-                }
-            };
-        }
-        JiraPage.prototype.commands = function () {
-            return {
-                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
-                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
-            };
-        };
-        JiraPage.prototype.init = function (options) {
-            this.$el = options.el || $(document.body);
-            _.extend(this.handlers, options.handlers || {});
-            _super.prototype.init.call(this, options);
-        };
-        JiraPage.prototype.finish = function () {
-            this.$el.off();
-            this.$el.empty();
-            delete this.$el;
-            Base.prototype.finish.apply(this, arguments);
-        };
-        JiraPage.prototype.draw = function () {
-            var data = {}, html = template(data), res = $.Deferred();
-            this.$el.html(html);
-            Utils.loadViews({
-                jiraView: ['app/jira/views/jira_view', {
-                        el: '#page-wrapper',
-                        viewModel: this.viewModel
-                    }, {
-                        filterView: ['app/jira/views/filter_view', {
-                                el: '.filter-items-statuses',
-                                viewModel: this.viewModel,
-                                bindings: {
-                                    'change:statuses': function (view, viewModel) {
-                                        view.setItems(viewModel.getFilterItems());
-                                    }
-                                }
-                            }],
-                        panelView: ['app/jira/views/panel_view', {
-                                el: '.epics-panel',
-                                title: 'Filter by Epic',
-                                viewModel: this.viewModel
-                            }, {
-                                epicsView: ['app/jira/views/epics_view', {
-                                        el: '.filter-items-epics',
-                                        viewModel: this.viewModel,
-                                        bindings: {
-                                            'change:epics': function (view, viewModel) {
-                                                view.setItems(viewModel.getEpics());
-                                            }
-                                        }
-                                    }]
-                            }]
-                    }]
-            }, this).done(_.bind(function () {
-                this.handlers.onDraw.call(this);
-                res.resolve(this);
-            }, this));
-            return res.promise();
-        };
-        return JiraPage;
-    }(BaseView));
-    return JiraPage;
-});
 define("app/jira/view_models/issue_entry_view_model", ["require", "exports", "app/jira/base/base_view_model"], function (require, exports, BaseViewModel) {
     "use strict";
     var IssueEntryViewModel = (function (_super) {
@@ -632,6 +515,51 @@ define("app/jira/view_models/email_view_model", ["require", "exports", 'jquery',
         return EmailViewModel;
     }(BaseViewModel));
     return EmailViewModel;
+});
+define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template'], function (require, exports, _, $, BaseView, Base, Utils, template) {
+    "use strict";
+    var EmailPage = (function (_super) {
+        __extends(EmailPage, _super);
+        function EmailPage() {
+            _super.apply(this, arguments);
+            this.handlers = {
+                onDraw: function () {
+                    $('#main-menu').metisMenu();
+                }
+            };
+        }
+        EmailPage.prototype.commands = function () {
+            return {
+                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
+                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
+            };
+        };
+        EmailPage.prototype.init = function (options) {
+            this.$el = options.el || $(document.body);
+            _.extend(this.handlers, options.handlers || {});
+            _super.prototype.init.call(this, options);
+        };
+        EmailPage.prototype.finish = function () {
+            this.$el.off();
+            this.$el.empty();
+            delete this.$el;
+            Base.prototype.finish.apply(this, arguments);
+        };
+        EmailPage.prototype.draw = function () {
+            var data = {}, html = template(data);
+            this.$el.html(html);
+            Utils.loadViews({
+                emailView: ['app/jira/views/email_view', {
+                        el: '#page-wrapper',
+                        viewModel: this.viewModel
+                    }]
+            }, this);
+            this.handlers.onDraw.call(this);
+            return this;
+        };
+        return EmailPage;
+    }(BaseView));
+    return EmailPage;
 });
 define("app/jira/view_models/filter_entry_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, Command, Model) {
     "use strict";
@@ -830,7 +758,7 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
         };
         JiraViewModel.prototype.onResetFilters = function () {
             var model = Model.getCurrent();
-            model.resetFilter();
+            model.resetFilter({});
         };
         JiraViewModel.prototype.changeIssues = function () {
             var model = Model.getCurrent(), issues = model.getIssues();
@@ -852,7 +780,7 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
         };
         JiraViewModel.prototype.fetchIssues = function () {
             var model = Model.getCurrent();
-            model.resetFilter();
+            model.resetFilter({});
         };
         JiraViewModel.prototype.fetchStatuses = function () {
             var model = Model.getCurrent();
@@ -865,6 +793,78 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
         return JiraViewModel;
     }(BaseViewModel));
     return JiraViewModel;
+});
+define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template'], function (require, exports, _, $, BaseView, Base, Utils, template) {
+    "use strict";
+    var JiraPage = (function (_super) {
+        __extends(JiraPage, _super);
+        function JiraPage() {
+            _super.apply(this, arguments);
+            this.handlers = {
+                onDraw: function () {
+                    $('#main-menu').metisMenu();
+                }
+            };
+        }
+        JiraPage.prototype.commands = function () {
+            return {
+                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
+                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
+            };
+        };
+        JiraPage.prototype.init = function (options) {
+            this.$el = options.el || $(document.body);
+            _.extend(this.handlers, options.handlers || {});
+            _super.prototype.init.call(this, options);
+        };
+        JiraPage.prototype.finish = function () {
+            this.$el.off();
+            this.$el.empty();
+            delete this.$el;
+            Base.prototype.finish.apply(this, arguments);
+        };
+        JiraPage.prototype.draw = function () {
+            var data = {}, html = template(data), res = $.Deferred();
+            this.$el.html(html);
+            Utils.loadViews({
+                jiraView: ['app/jira/views/jira_view', {
+                        el: '#page-wrapper',
+                        viewModel: this.viewModel
+                    }, {
+                        filterView: ['app/jira/views/filter_view', {
+                                el: '.filter-items-statuses',
+                                viewModel: this.viewModel,
+                                bindings: {
+                                    'change:statuses': function (view, viewModel) {
+                                        view.setItems(viewModel.getFilterItems());
+                                    }
+                                }
+                            }],
+                        panelView: ['app/jira/views/panel_view', {
+                                el: '.epics-panel',
+                                title: 'Filter by Epic',
+                                viewModel: this.viewModel
+                            }, {
+                                epicsView: ['app/jira/views/epics_view', {
+                                        el: '.filter-items-epics',
+                                        viewModel: this.viewModel,
+                                        bindings: {
+                                            'change:epics': function (view, viewModel) {
+                                                view.setItems(viewModel.getEpics());
+                                            }
+                                        }
+                                    }]
+                            }]
+                    }]
+            }, this).done(_.bind(function () {
+                this.handlers.onDraw.call(this);
+                res.resolve(this);
+            }, this));
+            return res.promise();
+        };
+        return JiraPage;
+    }(BaseView));
+    return JiraPage;
 });
 define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'hgn!app/jira/templates/email_template', 'hgn!app/main/templates/deploy_email.email_template'], function (require, exports, _, $, BaseView, template, emailTemplate) {
     "use strict";
@@ -1030,7 +1030,6 @@ define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquer
     }(BaseView));
     return FilterView;
 });
-/// <reference path="../base/base_view.ts" />
 define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'hgn!app/jira/templates/jira_issue_item_template'], function (require, exports, _, $, BaseView, itemTemplate) {
     "use strict";
     function toDate(ticks) {

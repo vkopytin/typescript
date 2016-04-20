@@ -8,9 +8,10 @@ import EpicsView = require('app/jira/views/epics_view');
 import IssueView = require('app/jira/views/issue_view');
 import Utils = require('app/jira/utils');
 import template = require('hgn!app/jira/templates/jira_template');
+import JiraViewModel = require('app/jira/view_models/jira_view_model');
 
-class JiraView extends BaseView {
-    views = []
+class JiraView extends BaseView<JiraViewModel> {
+    views : IssueView[] = []
     
     commands () {
         return {
@@ -27,7 +28,7 @@ class JiraView extends BaseView {
         $(this.viewModel).on('change:issues', _.bind(this.drawItems, this));
     }
     drawItem (viewModel) {
-        var view = new IssueView({
+        var view: IssueView = new IssueView({
             viewModel: viewModel
         }).appendTo($('.issues-list')).draw();
         

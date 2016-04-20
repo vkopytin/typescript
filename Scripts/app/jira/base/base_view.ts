@@ -4,9 +4,10 @@
 import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');
+import BaseViewModel = require('app/jira/base/base_view_model');
 
-class BaseView extends Base {
-    viewModel: any
+class BaseView<TViewModel extends BaseViewModel> extends Base {
+    viewModel: TViewModel
     $el: any
     
     constructor (opts: any) {

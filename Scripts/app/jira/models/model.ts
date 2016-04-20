@@ -1,3 +1,4 @@
+/// <reference path="../base/model_base.ts" />
 import _ = require('underscore');
 import $ = require('jquery');
 import ModelBase = require('app/jira/base/model_base');
@@ -5,12 +6,12 @@ import ModelBase = require('app/jira/base/model_base');
 var fetchIssuesXhr = null,
     fetchEpicsXhr = null,
     fetchStatusesXhr = null,
-    inst;
+    inst: JiraModel;
         
 class JiraModel extends ModelBase {
-    issues: any
-    statuses: any
-    epics: any
+    issues = []
+    statuses = []
+    epics = []
     currentFilter: any
     
     getIssues () {
@@ -88,7 +89,7 @@ class JiraModel extends ModelBase {
             }, this)
         });
     }
-    static getCurrent () {
+    static getCurrent () : JiraModel {
         if (inst) {
             return inst;
         }

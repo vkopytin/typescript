@@ -1,10 +1,11 @@
 /// <reference path="../base/base_view.ts" />
-
+/// <reference path="../view_models/issue_entry_view_model.ts" />
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import itemTemplate = require('hgn!app/jira/templates/jira_issue_item_template');
-    
+import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
+
 function toDate(ticks) {
     
     //ticks are in nanotime; convert to microtime
@@ -37,7 +38,7 @@ function padStr(i) {
     return (i < 10) ? '0' + i : '' + i;
 }
 
-class IssueView extends BaseView {
+class IssueView extends BaseView<IssueEntryViewModel> {
     fields: any
     
     init (opts) {

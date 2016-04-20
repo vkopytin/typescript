@@ -8,16 +8,16 @@ import _ = require('underscore');
 import BaseViewModel = require('app/jira/view_models/page_view_model');
 import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
 import Model = require('app/jira/models/model');
-    
+
 class EmailViewModel extends BaseViewModel {
     changeIssuesDelegate: any
     
-    issues: any
+    issues: IssueEntryViewModel[]
 
-    getIssues () {
+    getIssues (): IssueEntryViewModel[] {
         return this.issues;
     }
-    setIssues (value) {
+    setIssues (value: IssueEntryViewModel[]) {
         var issues = this.issues;
         _.defer(function () {
             _.each(issues, function (viewModel) {
@@ -48,9 +48,9 @@ class EmailViewModel extends BaseViewModel {
         var model = Model.getCurrent(),
             issues = model.getIssues();
             
-        this.setIssues(_.map(issues, function (item) {
-            return new IssueEntryViewModel(item);
-        }));
+        this.setIssues(_.map(issues, (item) => 
+            new IssueEntryViewModel(item)
+        ));
     }
     fetchIssues () {
         var model = Model.getCurrent();

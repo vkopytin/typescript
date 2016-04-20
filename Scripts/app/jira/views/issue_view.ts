@@ -39,7 +39,7 @@ function padStr(i) {
 }
 
 class IssueView extends BaseView<IssueEntryViewModel> {
-    fields: any
+    fields: any = {}
     
     init (opts) {
         this.$el = $('<tr/>');

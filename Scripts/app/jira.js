@@ -1059,6 +1059,7 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
         __extends(IssueView, _super);
         function IssueView() {
             _super.apply(this, arguments);
+            this.fields = {};
         }
         IssueView.prototype.init = function (opts) {
             this.$el = $('<tr/>');
@@ -1079,6 +1080,8 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
     return IssueView;
 });
 /// <reference path="../base/base_view.ts" />
+/// <reference path="../view_models/jira_view_model.ts" />
+/// <reference path="../view_models/issue_entry_view_model.ts" />
 define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issue_view", 'hgn!app/jira/templates/jira_template'], function (require, exports, $, _, BaseView, IssueView, template) {
     "use strict";
     var JiraView = (function (_super) {

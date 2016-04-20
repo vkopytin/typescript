@@ -91,7 +91,7 @@ class JiraViewModel extends BaseViewModel {
         this.triggerProperyChanged('change:epics');
     }
     getFilter () {
-        var filterItems = _.reduce(this.filterItems, (res, item) => {
+        var filterItems = _.reduce(this.filterItems, (res, item: FilterEntryViewModel) => {
             if (item.getSelected()) {
                 res.push(item.getId());
             }

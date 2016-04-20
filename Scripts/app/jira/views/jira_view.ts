@@ -1,5 +1,10 @@
 /// <reference path="../base/base_view.ts" />
+/// <reference path="../view_models/jira_view_model.ts" />
+/// <reference path="../view_models/issue_entry_view_model.ts" />
 
+/// <reference path="issue_view.ts" />
+/// <reference path="epics_view.ts" />
+/// <reference path="filter_view.ts" />
 import $ = require('jquery');
 import _ = require('underscore');
 import BaseView = require('app/jira/base/base_view');
@@ -9,6 +14,7 @@ import IssueView = require('app/jira/views/issue_view');
 import Utils = require('app/jira/utils');
 import template = require('hgn!app/jira/templates/jira_template');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
+import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
 
 class JiraView extends BaseView<JiraViewModel> {
     views : IssueView[] = []
@@ -27,8 +33,8 @@ class JiraView extends BaseView<JiraViewModel> {
         
         $(this.viewModel).on('change:issues', _.bind(this.drawItems, this));
     }
-    drawItem (viewModel) {
-        var view: IssueView = new IssueView({
+    drawItem (viewModel: IssueEntryViewModel) {
+        var view = new IssueView({
             viewModel: viewModel
         }).appendTo($('.issues-list')).draw();
         

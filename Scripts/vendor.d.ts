@@ -1,5 +1,7 @@
 /// <reference path="react.d.ts" />
 /// <reference path="react-dom.d.ts" />
+/// <reference path="underscore.d.ts" />
+/// <reference path="jquery.d.ts" />
 
 interface Window {
     __extends: Function;
@@ -7,20 +9,15 @@ interface Window {
 }
 declare var window: Window;
 
-declare var require: any;
-
-declare var _:any;
-declare module "underscore" {
-  export = _;
+interface JQuery {
+    metisMenu(): JQuery;
 }
+
+declare var require: any;
 
 declare var utils:any;
 declare module "app/jira/utils" {
   export = utils;
-}
-declare var $:any;
-declare module "jquery" {
-  export = $;
 }
 
 declare var template: any;

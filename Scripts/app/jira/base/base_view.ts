@@ -47,7 +47,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         //console.log('Removed: ' + this.constructor.name);
     }
     initBindings (bindings) {
-        _.each(bindings, (value, key) => {
+        _.each(bindings, (value, key: string) => {
             var value = value, key = key;
             $(this.viewModel).on(key, _.bind(function () {
                 value.call(this, this, this.viewModel);
@@ -55,7 +55,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         }, this);
     }
     initCommands (commands) {
-        _.each(commands, (value, key) => {
+        _.each(commands, (value, key: string) => {
             var pair = key.split(/\s+/);
             $(this.$el).on(pair[0], pair[1], _.bind(function (evnt) {
                 var command = this.viewModel[value];
@@ -75,7 +75,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
     onNavigateFrom () {
         this.viewModel && this.viewModel.navigateFrom();
     }
-    draw () {
+    draw () : any {
         return this;
     }
 }

@@ -136,17 +136,18 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
             window.location.hash = '#' + hashPath;
         };
         Navigation.prototype.loadComponent = function (componentName) {
-            var inst = this, deps = components[componentName];
+            var _this = this;
+            var deps = components[componentName];
             this.view && _.defer(_.bind(this.view.onNavigateFrom, this.view), 0);
             this.setHash(componentName);
             if (deps) {
                 require(deps, function (View, ViewModel) {
-                    inst.view = new View({
+                    _this.view = new View({
                         el: $(document.body),
                         viewModel: new ViewModel()
                     });
-                    inst.view.draw();
-                    _.defer(_.bind(inst.view.onNavigateTo, inst.view), 0);
+                    _this.view.draw();
+                    _.defer(_.bind(_this.view.onNavigateTo, _this.view), 0);
                 });
             }
         };
@@ -469,8 +470,8 @@ define("app/jira/view_models/email_view_model", ["require", "exports", 'jquery',
         EmailViewModel.prototype.setIssues = function (value) {
             var issues = this.issues;
             _.defer(function () {
-                _.each(issues, function (viewModel) {
-                    viewModel.finish();
+                return _.each(issues, function (viewModel) {
+                    return viewModel.finish();
                 });
             }, 0);
             this.issues = value;
@@ -815,6 +816,7 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
             Base.prototype.finish.apply(this, arguments);
         };
         JiraPage.prototype.draw = function () {
+            var _this = this;
             var data = {}, html = template(data), res = $.Deferred();
             this.$el.html(html);
             Utils.loadViews({
@@ -847,10 +849,10 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
                                     }]
                             }]
                     }]
-            }, this).done(_.bind(function () {
-                this.handlers.onDraw.call(this);
-                res.resolve(this);
-            }, this));
+            }, this).done(function () {
+                _this.handlers.onDraw.call(_this);
+                res.resolve(_this);
+            });
             return res.promise();
         };
         return JiraPage;

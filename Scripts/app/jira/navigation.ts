@@ -25,21 +25,20 @@ class Navigation extends Base {
         window.location.hash = '#' + hashPath;
     }
     loadComponent (componentName: string) {
-        var inst = this,
-            deps = components[componentName];
+        var deps = components[componentName];
             
         this.view && _.defer(_.bind(this.view.onNavigateFrom, this.view), 0);
         this.setHash(componentName);
         
         if (deps) {
-            require(deps, function (View, ViewModel) {
-                inst.view = new View({
+            require(deps, (View, ViewModel) => {
+                this.view = new View({
                     el: $(document.body),
                     viewModel: new ViewModel()
                 });
-                inst.view.draw();
+                this.view.draw();
                 
-                _.defer(_.bind(inst.view.onNavigateTo, inst.view), 0);
+                _.defer(_.bind(this.view.onNavigateTo, this.view), 0);
             });
         }
     }

@@ -67,17 +67,17 @@ class JiraPage extends BaseView<JiraViewModel> {
                         el: '.filter-items-epics',
                         viewModel: this.viewModel,
                         bindings: {
-                            'change:epics': function (view, viewModel) {
+                            'change:epics': (view, viewModel) => {
                                 view.setItems(viewModel.getEpics());
                             }
                         }
                     }]
                 }]
             }]
-        }, this).done(_.bind(function () {
+        }, this).done(() => {
             this.handlers.onDraw.call(this);
             res.resolve(this);
-        }, this));
+        });
         
         return res.promise();  
     }

@@ -16,7 +16,7 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
     
     SelectCommand: Command
     
-    getId () {
+    getId () : string {
         return this.opts.id;
     }
     getSelected () {

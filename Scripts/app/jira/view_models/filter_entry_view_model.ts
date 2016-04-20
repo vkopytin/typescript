@@ -19,7 +19,7 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
     
     SelectCommand: Command
     
-    getId () {
+    getId () : string {
         return this.opts.id;
     }
     getSelected () {

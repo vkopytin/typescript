@@ -13,6 +13,7 @@ class PanelView extends BaseView<JiraViewModel> {
         super.init(opts);
         this.opts = opts;
     }
+    
     draw () {
         var data = {
                 title: this.opts.title

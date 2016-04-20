@@ -19,11 +19,11 @@ class EmailViewModel extends BaseViewModel {
     }
     setIssues (value: IssueEntryViewModel[]) {
         var issues = this.issues;
-        _.defer(function () {
-            _.each(issues, function (viewModel) {
-                viewModel.finish();
-            });
-        }, 0);
+        _.defer(() => 
+            _.each(issues, (viewModel) =>
+                viewModel.finish()
+            )
+        , 0);
         this.issues = value;
         this.triggerProperyChanged('change:issues');
     }

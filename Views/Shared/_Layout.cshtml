@@ -61,13 +61,16 @@
             '@ViewBag.ModuleName': 'app/@ViewBag.ModuleName'
         },
         shim: {
-            'jquery.metisMenu': {
-                deps: ['jquery'],
-                exports: 'jQuery.fn.metisMenu'
-            },
             'jquery.steps': {
                 deps: ['jquery'],
                 exports: 'jQuery.fn.steps'
+            },
+            'jquery.metisMenu': {
+                deps: ['jquery', 'jquery.steps'],
+                exports: 'jQuery.fn.metisMenu'
+            },
+            'jira': {
+                deps: ['jquery', 'underscore', 'hogan', 'jquery.metisMenu']
             }
         }
     });
@@ -75,7 +78,7 @@
         var a = @Html.Raw(Json.Encode(ViewData["bootstrap"]));
         return a.Data;
     });
-    require(['@ViewBag.ModuleName'], function (module) {
+    require(['app/@ViewBag.ModuleName'], function (module) {
         module.init();
     });
     </script>

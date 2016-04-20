@@ -44,7 +44,7 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
         var model = Model.getCurrent();
         _.each({
             'model.filterReset': this.resetItemDelegate
-        }, (h, e) => $(model).off(e, h));
+        }, (h, e) => { $(model).off(e, h); });
         
         super.finish();
     }

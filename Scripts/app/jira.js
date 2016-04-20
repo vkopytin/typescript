@@ -625,7 +625,7 @@ define("app/jira/view_models/filter_epic_view_model", ["require", "exports", 'un
             var model = Model.getCurrent();
             _.each({
                 'model.filterReset': this.resetItemDelegate
-            }, function (h, e) { return $(model).off(e, h); });
+            }, function (h, e) { $(model).off(e, h); });
             _super.prototype.finish.call(this);
         };
         FilterEpicViewModel.prototype.onChangeSelected = function () {

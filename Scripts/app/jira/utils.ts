@@ -36,9 +36,9 @@ module utils {
     }
     export function loadViews (jsml, view) {
         var queue = null;
-        _.each(jsml, function (item, propName) {
+        _.each(jsml, function (item, propName: string) {
             var res = $.Deferred(),
-                typeName = item[0],
+                typeName: string = item[0],
                 options = item[1],
                 subViews = item[2];
                 

@@ -128,9 +128,6 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
             _super.call(this);
             this.init(opts);
         }
-        Navigation.prototype.init = function (opts) {
-            Base.prototype.init.apply(this, arguments);
-        };
         Navigation.prototype.getView = function () {
             var match = window.location.href.match(/#(.*)$/);
             return match ? match[1] : '';
@@ -455,12 +452,6 @@ define("app/jira/view_models/issue_entry_view_model", ["require", "exports", "ap
         function IssueEntryViewModel() {
             _super.apply(this, arguments);
         }
-        IssueEntryViewModel.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
-        IssueEntryViewModel.prototype.finish = function () {
-            _super.prototype.finish.call(this);
-        };
         return IssueEntryViewModel;
     }(BaseViewModel));
     return IssueEntryViewModel;
@@ -633,7 +624,7 @@ define("app/jira/view_models/filter_epic_view_model", ["require", "exports", 'un
             var model = Model.getCurrent();
             _.each({
                 'model.filterReset': this.resetItemDelegate
-            }, function (h, e) { $(model).off(e, h); });
+            }, function (h, e) { return $(model).off(e, h); });
             _super.prototype.finish.call(this);
         };
         FilterEpicViewModel.prototype.onChangeSelected = function () {
@@ -1079,9 +1070,6 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
     }(BaseView));
     return IssueView;
 });
-/// <reference path="../base/base_view.ts" />
-/// <reference path="../view_models/jira_view_model.ts" />
-/// <reference path="../view_models/issue_entry_view_model.ts" />
 define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issue_view", 'hgn!app/jira/templates/jira_template'], function (require, exports, $, _, BaseView, IssueView, template) {
     "use strict";
     var JiraView = (function (_super) {

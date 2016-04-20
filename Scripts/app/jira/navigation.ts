@@ -7,7 +7,7 @@ var components = {
         'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/jira_view_model'],
         'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_view_model']
     },
-    inst;
+    inst: Navigation;
 
 class Navigation extends Base {
     view: any
@@ -17,17 +17,14 @@ class Navigation extends Base {
         this.init(opts);
     }
 
-    init (opts) {
-        Base.prototype.init.apply(this, arguments);
-    }
     getView () {
         var match = window.location.href.match(/#(.*)$/);
         return match ? match[1] : '';
     }
-    setHash (hashPath) {
+    setHash (hashPath: string) {
         window.location.hash = '#' + hashPath;
     }
-    loadComponent (componentName) {
+    loadComponent (componentName: string) {
         var inst = this,
             deps = components[componentName];
             
@@ -46,7 +43,7 @@ class Navigation extends Base {
             });
         }
     }
-    static getInstance () {
+    static getInstance () : Navigation {
         if (inst) {
             return inst;
         }

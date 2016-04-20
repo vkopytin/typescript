@@ -1,7 +1,6 @@
 /// <reference path="../base/base_view.ts" />
 /// <reference path="../view_models/jira_view_model.ts" />
 /// <reference path="../view_models/issue_entry_view_model.ts" />
-
 /// <reference path="issue_view.ts" />
 /// <reference path="epics_view.ts" />
 /// <reference path="filter_view.ts" />

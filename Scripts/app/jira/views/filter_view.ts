@@ -1,3 +1,4 @@
+/// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
 /// <reference path="filter_item_view.ts" />
 import _ = require('underscore');
@@ -5,14 +6,15 @@ import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import FilterItemView = require('app/jira/views/filter_item_view');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
+import FilterEntryViewMode = require('app/jira/view_models/filter_entry_view_model');
 
 class FilterView extends BaseView<JiraViewModel> {
-    views = []
+    views: FilterItemView<FilterEntryViewMode>[] = []
     
     setItems (items) {
         this.views = [];
         _.each(items, (item) => {
-            var view = new FilterItemView({
+            var view = new FilterItemView<FilterEntryViewMode>({
                 viewModel: item
             });
             this.views.push(view);
@@ -31,7 +33,7 @@ class FilterView extends BaseView<JiraViewModel> {
         this.setItems(this.viewModel.getFilterItems());
     }
     
-    drawItem (itemView) {
+    drawItem (itemView: FilterItemView<FilterEntryViewMode>) {
         itemView.appendTo(this.filterStatuses()).draw();
     }
     drawItems () {

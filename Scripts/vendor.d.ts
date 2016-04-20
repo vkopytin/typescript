@@ -3,6 +3,8 @@
 /// <reference path="underscore.d.ts" />
 /// <reference path="jquery.d.ts" />
 
+declare var object: any;
+
 interface Window {
     __extends: Function;
     report: any;

@@ -7,8 +7,12 @@ import $ = require('jquery');
 import BaseViewModel = require('app/jira/base/base_view_model');
 import Command = require('app/jira/command');
 import Model = require('app/jira/models/model');
-    
-class FilterEntryViewModel extends BaseViewModel {
+
+interface IFilterEntryViewModel extends BaseViewModel {
+	getSelected ();
+}
+
+class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewModel {
     resetItemDelegate: any
     
     opts: any

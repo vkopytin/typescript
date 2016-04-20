@@ -3,10 +3,10 @@
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
-import itemTemplate = require('hgn!app/jira/templates/jira_issue_item_template');
 import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
+import itemTemplate = require('hgn!app/jira/templates/jira_issue_item_template');
 
-function toDate(ticks) {
+function toDate(ticks: number) : Date {
     
     //ticks are in nanotime; convert to microtime
     var ticksToMicrotime = ticks / 10000;
@@ -20,7 +20,7 @@ function toDate(ticks) {
     return tickDate;
 }
 
-function printDate(datetime, format) {
+function printDate(datetime: Date, format) : string {
     var format = format,
         dateStr = format.replace('YYYY', padStr(datetime.getFullYear()))
             .replace('YY', ('' + datetime.getFullYear()).substr(2))
@@ -34,7 +34,7 @@ function printDate(datetime, format) {
     return dateStr;
 }
 
-function padStr(i) {
+function padStr(i: number): string {
     return (i < 10) ? '0' + i : '' + i;
 }
 

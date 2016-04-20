@@ -1,13 +1,14 @@
 /// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
+/// <reference path="../view_models/email_view_model.ts" />
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import template = require('hgn!app/jira/templates/email_template');
 import emailTemplate = require('hgn!app/main/templates/deploy_email.email_template');
-import JiraViewModel = require('app/jira/view_models/jira_view_model');
+import EmailViewModel = require('app/jira/view_models/email_view_model');
 
-class EmailView extends BaseView<JiraViewModel> {
+class EmailView extends BaseView<EmailViewModel> {
     $el: any
     
     init (opts) {

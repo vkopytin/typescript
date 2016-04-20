@@ -6,6 +6,7 @@ import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import FilterItemView = require('app/jira/views/filter_item_view');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
+import EpicsEntryViewModel = require('app/jira/view_models/filter_epic_view_model');
 
 class EpicsView extends BaseView<JiraViewModel> {
     views = []
@@ -13,7 +14,7 @@ class EpicsView extends BaseView<JiraViewModel> {
     setItems (items) {
         this.views = [];
         _.each(items, (item) => {
-            var view = new FilterItemView({
+            var view = new FilterItemView<EpicsEntryViewModel>({
                 viewModel: item
             });
             this.views.push(view);
@@ -30,7 +31,7 @@ class EpicsView extends BaseView<JiraViewModel> {
         this.views = [];
         this.setItems(this.viewModel.getEpics());
     }
-    drawItem (itemView) {
+    drawItem (itemView : FilterItemView<EpicsEntryViewModel>) {
         itemView.appendTo(this.filterEpics()).draw();
     }
     drawItems () {

@@ -6,8 +6,12 @@ import $ = require('jquery');
 import BaseViewModel = require('app/jira/base/base_view_model');
 import Command = require('app/jira/command');
 import Model = require('app/jira/models/model');
-    
-class FilterEpicViewModel extends BaseViewModel {
+
+interface IFilterEntryViewModel extends BaseViewModel {
+	getSelected ();
+}
+
+class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel {
     resetItemDelegate: any
     
     SelectCommand: Command
@@ -40,7 +44,7 @@ class FilterEpicViewModel extends BaseViewModel {
         var model = Model.getCurrent();
         _.each({
             'model.filterReset': this.resetItemDelegate
-        }, function (h, e) { $(model).off(e, h); });
+        }, (h, e) => $(model).off(e, h));
         
         super.finish();
     }

@@ -380,37 +380,40 @@ define("app/jira/models/model", ["require", "exports", 'underscore', 'jquery', "
             this.fetchIssues();
         };
         JiraModel.prototype.fetchIssues = function () {
+            var _this = this;
             fetchIssuesXhr && fetchIssuesXhr.abort();
             fetchIssuesXhr = $.ajax({
                 url: '/home/issues',
                 type: 'GET',
                 data: this.currentFilter,
-                success: _.bind(function (items, success, xhr) {
+                success: function (items, success, xhr) {
                     //console.log('Issues: ' + items.length);
-                    this.setIssues(items);
-                }, this)
+                    _this.setIssues(items);
+                }
             });
         };
         JiraModel.prototype.fetchStatuses = function () {
+            var _this = this;
             fetchStatusesXhr && fetchStatusesXhr.abort();
             fetchStatusesXhr = $.ajax({
                 url: '/home/statuses',
                 type: 'GET',
-                success: _.bind(function (items, success, xhr) {
+                success: function (items, success, xhr) {
                     //console.log('Statuses: ' + items.length);
-                    this.setStatuses(items);
-                }, this)
+                    _this.setStatuses(items);
+                }
             });
         };
         JiraModel.prototype.fetchEpics = function () {
+            var _this = this;
             fetchEpicsXhr && fetchEpicsXhr.abort();
             fetchEpicsXhr = $.ajax({
                 url: '/home/epics',
                 type: 'GET',
-                success: _.bind(function (items, success, xhr) {
+                success: function (items, success, xhr) {
                     //console.log('Statuses: ' + items.length);
-                    this.setEpics(items);
-                }, this)
+                    _this.setEpics(items);
+                }
             });
         };
         JiraModel.getCurrent = function () {

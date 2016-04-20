@@ -3,35 +3,35 @@ import _ = require('underscore');
 import $ = require('jquery');
 import ModelBase = require('app/jira/base/model_base');
 
-var fetchIssuesXhr = null,
-    fetchEpicsXhr = null,
-    fetchStatusesXhr = null,
+var fetchIssuesXhr: JQueryXHR = null,
+    fetchEpicsXhr: JQueryXHR = null,
+    fetchStatusesXhr: JQueryXHR = null,
     inst: JiraModel;
         
 class JiraModel extends ModelBase {
-    issues = []
-    statuses = []
-    epics = []
+    issues: any[] = []
+    statuses: any[] = []
+    epics: any[] = []
     currentFilter: any
     
     getIssues () {
         return this.issues;
     }
-    setIssues (value) {
+    setIssues (value: any[]) {
         this.issues = value;
         this.triggerProperyChanged('model.issues');
     }
-    getStatuses () {
+    getStatuses (): any[] {
         return this.statuses;
     }
-    setStatuses (value) {
+    setStatuses (value: any[]) {
         this.statuses = value;
         this.triggerProperyChanged('model.statuses');
     }
-    getEpics () {
+    getEpics (): any[] {
         return this.epics;
     }
-    setEpics (value) {
+    setEpics (value: any[]) {
         this.epics = value;
         this.triggerProperyChanged('model.epics');
     }
@@ -45,7 +45,7 @@ class JiraModel extends ModelBase {
         this.triggerProperyChanged('model.filterReset');
         this.fetchIssues();
     }
-    toggleFilter (key, value, enable) {
+    toggleFilter (key: string, value: string, enable: boolean) {
         var fval = this.currentFilter[key] || value,
             values = _.without(fval.split(','), value);
             
@@ -61,10 +61,10 @@ class JiraModel extends ModelBase {
             url: '/home/issues',
             type: 'GET',
             data: this.currentFilter,
-            success: _.bind(function (items, success, xhr) {
+            success: (items, success, xhr) => {
                 //console.log('Issues: ' + items.length);
                 this.setIssues(items);
-            }, this)
+            }
         });
     }
     fetchStatuses () {
@@ -72,10 +72,10 @@ class JiraModel extends ModelBase {
         fetchStatusesXhr = $.ajax({
             url: '/home/statuses',
             type: 'GET',
-            success: _.bind(function (items, success, xhr) {
+            success: (items, success, xhr) => {
                 //console.log('Statuses: ' + items.length);
                 this.setStatuses(items);
-            }, this)
+            }
         });
     }
     fetchEpics () {
@@ -83,10 +83,10 @@ class JiraModel extends ModelBase {
         fetchEpicsXhr = $.ajax({
             url: '/home/epics',
             type: 'GET',
-            success: _.bind(function (items, success, xhr) {
+            success: (items, success, xhr) => {
                 //console.log('Statuses: ' + items.length);
                 this.setEpics(items);
-            }, this)
+            }
         });
     }
     static getCurrent () : JiraModel {

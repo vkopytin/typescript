@@ -11,7 +11,7 @@ import FilterEntryViewMode = require('app/jira/view_models/filter_entry_view_mod
 class FilterView extends BaseView<JiraViewModel> {
     views: FilterItemView<FilterEntryViewMode>[] = []
     
-    setItems (items) {
+    setItems (items: FilterEntryViewMode[]) {
         this.views = [];
         _.each(items, (item) => {
             var view = new FilterItemView<FilterEntryViewMode>({

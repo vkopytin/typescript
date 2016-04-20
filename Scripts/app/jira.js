@@ -277,19 +277,19 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             var _this = this;
             _.each(bindings, function (value, key) {
                 var value = value, key = key;
-                $(_this.viewModel).on(key, _.bind(function () {
-                    value.call(this, this, this.viewModel);
-                }, _this));
+                $(_this.viewModel).on(key, function () {
+                    value.call(_this, _this, _this.viewModel);
+                });
             }, this);
         };
         BaseView.prototype.initCommands = function (commands) {
             var _this = this;
             _.each(commands, function (value, key) {
                 var pair = key.split(/\s+/);
-                $(_this.$el).on(pair[0], pair[1], _.bind(function (evnt) {
-                    var command = this.viewModel[value];
+                $(_this.$el).on(pair[0], pair[1], function (evnt) {
+                    var command = _this.viewModel[value];
                     command.execute();
-                }, _this));
+                });
             }, this);
         };
         BaseView.prototype.appendTo = function (el) {

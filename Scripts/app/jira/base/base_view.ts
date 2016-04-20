@@ -49,19 +49,19 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
     initBindings (bindings) {
         _.each(bindings, (value, key: string) => {
             var value = value, key = key;
-            $(this.viewModel).on(key, _.bind(function () {
+            $(this.viewModel).on(key, () => {
                 value.call(this, this, this.viewModel);
-            }, this));
+            });
         }, this);
     }
     initCommands (commands) {
         _.each(commands, (value, key: string) => {
             var pair = key.split(/\s+/);
-            $(this.$el).on(pair[0], pair[1], _.bind(function (evnt) {
+            $(this.$el).on(pair[0], pair[1], (evnt) => {
                 var command = this.viewModel[value];
                 
                 command.execute();
-            }, this));
+            });
         }, this);
     }
     appendTo (el) {

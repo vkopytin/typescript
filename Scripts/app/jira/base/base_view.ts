@@ -54,8 +54,8 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
             });
         }, this);
     }
-    initCommands (commands: any): void {
-        _.each(commands, (value: string, key: string) => {
+    initCommands (commands: {[key: string]: string}): void {
+        _.each(commands, (value, key) => {
             var pair: string[] = key.split(/\s+/);
             $(this.$el).on(pair[0], pair[1], (evnt) => {
                 var command: any = this.viewModel[value];

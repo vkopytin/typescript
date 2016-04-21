@@ -20,7 +20,7 @@ define("app/jira/utils", ["require", "exports", 'underscore', 'jquery'], functio
             // `parent`'s constructor function.
             var Surrogate = function () { this.constructor = child; };
             Surrogate.prototype = parent.prototype;
-            child.prototype = new Surrogate;
+            child.prototype = new Surrogate();
             // Add prototype properties (instance properties) to the subclass,
             // if supplied.
             if (protoProps)
@@ -51,6 +51,7 @@ define("app/jira/utils", ["require", "exports", 'underscore', 'jquery'], functio
     })(utils || (utils = {}));
     return utils;
 });
+/// <reference path="../../../vendor.d.ts" />
 define("app/jira/base/base", ["require", "exports", 'app/jira/utils'], function (require, exports, Utils) {
     "use strict";
     var report = {};
@@ -63,7 +64,7 @@ define("app/jira/base/base", ["require", "exports", 'app/jira/utils'], function 
         function Base() {
             this.isFinish = false;
             //console.log('Created: ' + this.constructor.name);
-            this.__name = this.constructor['name'];
+            this.__name = this.constructor.name;
             report[this.__name] = ++report[this.__name] || 1;
         }
         Base.prototype.finish = function () {
@@ -238,6 +239,10 @@ define("app/jira/ui_dispatcher", ["require", "exports", "app/jira/base/base_even
     inst = new UIDispatcher({});
     return inst;
 });
+/// <reference path="../../../vendor.d.ts" />
+/// <reference path="base.ts" />
+/// <reference path="base_view_model.ts" />
+/// <reference path="../command.ts" />
 define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base"], function (require, exports, $, _, Base) {
     "use strict";
     var BaseView = (function (_super) {

@@ -11,7 +11,7 @@ import EmailViewModel = require('app/jira/view_models/email_view_model');
 class EmailView extends BaseView<EmailViewModel> {
     $el: any
     
-    init (opts) {
+    init (opts: any) {
         this.$el = opts.el || $('<div/>');
         super.init(opts);
         

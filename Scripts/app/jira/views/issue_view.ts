@@ -20,7 +20,7 @@ function toDate(ticks: number) : Date {
     return tickDate;
 }
 
-function printDate(datetime: Date, format) : string {
+function printDate(datetime: Date, format: any) : string {
     var format = format,
         dateStr = format.replace('YYYY', padStr(datetime.getFullYear()))
             .replace('YY', ('' + datetime.getFullYear()).substr(2))
@@ -41,7 +41,7 @@ function padStr(i: number): string {
 class IssueView extends BaseView<IssueEntryViewModel> {
     fields: any = {}
     
-    init (opts) {
+    init (opts: any) {
         this.$el = $('<tr/>');
         super.init(opts);
     }

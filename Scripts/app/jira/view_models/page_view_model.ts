@@ -11,7 +11,7 @@ class PageViewModel extends BaseViewModel {
     
     navigation: any
 
-    init (opts) {
+    init (opts: any) {
         super.init(opts);
         
         this.DeployEmailNavigateCommand = new Command({ execute: this.onDeployEmailNavigateCommand, scope: this });

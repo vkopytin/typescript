@@ -8,13 +8,13 @@ import JiraViewModel = require('app/jira/view_models/jira_view_model');
 class PanelView extends BaseView<JiraViewModel> {
     opts: any
     
-    init (opts) {
+    init (opts: any): void {
         this.$el = opts.el ? $(opts.el) : $('<div />');
         super.init(opts);
         this.opts = opts;
     }
     
-    draw () {
+    draw (): any {
         var data = {
                 title: this.opts.title
             },

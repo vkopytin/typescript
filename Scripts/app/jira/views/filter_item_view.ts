@@ -12,7 +12,7 @@ import FilterItemTemplate = require('app/jira/templates/filter_item_template');
 import ReactDOM = require('react-dom');
 
 interface IFilterEntryViewModel extends BaseViewModel {
-	getSelected ();
+	getSelected(): boolean;
 }
 
 class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<TViewModel> {
@@ -26,21 +26,21 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
         };
     }
     
-    init (opts) {
+    init (opts: any) {
         this.$el = $('<span />');
         super.init(opts);
         
         $(this.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
     }
     
-    onChangeSelected () {
+    onChangeSelected (): void {
         var $el = this.button(),
             isSelected = !!this.viewModel.getSelected();
         
         $el.toggleClass('btn-primary', isSelected);
         $el.toggleClass('btn-default', !isSelected);
     }
-    draw () {
+    draw (): any {
         var data = this.viewModel.toJSON(),
             html = template(data);
             

@@ -4,13 +4,13 @@ import $ = require('jquery');
 import Base = require('app/jira/base/base');
         
 class ModelBase extends Base {
-    constructor (opts) {
+    constructor (opts: any) {
         super();
         
         this.init(opts);
     }
     
-    init (opts): void {
+    init (opts: any): void {
     }
     
     triggerProperyChanged (propertyName: string) {

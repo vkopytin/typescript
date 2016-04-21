@@ -6,13 +6,13 @@ class ViewModelBase extends Base {
     opts: any
     navigation: ViewModelBase
     
-    constructor (opts) {
+    constructor (opts: any) {
         super();
         this.init(opts);
         //console.log('Created: ' + this.constructor.name)
     }
 
-    init (opts): void {
+    init (opts: any): void {
         this.opts = opts;
     }
     

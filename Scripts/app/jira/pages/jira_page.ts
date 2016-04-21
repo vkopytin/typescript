@@ -23,13 +23,13 @@ class JiraPage extends BaseView<JiraViewModel> {
             $('#main-menu').metisMenu();
         }
     }
-    init (options) {
+    init (options: any): void {
         this.$el = options.el || $(document.body);
         _.extend(this.handlers, options.handlers || {});
         
         super.init(options);
     }
-    finish () {
+    finish (): void {
         this.$el.off();
         this.$el.empty();
         delete this.$el;
@@ -37,7 +37,7 @@ class JiraPage extends BaseView<JiraViewModel> {
         Base.prototype.finish.apply(this, arguments);
     }
     
-    draw () {
+    draw (): any {
         var data = {},
             html = template(data),
             res = $.Deferred();
@@ -53,7 +53,7 @@ class JiraPage extends BaseView<JiraViewModel> {
                     el: '.filter-items-statuses',
                     viewModel: this.viewModel,
                     bindings: {
-                        'change:statuses': function (view, viewModel) {
+                        'change:statuses': (view: any, viewModel: JiraViewModel) => {
                             view.setItems(viewModel.getFilterItems());
                         }
                     }
@@ -67,7 +67,7 @@ class JiraPage extends BaseView<JiraViewModel> {
                         el: '.filter-items-epics',
                         viewModel: this.viewModel,
                         bindings: {
-                            'change:epics': (view, viewModel) => {
+                            'change:epics': (view: any, viewModel: JiraViewModel) => {
                                 view.setItems(viewModel.getEpics());
                             }
                         }

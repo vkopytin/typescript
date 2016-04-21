@@ -8,7 +8,7 @@ import Command = require('app/jira/command');
 import Model = require('app/jira/models/model');
 
 interface IFilterEntryViewModel extends BaseViewModel {
-	getSelected ();
+	getSelected(): boolean;
 }
 
 class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel {
@@ -19,10 +19,10 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
     getId () : string {
         return this.opts.id;
     }
-    getSelected () {
+    getSelected (): boolean {
         return this.opts.selected;
     }
-    setSelected (value) {
+    setSelected (value: boolean): void {
         var model = Model.getCurrent();
         this.opts.selected = value;
         
@@ -30,7 +30,7 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
         
         model.toggleFilter('epicLink', this.getId(), value);
     }
-    init (opts) {
+    init (opts: any): void {
         var model = Model.getCurrent();
         super.init(opts);
         
@@ -40,7 +40,7 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
             'model.filterReset': this.resetItemDelegate = _.bind(this.resetItem, this)
         }, function (h, e) { $(model).on(e, h); });
     }
-    finish () {
+    finish (): void {
         var model = Model.getCurrent();
         _.each({
             'model.filterReset': this.resetItemDelegate
@@ -48,10 +48,10 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
         
         super.finish();
     }
-    onChangeSelected () {
+    onChangeSelected (): void {
         this.setSelected(!this.getSelected());
     }
-    resetItem () {
+    resetItem (): void {
         this.getSelected() && this.setSelected(false);
     }
 }

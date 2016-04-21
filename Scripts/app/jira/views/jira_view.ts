@@ -24,7 +24,7 @@ class JiraView extends BaseView<JiraViewModel> {
         };
     }
     
-    init (opts) {
+    init (opts: any) {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         

@@ -103,7 +103,7 @@ class JiraViewModel extends BaseViewModel {
             status: filterItems.join(',')
         };
     }
-    init (opts) : void {
+    init (opts: any) : void {
         var model = Model.getCurrent();
         super.init(opts);
         this.currentFiler = {};

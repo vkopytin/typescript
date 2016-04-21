@@ -27,7 +27,7 @@ class EmailViewModel extends BaseViewModel {
         this.issues = value;
         this.triggerProperyChanged('change:issues');
     }
-    init (opts) {
+    init (opts: any): void {
         var model = Model.getCurrent();
         super.init(opts);
         
@@ -38,13 +38,13 @@ class EmailViewModel extends BaseViewModel {
             this.fetchIssues();
         }, this), 0);
     }
-    finish () {
+    finish (): void {
         var model = Model.getCurrent();
         $(model).off('model.issues', this.changeIssuesDelegate);
         this.setIssues([]);
         super.finish();
     }
-    changeIssues () {
+    changeIssues (): void {
         var model = Model.getCurrent(),
             issues = model.getIssues();
             
@@ -52,7 +52,7 @@ class EmailViewModel extends BaseViewModel {
             new IssueEntryViewModel(item)
         ));
     }
-    fetchIssues () {
+    fetchIssues (): void {
         var model = Model.getCurrent();
         model.resetFilter({
             status: '10009'

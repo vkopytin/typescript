@@ -5,6 +5,10 @@
 
 declare var object: any;
 
+interface Function {
+  name: string;
+}
+
 interface Window {
     __extends: Function;
     report: any;

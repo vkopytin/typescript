@@ -1,10 +1,12 @@
+/// <reference path="../../../vendor.d.ts" />
+
 import _ = require('underscore');
 import Utils = require('app/jira/utils');
-var report = {};
+var report: { [key: string]: number } = {};
 
 window.report = report;
 
-window.__extends = function (child, base) {
+window.__extends = function (child: any, base: any): void {
     child.prototype.ctor = child;
     Utils.extend.call(base, child.prototype);
 };
@@ -16,7 +18,7 @@ class Base {
 	
 	constructor () {
     	//console.log('Created: ' + this.constructor.name);
-    	this.__name = this.constructor['name'];
+    	this.__name = this.constructor.name;
     	report[this.__name] = ++report[this.__name] || 1;
 	}
 	

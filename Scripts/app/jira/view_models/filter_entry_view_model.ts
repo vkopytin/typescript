@@ -9,7 +9,7 @@ import Command = require('app/jira/command');
 import Model = require('app/jira/models/model');
 
 interface IFilterEntryViewModel extends BaseViewModel {
-	getSelected ();
+	getSelected (): boolean;
 }
 
 class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewModel {
@@ -22,10 +22,10 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
     getId () : string {
         return this.opts.id;
     }
-    getSelected () {
+    getSelected (): boolean {
         return this.opts.selected;
     }
-    setSelected (value) {
+    setSelected (value: boolean): void {
         var model = Model.getCurrent();
         this.opts.selected = value;
         
@@ -33,7 +33,7 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
         
         model.toggleFilter('status', this.getId(), value);
     }
-    init (opts) {
+    init (opts: any): void {
         var model = Model.getCurrent();
         super.init(opts);
         
@@ -42,15 +42,15 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
         this.resetItemDelegate = _.bind(this.resetItem, this);
         $(model).on('model.filterReset', this.resetItemDelegate);
     }
-    finish () {
+    finish (): void {
         var model = Model.getCurrent();
         $(model).off('model.filterReset', this.resetItemDelegate);
         super.finish();
     }
-    onChangeSelected () {
+    onChangeSelected (): void {
         this.setSelected(!this.getSelected());
     }
-    resetItem () {
+    resetItem (): void {
         this.getSelected() && this.setSelected(false);
     }
 }

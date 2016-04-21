@@ -23,7 +23,7 @@ class EmailPage extends BaseView<EmailViewModel> {
             $('#main-menu').metisMenu();
         }
     }
-    init (options): void {
+    init (options: any): void {
         this.$el = options.el || $(document.body);
         _.extend(this.handlers, options.handlers || {});
         
@@ -36,7 +36,7 @@ class EmailPage extends BaseView<EmailViewModel> {
         
         Base.prototype.finish.apply(this, arguments);
     }
-    draw () {
+    draw (): any {
         var data = {},
             html = template(data);
             

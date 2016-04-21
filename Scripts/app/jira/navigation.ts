@@ -3,7 +3,7 @@
 import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');
-var components = {
+var components: { [key: string]: string[] } = {
         'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/jira_view_model'],
         'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_view_model']
     },
@@ -12,7 +12,7 @@ var components = {
 class Navigation extends Base {
     view: any
 
-    constructor(opts) {
+    constructor(opts: any) {
         super();
         
         this.init(opts);
@@ -36,7 +36,7 @@ class Navigation extends Base {
         this.setHash(componentName);
         
         if (deps) {
-            require(deps, (View, ViewModel) => {
+            require(deps, (View: any, ViewModel: any) => {
                 this.view = new View({
                     el: $(document.body),
                     viewModel: new ViewModel()

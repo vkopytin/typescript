@@ -5,7 +5,7 @@ import Navigation = require('app/jira/navigation');
         
 class NavigationViewModel extends BaseViewModel {
     
-    navigateTo (name?) {
+    navigateTo (name?: string) {
         var navigation = Navigation.getInstance();
         
         navigation.loadComponent(name);

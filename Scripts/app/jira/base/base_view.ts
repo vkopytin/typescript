@@ -1,6 +1,8 @@
 /// <reference path="../../../vendor.d.ts" />
 /// <reference path="base.ts" />
 /// <reference path="base_view_model.ts" />
+/// <reference path="../command.ts" />
+
 import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');
@@ -22,7 +24,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
     bindings (): any {
         // declare binding rules from the child view
     }
-    init (opts): void {
+    init (opts: any): void {
         
         this.viewModel = opts.viewModel;
         var bindings = _.extend({},
@@ -44,8 +46,8 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         super.finish();
         //console.log('Removed: ' + this.constructor.name);
     }
-    initBindings (bindings): void {
-        _.each(bindings, (value, key: string) => {
+    initBindings (bindings: any): void {
+        _.each(bindings, (value: Function, key: string) => {
             var value = value, key = key;
             $(this.viewModel).on(key, () => {
                 value.call(this, this, this.viewModel);
@@ -53,16 +55,16 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         }, this);
     }
     initCommands (commands: any): void {
-        _.each(commands, (value, key: string) => {
-            var pair = key.split(/\s+/);
+        _.each(commands, (value: string, key: string) => {
+            var pair: string[] = key.split(/\s+/);
             $(this.$el).on(pair[0], pair[1], (evnt) => {
-                var command = this.viewModel[value];
+                var command: any = this.viewModel[value];
                 
                 command.execute();
             });
         }, this);
     }
-    appendTo (el): BaseView<TViewModel> {
+    appendTo (el: any): BaseView<TViewModel> {
         $(el).append(this.$el);
         
         return this;

@@ -25,19 +25,19 @@ class EpicsView extends BaseView<JiraViewModel> {
     filterEpics () {
         return $('.filter-epics', this.$el);
     }
-    init (opts) {
+    init (opts: any) {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         this.views = [];
         this.setItems(this.viewModel.getEpics());
     }
-    drawItem (itemView : FilterItemView<EpicsEntryViewModel>) {
+    drawItem (itemView : FilterItemView<EpicsEntryViewModel>): void {
         itemView.appendTo(this.filterEpics()).draw();
     }
-    drawItems () {
+    drawItems (): void {
         _.each(this.views, this.drawItem, this);
     }
-    draw () {
+    draw (): any {
         this.drawItems();
         
         return this;

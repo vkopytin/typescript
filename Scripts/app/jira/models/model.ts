@@ -39,7 +39,7 @@ class JiraModel extends ModelBase {
         ModelBase.prototype.init.apply(this, arguments);
         this.currentFilter = {};
     }
-    resetFilter (filter): void {
+    resetFilter (filter: any): void {
         filter = filter || {};
         this.currentFilter = filter;
         this.triggerProperyChanged('model.filterReset');

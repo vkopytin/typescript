@@ -26,17 +26,17 @@ class FilterView extends BaseView<JiraViewModel> {
         return $('.filter-statuses', this.$el);
     }
     
-    init (opts) {
+    init (opts: any): void {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         this.views = [];
         this.setItems(this.viewModel.getFilterItems());
     }
     
-    drawItem (itemView: FilterItemView<FilterEntryViewMode>) {
+    drawItem (itemView: FilterItemView<FilterEntryViewMode>): void {
         itemView.appendTo(this.filterStatuses()).draw();
     }
-    drawItems () {
+    drawItems (): void {
         _.each(this.views, this.drawItem, this);
     }
     draw () {

@@ -10,11 +10,10 @@ class ModelBase extends Base {
         this.init(opts);
     }
     
-    init (opts) {
-        super.init(opts);
+    init (opts): void {
     }
     
-    triggerProperyChanged (propertyName) {
+    triggerProperyChanged (propertyName: string) {
         //console.log('Model.trigger: ' + propertyName);
         $(this).trigger(propertyName);
     }

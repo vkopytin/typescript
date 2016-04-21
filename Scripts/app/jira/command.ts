@@ -9,9 +9,7 @@ class Command extends Base {
         this.init(opts);
     }
 
-    init (opts: any) {
-        super.init(opts);
-        
+    init (opts: any): void {
         this.handler = opts.execute;
         this.scope = opts.scope || this;
     }

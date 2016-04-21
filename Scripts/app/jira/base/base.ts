@@ -20,11 +20,7 @@ class Base {
     	report[this.__name] = ++report[this.__name] || 1;
 	}
 	
-	init (opts: any) {
-		
-	}
-	
-	finish () {
+	finish (): void {
         //console.log('Removed: ' + this.constructor.name);
         report[this.__name] = --report[this.__name];
         if (this.isFinish) {

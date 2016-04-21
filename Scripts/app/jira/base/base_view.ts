@@ -15,16 +15,14 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         this.init(opts);
         //console.log('Created: ' + this.constructor.name)
     }
-    commands () {
+    commands (): any {
         // declare commands from the child view
         return {};
     }
-    bindings () {
+    bindings (): any {
         // declare binding rules from the child view
     }
-    
-    init (opts) {
-        super.init(opts);
+    init (opts): void {
         
         this.viewModel = opts.viewModel;
         var bindings = _.extend({},
@@ -39,14 +37,14 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         this.$el.toggleClass('highlight', true);
         this.$el.attr('data-type', this.__name);
     }
-    finish () {
+    finish (): void {
         this.$el.off();
         this.$el.remove();
         delete this.$el;
         super.finish();
         //console.log('Removed: ' + this.constructor.name);
     }
-    initBindings (bindings) {
+    initBindings (bindings): void {
         _.each(bindings, (value, key: string) => {
             var value = value, key = key;
             $(this.viewModel).on(key, () => {
@@ -54,7 +52,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
             });
         }, this);
     }
-    initCommands (commands) {
+    initCommands (commands: any): void {
         _.each(commands, (value, key: string) => {
             var pair = key.split(/\s+/);
             $(this.$el).on(pair[0], pair[1], (evnt) => {
@@ -64,15 +62,15 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
             });
         }, this);
     }
-    appendTo (el) {
+    appendTo (el): BaseView<TViewModel> {
         $(el).append(this.$el);
         
         return this;
     }
-    onNavigateTo () {
+    onNavigateTo (): void {
         this.viewModel && this.viewModel.navigateTo();
     }
-    onNavigateFrom () {
+    onNavigateFrom (): void {
         this.viewModel && this.viewModel.navigateFrom();
     }
     draw () : any {

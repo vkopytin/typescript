@@ -66,8 +66,6 @@ define("app/jira/base/base", ["require", "exports", 'app/jira/utils'], function 
             this.__name = this.constructor['name'];
             report[this.__name] = ++report[this.__name] || 1;
         }
-        Base.prototype.init = function (opts) {
-        };
         Base.prototype.finish = function () {
             //console.log('Removed: ' + this.constructor.name);
             report[this.__name] = --report[this.__name];
@@ -91,7 +89,6 @@ define("app/jira/base/base_view_model", ["require", "exports", 'jquery', "app/ji
             //console.log('Created: ' + this.constructor.name)
         }
         ViewModelBase.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
             this.opts = opts;
         };
         ViewModelBase.prototype.finish = function () {
@@ -128,6 +125,8 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
             _super.call(this);
             this.init(opts);
         }
+        Navigation.prototype.init = function (opts) {
+        };
         Navigation.prototype.getView = function () {
             var match = window.location.href.match(/#(.*)$/);
             return match ? match[1] : '';
@@ -200,7 +199,6 @@ define("app/jira/command", ["require", "exports", "app/jira/base/base"], functio
             this.init(opts);
         }
         Command.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
             this.handler = opts.execute;
             this.scope = opts.scope || this;
         };
@@ -219,9 +217,9 @@ define("app/jira/base/base_event_dispatcher", ["require", "exports", "app/jira/b
         function BaseEventDispatcher(opts) {
             _super.call(this);
             this.init(opts);
+            //console.log('Created: ' + this.constructor.name)
         }
         BaseEventDispatcher.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
         };
         return BaseEventDispatcher;
     }(Base));
@@ -257,7 +255,6 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             // declare binding rules from the child view
         };
         BaseView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
             this.viewModel = opts.viewModel;
             var bindings = _.extend({}, _.result(this, 'bindings'), _.result(opts, 'bindings') || {});
             $(this.viewModel).on('viewModel.finish', _.bind(this.finish, this));
@@ -319,7 +316,6 @@ define("app/jira/base/model_base", ["require", "exports", 'jquery', "app/jira/ba
             this.init(opts);
         }
         ModelBase.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
         };
         ModelBase.prototype.triggerProperyChanged = function (propertyName) {
             //console.log('Model.trigger: ' + propertyName);

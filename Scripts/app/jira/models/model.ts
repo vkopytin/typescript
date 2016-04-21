@@ -17,35 +17,35 @@ class JiraModel extends ModelBase {
     getIssues () {
         return this.issues;
     }
-    setIssues (value: any[]) {
+    setIssues (value: any[]): void {
         this.issues = value;
         this.triggerProperyChanged('model.issues');
     }
     getStatuses (): any[] {
         return this.statuses;
     }
-    setStatuses (value: any[]) {
+    setStatuses (value: any[]): void {
         this.statuses = value;
         this.triggerProperyChanged('model.statuses');
     }
     getEpics (): any[] {
         return this.epics;
     }
-    setEpics (value: any[]) {
+    setEpics (value: any[]): void {
         this.epics = value;
         this.triggerProperyChanged('model.epics');
     }
-    init () {
+    init (): void {
         ModelBase.prototype.init.apply(this, arguments);
         this.currentFilter = {};
     }
-    resetFilter (filter) {
+    resetFilter (filter): void {
         filter = filter || {};
         this.currentFilter = filter;
         this.triggerProperyChanged('model.filterReset');
         this.fetchIssues();
     }
-    toggleFilter (key: string, value: string, enable: boolean) {
+    toggleFilter (key: string, value: string, enable: boolean): void {
         var fval = this.currentFilter[key] || value,
             values = _.without(fval.split(','), value);
             
@@ -55,7 +55,7 @@ class JiraModel extends ModelBase {
         this.currentFilter[key] = values.join(',');
         this.fetchIssues();
     }
-    fetchIssues () {
+    fetchIssues (): void {
         fetchIssuesXhr && fetchIssuesXhr.abort();
         fetchIssuesXhr = $.ajax({
             url: '/home/issues',
@@ -67,7 +67,7 @@ class JiraModel extends ModelBase {
             }
         });
     }
-    fetchStatuses () {
+    fetchStatuses (): void {
         fetchStatusesXhr && fetchStatusesXhr.abort();
         fetchStatusesXhr = $.ajax({
             url: '/home/statuses',
@@ -78,7 +78,7 @@ class JiraModel extends ModelBase {
             }
         });
     }
-    fetchEpics () {
+    fetchEpics (): void {
         fetchEpicsXhr && fetchEpicsXhr.abort();
         fetchEpicsXhr = $.ajax({
             url: '/home/epics',
@@ -89,7 +89,7 @@ class JiraModel extends ModelBase {
             }
         });
     }
-    static getCurrent () : JiraModel {
+    static getCurrent (): JiraModel {
         if (inst) {
             return inst;
         }

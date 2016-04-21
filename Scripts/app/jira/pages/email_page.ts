@@ -12,7 +12,7 @@ import template = require('hgn!app/jira/templates/page_template');
 import EmailViewModel = require('app/jira/view_models/email_view_model');
 
 class EmailPage extends BaseView<EmailViewModel> {
-    commands () {
+    commands (): any {
         return {
             'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
             'click.command .jira-jira-report': 'JiraReportNavigateCommand'
@@ -23,13 +23,13 @@ class EmailPage extends BaseView<EmailViewModel> {
             $('#main-menu').metisMenu();
         }
     }
-    init (options) {
+    init (options): void {
         this.$el = options.el || $(document.body);
         _.extend(this.handlers, options.handlers || {});
         
         super.init(options);
     }
-    finish () {
+    finish (): void {
         this.$el.off();
         this.$el.empty();
         delete this.$el;

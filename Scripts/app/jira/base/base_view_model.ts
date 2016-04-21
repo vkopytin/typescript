@@ -12,30 +12,28 @@ class ViewModelBase extends Base {
         //console.log('Created: ' + this.constructor.name)
     }
 
-    init (opts) {
-        super.init(opts);
-        
+    init (opts): void {
         this.opts = opts;
     }
     
-    finish () {
+    finish (): void {
         this.triggerProperyChanged('viewModel.finish');
         $(this).off();
         super.finish();
         //console.log('Removed: ' + this.constructor.name);
     }
     
-    triggerProperyChanged (propertyName) {
+    triggerProperyChanged (propertyName: string): void {
         //console.log('ViewModel.trigger: ' + propertyName);
         $(this).trigger(propertyName);
     }
-    navigateTo () {
+    navigateTo (): void {
         
     }
-    navigateFrom () {
+    navigateFrom (): void {
         this.finish();
     }
-    toJSON () {
+    toJSON (): any {
         return this.opts;
     }
 }

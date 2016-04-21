@@ -14,7 +14,12 @@ class Navigation extends Base {
 
     constructor(opts) {
         super();
+        
         this.init(opts);
+    }
+    
+    init (opts: any): void {
+        
     }
 
     getView () {

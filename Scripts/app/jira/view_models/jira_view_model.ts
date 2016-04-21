@@ -67,7 +67,7 @@ class JiraViewModel extends BaseViewModel {
     getFilterItems () : FilterEntryViewModel[] {
         return this.filterItems;
     }
-    setStatuses (value: FilterEntryViewModel[]) {
+    setStatuses (value: FilterEntryViewModel[]) : void {
         var filterItems = this.filterItems;
         _.defer(() => {
             _.each(filterItems, (viewModel) => {
@@ -80,7 +80,7 @@ class JiraViewModel extends BaseViewModel {
     getEpics () : FilterEpicViewModel[] {
         return this.epics;
     }
-    setEpics (value: FilterEpicViewModel[]) {
+    setEpics (value: FilterEpicViewModel[]) : void {
         var epics = this.epics;
         _.defer(() => {
             _.each(epics, (viewModel) => {
@@ -90,8 +90,8 @@ class JiraViewModel extends BaseViewModel {
         this.epics = value;
         this.triggerProperyChanged('change:epics');
     }
-    getFilter () {
-        var filterItems = _.reduce(this.filterItems, (res, item: FilterEntryViewModel) => {
+    getFilter () : any {
+        var filterItems = _.reduce(this.filterItems, (res: any[], item: FilterEntryViewModel) => {
             if (item.getSelected()) {
                 res.push(item.getId());
             }
@@ -103,7 +103,7 @@ class JiraViewModel extends BaseViewModel {
             status: filterItems.join(',')
         };
     }
-    init (opts) {
+    init (opts) : void {
         var model = Model.getCurrent();
         super.init(opts);
         this.currentFiler = {};
@@ -125,7 +125,7 @@ class JiraViewModel extends BaseViewModel {
             this.fetchEpics();
         }, this), 0);
     }
-    finish () {
+    finish () : void {
         var model = Model.getCurrent();
         _.each({
             'model.issues': this.changeIssuesDelegate,
@@ -138,11 +138,11 @@ class JiraViewModel extends BaseViewModel {
         
         super.finish();
     }
-    onResetFilters () {
+    onResetFilters (): void {
         var model = Model.getCurrent();
         model.resetFilter({});
     }
-    changeIssues () {
+    changeIssues (): void {
         var model = Model.getCurrent(),
             issues = model.getIssues();
             
@@ -150,13 +150,13 @@ class JiraViewModel extends BaseViewModel {
             return new IssueEntryViewModel(item);
         }, this));
     }
-    changeStatuses () {
+    changeStatuses (): void {
         var model = Model.getCurrent(),
             statuses = model.getStatuses();
             
         this.setStatuses(_.map(statuses, (item) => new FilterEntryViewModel(item), this));
     }
-    changeEpics () {
+    changeEpics (): void {
         var model = Model.getCurrent(),
             epics = model.getEpics();
             
@@ -167,15 +167,15 @@ class JiraViewModel extends BaseViewModel {
             })
         , this));
     }
-    fetchIssues () {
+    fetchIssues (): void {
         var model = Model.getCurrent();
         model.resetFilter({});
     }
-    fetchStatuses () {
+    fetchStatuses (): void {
         var model = Model.getCurrent();
         model.fetchStatuses();
     }
-    fetchEpics () {
+    fetchEpics (): void {
         var model = Model.getCurrent();
         model.fetchEpics();
     }

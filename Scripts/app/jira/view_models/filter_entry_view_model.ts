@@ -33,6 +33,7 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
         
         model.toggleFilter('status', this.getId(), value);
     }
+    
     init (opts: any): void {
         var model = Model.getCurrent();
         super.init(opts);
@@ -47,6 +48,7 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
         $(model).off('model.filterReset', this.resetItemDelegate);
         super.finish();
     }
+    
     getCommand (name: string): Command {
         switch (name) {
             case 'SelectCommand':

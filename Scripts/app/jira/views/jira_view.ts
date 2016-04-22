@@ -37,6 +37,7 @@ class JiraView extends BaseView<JiraViewModel> {
         
         $(this.viewModel).on('change:issues', _.bind(this.drawItems, this));
     }
+    
     drawItem (viewModel: IssueEntryViewModel): void {
         var view = new IssueView({
             viewModel: viewModel

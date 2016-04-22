@@ -12,7 +12,7 @@ import JiraViewModel = require('app/jira/view_models/jira_view_model');
     
 class JiraPage extends BaseView<JiraViewModel> {
 
-    commands () {
+    commands (): { [key: string]: string } {
         return { 
             'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
             'click.command .jira-jira-report': 'JiraReportNavigateCommand'

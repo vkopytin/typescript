@@ -15,16 +15,21 @@ import template = require('hgn!app/jira/templates/jira_template');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
 
+interface IJiraViewOptions {
+    viewModel: JiraViewModel;
+    el: any;
+}
+
 class JiraView extends BaseView<JiraViewModel> {
     views : IssueView[] = []
     
-    commands () {
+    commands (): { [key: string]: string } {
         return {
             'click.command .filter-reset': 'ResetFiltersCommand'
         };
     }
     
-    init (opts: any) {
+    init (opts: IJiraViewOptions): void {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         
@@ -32,19 +37,19 @@ class JiraView extends BaseView<JiraViewModel> {
         
         $(this.viewModel).on('change:issues', _.bind(this.drawItems, this));
     }
-    drawItem (viewModel: IssueEntryViewModel) {
+    drawItem (viewModel: IssueEntryViewModel): void {
         var view = new IssueView({
             viewModel: viewModel
         }).appendTo($('.issues-list')).draw();
         
         this.views.push(view);
     }
-    drawItems () {
+    drawItems (): void {
         var issues = this.viewModel.getIssues();
         this.views = [];
         _.each(issues, this.drawItem, this);
     }
-    draw () {
+    draw (): any {
         var data = {
                 domain: 'https://dev.local'
             },

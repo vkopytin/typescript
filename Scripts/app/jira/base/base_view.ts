@@ -9,23 +9,29 @@ import Base = require('app/jira/base/base');
 import BaseViewModel = require('app/jira/base/base_view_model');
 import Command = require('app/jira/command');
 
+interface IBaseViewOptions<TViewModel extends BaseViewModel> {
+    viewModel: TViewModel;
+}
+
 class BaseView<TViewModel extends BaseViewModel> extends Base {
     viewModel: TViewModel
     $el: any
     
-    constructor (opts: any) {
+    constructor (opts: IBaseViewOptions<TViewModel>) {
         super();
         this.init(opts);
         //console.log('Created: ' + this.constructor.name)
     }
-    commands (): any {
+    commands (): { [key: string]: string } {
         // declare commands from the child view
         return {};
     }
-    bindings (): any {
+    bindings (): { [key: string]: Function } {
         // declare binding rules from the child view
+        return {};
     }
-    init (opts: any): void {
+    
+    init (opts: IBaseViewOptions<TViewModel>): void {
         
         this.viewModel = opts.viewModel;
         var bindings = _.extend({},
@@ -47,7 +53,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         super.finish();
         //console.log('Removed: ' + this.constructor.name);
     }
-    initBindings (bindings: any): void {
+    initBindings (bindings: {[key: string]: Function}): void {
         _.each(bindings, (value: Function, key: string) => {
             var value = value, key = key;
             $(this.viewModel).on(key, () => {

@@ -120,7 +120,7 @@ define("app/jira/base/base_view_model", ["require", "exports", 'jquery', "app/ji
             //console.log('Removed: ' + this.constructor.name);
         };
         ViewModelBase.prototype.getCommand = function (name) {
-            return null;
+            throw "Command [" + name + "] is not defined";
         };
         ViewModelBase.prototype.triggerProperyChanged = function (propertyName) {
             //console.log('ViewModel.trigger: ' + propertyName);
@@ -263,6 +263,7 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
         };
         BaseView.prototype.bindings = function () {
             // declare binding rules from the child view
+            return {};
         };
         BaseView.prototype.init = function (opts) {
             this.viewModel = opts.viewModel;

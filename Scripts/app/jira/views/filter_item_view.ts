@@ -20,7 +20,7 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     button () {
         return $('button', this.$el);
     }
-    commands () {
+    commands (): { [key: string]: string } {
         return {
             'click.command .status-name': 'SelectCommand'
         };

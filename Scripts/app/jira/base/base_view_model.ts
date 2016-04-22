@@ -27,7 +27,7 @@ class ViewModelBase extends Base {
     }
     
     getCommand (name: string): Command {
-        return null;
+        throw "Command [" + name + "] is not defined";
     }
     
     triggerProperyChanged (propertyName: string): void {

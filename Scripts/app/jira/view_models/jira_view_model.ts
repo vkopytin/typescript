@@ -138,6 +138,14 @@ class JiraViewModel extends BaseViewModel {
         
         super.finish();
     }
+    getCommand (name: string): Command {
+        switch (name) {
+            case 'ResetFiltersCommand':
+                return this.ResetFiltersCommand;
+            default:
+                return super.getCommand(name);
+        }
+    }
     onResetFilters (): void {
         var model = Model.getCurrent();
         model.resetFilter({});

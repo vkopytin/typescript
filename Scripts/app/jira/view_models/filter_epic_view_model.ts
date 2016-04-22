@@ -48,6 +48,14 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
         
         super.finish();
     }
+    getCommand (name: string): Command {
+        switch (name) {
+            case 'SelectCommand':
+                return this.SelectCommand;
+            default:
+                return super.getCommand(name);
+        }
+    }
     onChangeSelected (): void {
         this.setSelected(!this.getSelected());
     }

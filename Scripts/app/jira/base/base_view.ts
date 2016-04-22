@@ -7,6 +7,7 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');
 import BaseViewModel = require('app/jira/base/base_view_model');
+import Command = require('app/jira/command');
 
 class BaseView<TViewModel extends BaseViewModel> extends Base {
     viewModel: TViewModel
@@ -58,7 +59,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         _.each(commands, (value, key) => {
             var pair: string[] = key.split(/\s+/);
             $(this.$el).on(pair[0], pair[1], (evnt) => {
-                var command: any = this.viewModel[value];
+                var command = this.viewModel.getCommand(value);
                 
                 command.execute();
             });

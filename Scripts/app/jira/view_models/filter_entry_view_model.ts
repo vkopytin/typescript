@@ -47,6 +47,14 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
         $(model).off('model.filterReset', this.resetItemDelegate);
         super.finish();
     }
+    getCommand (name: string): Command {
+        switch (name) {
+            case 'SelectCommand':
+                return this.SelectCommand;
+            default:
+                return super.getCommand(name);
+        }
+    }
     onChangeSelected (): void {
         this.setSelected(!this.getSelected());
     }

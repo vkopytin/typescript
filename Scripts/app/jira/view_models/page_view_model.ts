@@ -17,7 +17,16 @@ class PageViewModel extends BaseViewModel {
         this.DeployEmailNavigateCommand = new Command({ execute: this.onDeployEmailNavigateCommand, scope: this });
         this.JiraReportNavigateCommand = new Command({ execute: this.onJiraReportNavigateCommand, scope: this });
     }
-    
+    getCommand (name: string): Command {
+        switch (name) {
+            case 'DeployEmailNavigateCommand':
+                return this.DeployEmailNavigateCommand;
+            case 'JiraReportNavigateCommand':
+                return this.JiraReportNavigateCommand;
+            default:
+                return super.getCommand(name);
+        }
+    }    
     onDeployEmailNavigateCommand () {
         this.navigation.navigateTo('deploy-email');
     }

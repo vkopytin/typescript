@@ -1,6 +1,9 @@
 /// <reference path="base.ts" />
+/// <reference path="../command.ts" />
+
 import $ = require('jquery');
 import Base = require('app/jira/base/base');
+import Command = require('app/jira/command');
 
 class ViewModelBase extends Base {
     opts: any
@@ -21,6 +24,10 @@ class ViewModelBase extends Base {
         $(this).off();
         super.finish();
         //console.log('Removed: ' + this.constructor.name);
+    }
+    
+    getCommand (name: string): Command {
+        return null;
     }
     
     triggerProperyChanged (propertyName: string): void {

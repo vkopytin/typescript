@@ -20,7 +20,7 @@ module utils {
 
         // Set the prototype chain to inherit from `parent`, without calling
         // `parent`'s constructor function.
-        var Surrogate = function () { this.constructor = child; };
+        var Surrogate: any = function () { this.constructor = child; };
         Surrogate.prototype = parent.prototype;
         child.prototype = new Surrogate();
 

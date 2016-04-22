@@ -80,6 +80,27 @@ define("app/jira/base/base", ["require", "exports", 'app/jira/utils'], function 
     }());
     return Base;
 });
+define("app/jira/command", ["require", "exports", "app/jira/base/base"], function (require, exports, Base) {
+    "use strict";
+    var Command = (function (_super) {
+        __extends(Command, _super);
+        function Command(opts) {
+            _super.call(this);
+            this.init(opts);
+        }
+        Command.prototype.init = function (opts) {
+            this.handler = opts.execute;
+            this.scope = opts.scope || this;
+        };
+        Command.prototype.execute = function () {
+            this.handler.apply(this.scope, arguments);
+        };
+        return Command;
+    }(Base));
+    return Command;
+});
+/// <reference path="base.ts" />
+/// <reference path="../command.ts" />
 define("app/jira/base/base_view_model", ["require", "exports", 'jquery', "app/jira/base/base"], function (require, exports, $, Base) {
     "use strict";
     var ViewModelBase = (function (_super) {
@@ -97,6 +118,9 @@ define("app/jira/base/base_view_model", ["require", "exports", 'jquery', "app/ji
             $(this).off();
             _super.prototype.finish.call(this);
             //console.log('Removed: ' + this.constructor.name);
+        };
+        ViewModelBase.prototype.getCommand = function (name) {
+            return null;
         };
         ViewModelBase.prototype.triggerProperyChanged = function (propertyName) {
             //console.log('ViewModel.trigger: ' + propertyName);
@@ -191,25 +215,6 @@ define("app/jira", ["require", "exports", "app/jira/base/base_view_model", "app/
     })(jira || (jira = {}));
     return jira;
 });
-define("app/jira/command", ["require", "exports", "app/jira/base/base"], function (require, exports, Base) {
-    "use strict";
-    var Command = (function (_super) {
-        __extends(Command, _super);
-        function Command(opts) {
-            _super.call(this);
-            this.init(opts);
-        }
-        Command.prototype.init = function (opts) {
-            this.handler = opts.execute;
-            this.scope = opts.scope || this;
-        };
-        Command.prototype.execute = function () {
-            this.handler.apply(this.scope, arguments);
-        };
-        return Command;
-    }(Base));
-    return Command;
-});
 /// </// <reference path="base.ts" />
 define("app/jira/base/base_event_dispatcher", ["require", "exports", "app/jira/base/base"], function (require, exports, Base) {
     "use strict";
@@ -289,7 +294,7 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             _.each(commands, function (value, key) {
                 var pair = key.split(/\s+/);
                 $(_this.$el).on(pair[0], pair[1], function (evnt) {
-                    var command = _this.viewModel[value];
+                    var command = _this.viewModel.getCommand(value);
                     command.execute();
                 });
             }, this);
@@ -440,6 +445,16 @@ define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/
             this.DeployEmailNavigateCommand = new Command({ execute: this.onDeployEmailNavigateCommand, scope: this });
             this.JiraReportNavigateCommand = new Command({ execute: this.onJiraReportNavigateCommand, scope: this });
         };
+        PageViewModel.prototype.getCommand = function (name) {
+            switch (name) {
+                case 'DeployEmailNavigateCommand':
+                    return this.DeployEmailNavigateCommand;
+                case 'JiraReportNavigateCommand':
+                    return this.JiraReportNavigateCommand;
+                default:
+                    return _super.prototype.getCommand.call(this, name);
+            }
+        };
         PageViewModel.prototype.onDeployEmailNavigateCommand = function () {
             this.navigation.navigateTo('deploy-email');
         };
@@ -588,6 +603,14 @@ define("app/jira/view_models/filter_entry_view_model", ["require", "exports", 'u
             $(model).off('model.filterReset', this.resetItemDelegate);
             _super.prototype.finish.call(this);
         };
+        FilterEntryViewModel.prototype.getCommand = function (name) {
+            switch (name) {
+                case 'SelectCommand':
+                    return this.SelectCommand;
+                default:
+                    return _super.prototype.getCommand.call(this, name);
+            }
+        };
         FilterEntryViewModel.prototype.onChangeSelected = function () {
             this.setSelected(!this.getSelected());
         };
@@ -631,6 +654,14 @@ define("app/jira/view_models/filter_epic_view_model", ["require", "exports", 'un
                 'model.filterReset': this.resetItemDelegate
             }, function (h, e) { $(model).off(e, h); });
             _super.prototype.finish.call(this);
+        };
+        FilterEpicViewModel.prototype.getCommand = function (name) {
+            switch (name) {
+                case 'SelectCommand':
+                    return this.SelectCommand;
+                default:
+                    return _super.prototype.getCommand.call(this, name);
+            }
         };
         FilterEpicViewModel.prototype.onChangeSelected = function () {
             this.setSelected(!this.getSelected());
@@ -751,6 +782,14 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
             this.setEpics([]);
             this.setStatuses([]);
             _super.prototype.finish.call(this);
+        };
+        JiraViewModel.prototype.getCommand = function (name) {
+            switch (name) {
+                case 'ResetFiltersCommand':
+                    return this.ResetFiltersCommand;
+                default:
+                    return _super.prototype.getCommand.call(this, name);
+            }
         };
         JiraViewModel.prototype.onResetFilters = function () {
             var model = Model.getCurrent();

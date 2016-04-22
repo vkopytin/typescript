@@ -1082,7 +1082,7 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
         var format = format, dateStr = format.replace('YYYY', padStr(datetime.getFullYear()))
             .replace('YY', ('' + datetime.getFullYear()).substr(2))
             .replace('MM', padStr(1 + datetime.getMonth()))
-            .replace('M', 1 + datetime.getMonth())
+            .replace('M', '' + (1 + datetime.getMonth()))
             .replace('DD', padStr(datetime.getDate()))
             .replace('hh', padStr(datetime.getHours()))
             .replace('mm', padStr(datetime.getMinutes()))
@@ -1096,16 +1096,15 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
         __extends(IssueView, _super);
         function IssueView() {
             _super.apply(this, arguments);
-            this.fields = {};
         }
         IssueView.prototype.init = function (opts) {
             this.$el = $('<tr/>');
             _super.prototype.init.call(this, opts);
         };
         IssueView.prototype.draw = function () {
-            var html = itemTemplate(_.extend(this.viewModel.toJSON(), {
+            var data = this.viewModel.toJSON(), html = itemTemplate(_.extend(data, {
                 updated: function () { return function () {
-                    var date = new Date(this.fields.updated);
+                    var date = new Date(data.fields.updated);
                     return printDate(date, 'YYYY-MM-DD hh:mm:ss');
                 }; }
             }));

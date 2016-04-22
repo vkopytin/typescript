@@ -20,12 +20,12 @@ function toDate(ticks: number) : Date {
     return tickDate;
 }
 
-function printDate(datetime: Date, format: any) : string {
+function printDate(datetime: Date, format: string) : string {
     var format = format,
         dateStr = format.replace('YYYY', padStr(datetime.getFullYear()))
             .replace('YY', ('' + datetime.getFullYear()).substr(2))
             .replace('MM', padStr(1 + datetime.getMonth()))
-            .replace('M', 1 + datetime.getMonth())
+            .replace('M', '' + (1 + datetime.getMonth()))
             .replace('DD', padStr(datetime.getDate()))
             .replace('hh', padStr(datetime.getHours()))
             .replace('mm', padStr(datetime.getMinutes()))
@@ -39,17 +39,17 @@ function padStr(i: number): string {
 }
 
 class IssueView extends BaseView<IssueEntryViewModel> {
-    fields: any = {}
-    
+
     init (opts: any) {
         this.$el = $('<tr/>');
         super.init(opts);
     }
     
     draw () {
-        var html = itemTemplate(_.extend(this.viewModel.toJSON(), {
-                updated: () => function () {
-                    var date = new Date(this.fields.updated);
+        var data = this.viewModel.toJSON(),
+            html = itemTemplate(_.extend(data, {
+                updated: () => () => {
+                    var date = new Date(data.fields.updated);
                     return printDate(date, 'YYYY-MM-DD hh:mm:ss');
                 }
             }));

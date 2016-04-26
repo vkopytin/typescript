@@ -8,7 +8,11 @@ import template = require('hgn!app/jira/templates/email_template');
 import emailTemplate = require('hgn!app/main/templates/deploy_email.email_template');
 import EmailViewModel = require('app/jira/view_models/email_view_model');
 
-class EmailView extends BaseView<EmailViewModel> {
+interface IEmailView {
+    
+}
+
+class EmailView extends BaseView<EmailViewModel, IEmailView> {
     $el: any
     
     init (opts: any) {

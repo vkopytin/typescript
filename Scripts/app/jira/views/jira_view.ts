@@ -1,9 +1,10 @@
+/// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
 /// <reference path="../view_models/jira_view_model.ts" />
 /// <reference path="../view_models/issue_entry_view_model.ts" />
 /// <reference path="issue_view.ts" />
 /// <reference path="epics_view.ts" />
-/// <reference path="filter_view.ts" />
+
 import $ = require('jquery');
 import _ = require('underscore');
 import BaseView = require('app/jira/base/base_view');
@@ -20,7 +21,11 @@ interface IJiraViewOptions {
     el: any;
 }
 
-class JiraView extends BaseView<JiraViewModel> {
+interface IJiraView {
+    
+}
+
+class JiraView extends BaseView<JiraViewModel, IJiraView> {
     views : IssueView[] = []
     
     commands (): { [key: string]: string } {

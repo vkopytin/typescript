@@ -9,8 +9,12 @@ import Base = require('app/jira/base/base');
 import Utils = require('app/jira/utils');
 import template = require('hgn!app/jira/templates/page_template');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
+
+interface IJiraPage {
     
-class JiraPage extends BaseView<JiraViewModel> {
+}
+
+class JiraPage extends BaseView<JiraViewModel, IJiraPage> {
 
     commands (): { [key: string]: string } {
         return { 

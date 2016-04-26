@@ -11,7 +11,11 @@ import Utils = require('app/jira/utils');
 import template = require('hgn!app/jira/templates/page_template');
 import EmailViewModel = require('app/jira/view_models/email_view_model');
 
-class EmailPage extends BaseView<EmailViewModel> {
+interface IEmailPage {
+    
+}
+
+class EmailPage extends BaseView<EmailViewModel, IEmailPage> {
     commands (): any {
         return {
             'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',

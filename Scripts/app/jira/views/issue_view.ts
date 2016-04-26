@@ -38,7 +38,11 @@ function padStr(i: number): string {
     return (i < 10) ? '0' + i : '' + i;
 }
 
-class IssueView extends BaseView<IssueEntryViewModel> {
+interface IIssueView {
+    
+}
+
+class IssueView extends BaseView<IssueEntryViewModel, IIssueView> {
 
     init (opts: any) {
         this.$el = $('<tr/>');

@@ -9,13 +9,25 @@ import BaseViewModel = require('app/jira/base/base_view_model');
 import template = require('hgn!app/jira/templates/filter_item_template');
 import FilterEntryViewModel = require('app/jira/view_models/filter_entry_view_model');
 import FilterItemTemplate = require('app/jira/templates/filter_item_template');
+import React = require('react');
 import ReactDOM = require('react-dom');
+
+interface IFilterItemView<TViewModel extends IFilterEntryViewModel> extends React.Props<any> {
+    name: string;
+    selected: boolean;
+    description: string;
+    viewModel: TViewModel;
+} 
 
 interface IFilterEntryViewModel extends BaseViewModel {
 	getSelected(): boolean;
 }
 
-class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<TViewModel> {
+class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<TViewModel, IFilterItemView<TViewModel>> {
+    
+    constructor (opts: any) {
+        super(opts);
+    }
     
     button () {
         return $('button', this.$el);
@@ -27,7 +39,7 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     }
     
     init (opts: any) {
-        this.$el = $('<span />');
+        this.$el = opts.el || $('<span />');
         super.init(opts);
         
         $(this.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
@@ -49,6 +61,12 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
         //this.$el.html(html);
         
         return this;
+    }
+    render () {
+        var data = this.props.viewModel.toJSON();
+        return <button type="button" className={"btn btn-sm btn-" + (data.selected ? 'primary' : 'default') + " status-name"} title={data.description} style={{margin: '4px 6px'}}>
+            {data.name}
+        </button>;
     }
 }
 export = FilterItemView;

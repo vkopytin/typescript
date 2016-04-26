@@ -8,18 +8,21 @@ import _ = require('underscore');
 import Base = require('app/jira/base/base');
 import BaseViewModel = require('app/jira/base/base_view_model');
 import Command = require('app/jira/command');
+import React = require('react');
 
-interface IBaseViewOptions<TViewModel extends BaseViewModel> {
-    viewModel: TViewModel;
-}
-
-class BaseView<TViewModel extends BaseViewModel> extends Base {
+class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<any>> extends React.Component<TBaseView, {}> {
+    __name: string
     viewModel: TViewModel
     $el: any
     [key: string]: any
     
-    constructor (opts: IBaseViewOptions<TViewModel>) {
-        super();
+    isFinish: boolean = false
+    
+    constructor (opts: any) {
+        super(opts);
+        this.__name = this.constructor.name;
+    	window.report[this.__name] = ++window.report[this.__name] || 1;
+
         this.init(opts);
         //console.log('Created: ' + this.constructor.name)
     }
@@ -32,7 +35,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         return {};
     }
     
-    init (opts: IBaseViewOptions<TViewModel>): void {
+    init (opts: any): void {
         
         this.viewModel = opts.viewModel;
         var bindings = _.extend({},
@@ -51,7 +54,11 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
         this.$el.off();
         this.$el.remove();
         delete this.$el;
-        super.finish();
+        window.report[this.__name] = --window.report[this.__name];
+        if (this.isFinish) {
+            throw('Warinig: Object is removed two times.');
+        }
+        this.isFinish = true;
         //console.log('Removed: ' + this.constructor.name);
     }
     initBindings (bindings: {[key: string]: Function}): void {
@@ -72,7 +79,7 @@ class BaseView<TViewModel extends BaseViewModel> extends Base {
             });
         }, this);
     }
-    appendTo (el: any): BaseView<TViewModel> {
+    appendTo (el: any): BaseView<TViewModel, TBaseView> {
         $(el).append(this.$el);
         
         return this;

@@ -1,5 +1,6 @@
+/// <reference path="../../../vendor.d.ts" />
+
 /// <reference path="../base/base_view.ts" />
-/// <reference path="filter_item_view.ts" />
 
 import _ = require('underscore');
 import $ = require('jquery');
@@ -8,13 +9,17 @@ import FilterItemView = require('app/jira/views/filter_item_view');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import EpicsEntryViewModel = require('app/jira/view_models/filter_epic_view_model');
 
-class EpicsView extends BaseView<JiraViewModel> {
-    views: FilterItemView<EpicsEntryViewModel>[] = []
+interface IEpicsView {
+    
+}
+
+class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
+    views: any[] = []
     
     setItems (items: EpicsEntryViewModel[]) {
         this.views = [];
         _.each(items, (item) => {
-            var view = new FilterItemView<EpicsEntryViewModel>({
+            var view = new FilterItemView({
                 viewModel: item
             });
             this.views.push(view);
@@ -31,7 +36,7 @@ class EpicsView extends BaseView<JiraViewModel> {
         this.views = [];
         this.setItems(this.viewModel.getEpics());
     }
-    drawItem (itemView : FilterItemView<EpicsEntryViewModel>): void {
+    drawItem (itemView: any): void {
         itemView.appendTo(this.filterEpics()).draw();
     }
     drawItems (): void {

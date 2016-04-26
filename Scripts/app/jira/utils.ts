@@ -42,7 +42,7 @@ module utils {
     function Create<T>(Type: any, options: any): T {
         return new Type(options);
     }
-    export function loadViews<T extends BaseViewModel> (jsml: {[key: string]: any}, view: BaseView<T>): JQueryPromise<{}> {
+    export function loadViews<T extends BaseViewModel, Y> (jsml: {[key: string]: any}, view: BaseView<T, Y>): JQueryPromise<{}> {
         var queue: JQueryPromise<{}> = null;
         _.each(jsml, function (item: any[], propName: string) {
             var res = $.Deferred(),
@@ -51,7 +51,7 @@ module utils {
                 subViews: {[key: string]: any} = item[2];
                 
             require([typeName], (SubView: any) => {
-                var inst = Create<BaseView<T>>(SubView, _.extend({}, options, {
+                var inst = Create<BaseView<T, Y>>(SubView, _.extend({}, options, {
                     el: $(options.el, view.$el)
                 }));
                 

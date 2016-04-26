@@ -5,7 +5,11 @@ import BaseView = require('app/jira/base/base_view');
 import template = require('hgn!app/jira/templates/panel_template');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 
-class PanelView extends BaseView<JiraViewModel> {
+interface IPanelView {
+    
+}
+
+class PanelView extends BaseView<JiraViewModel, IPanelView> {
     opts: any
     
     init (opts: any): void {

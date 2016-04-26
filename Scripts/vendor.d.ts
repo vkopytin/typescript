@@ -63,3 +63,13 @@ declare var FilterItemTemplate: any;
 declare module "app/jira/templates/filter_item_template" {
   export = FilterItemTemplate;
 }
+
+declare var FilterItemView: any;
+declare module "app/jira/views/filter_item_view" {
+  export = FilterItemView;
+}
+
+declare var FilterView: any;
+declare module "app/jira/views/filter_view" {
+  export = FilterView;
+}

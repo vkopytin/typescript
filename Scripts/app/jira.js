@@ -1,3 +1,97 @@
+define("app/jira/command", ["require", "exports", "app/jira/base/base"], function (require, exports, Base) {
+    "use strict";
+    var Command = (function (_super) {
+        __extends(Command, _super);
+        function Command(opts) {
+            _super.call(this);
+            this.init(opts);
+        }
+        Command.prototype.init = function (opts) {
+            this.handler = opts.execute;
+            this.scope = opts.scope || this;
+        };
+        Command.prototype.execute = function () {
+            this.handler.apply(this.scope, arguments);
+        };
+        return Command;
+    }(Base));
+    return Command;
+});
+/// <reference path="../../../vendor.d.ts" />
+/// <reference path="base.ts" />
+/// <reference path="base_view_model.ts" />
+/// <reference path="../command.ts" />
+define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base"], function (require, exports, $, _, Base) {
+    "use strict";
+    var BaseView = (function (_super) {
+        __extends(BaseView, _super);
+        function BaseView(opts) {
+            _super.call(this);
+            this.init(opts);
+            //console.log('Created: ' + this.constructor.name)
+        }
+        BaseView.prototype.commands = function () {
+            // declare commands from the child view
+            return {};
+        };
+        BaseView.prototype.bindings = function () {
+            // declare binding rules from the child view
+            return {};
+        };
+        BaseView.prototype.init = function (opts) {
+            this.viewModel = opts.viewModel;
+            var bindings = _.extend({}, _.result(this, 'bindings'), _.result(opts, 'bindings') || {});
+            $(this.viewModel).on('viewModel.finish', _.bind(this.finish, this));
+            this.initBindings(bindings);
+            this.initCommands(_.result(this, 'commands'));
+            this.$el.toggleClass('highlight', true);
+            this.$el.attr('data-type', this.__name);
+        };
+        BaseView.prototype.finish = function () {
+            this.$el.off();
+            this.$el.remove();
+            delete this.$el;
+            _super.prototype.finish.call(this);
+            //console.log('Removed: ' + this.constructor.name);
+        };
+        BaseView.prototype.initBindings = function (bindings) {
+            var _this = this;
+            _.each(bindings, function (value, key) {
+                var value = value, key = key;
+                $(_this.viewModel).on(key, function () {
+                    value.call(_this, _this, _this.viewModel);
+                });
+            }, this);
+        };
+        BaseView.prototype.initCommands = function (commands) {
+            var _this = this;
+            _.each(commands, function (value, key) {
+                var pair = key.split(/\s+/);
+                $(_this.$el).on(pair[0], pair[1], function (evnt) {
+                    var command = _this.viewModel.getCommand(value);
+                    command.execute();
+                });
+            }, this);
+        };
+        BaseView.prototype.appendTo = function (el) {
+            $(el).append(this.$el);
+            return this;
+        };
+        BaseView.prototype.onNavigateTo = function () {
+            this.viewModel && this.viewModel.navigateTo();
+        };
+        BaseView.prototype.onNavigateFrom = function () {
+            this.viewModel && this.viewModel.navigateFrom();
+        };
+        BaseView.prototype.draw = function () {
+            return this;
+        };
+        return BaseView;
+    }(Base));
+    return BaseView;
+});
+/// <reference path="base/base_view.ts" />
+/// <reference path="base/base_view_model.ts" />
 define("app/jira/utils", ["require", "exports", 'underscore', 'jquery'], function (require, exports, _, $) {
     "use strict";
     var utils;
@@ -31,16 +125,20 @@ define("app/jira/utils", ["require", "exports", 'underscore', 'jquery'], functio
             return child;
         }
         utils.extend = extend;
+        function Create(Type, options) {
+            return new Type(options);
+        }
         function loadViews(jsml, view) {
             var queue = null;
             _.each(jsml, function (item, propName) {
                 var res = $.Deferred(), typeName = item[0], options = item[1], subViews = item[2];
                 require([typeName], function (SubView) {
-                    view[propName] = new SubView(_.extend({}, options, {
+                    var inst = Create(SubView, _.extend({}, options, {
                         el: $(options.el, view.$el)
                     }));
-                    $.when(view[propName].draw(), utils.loadViews(subViews, view[propName])).done(function () {
-                        res.resolve(view[propName]);
+                    view[propName] = inst;
+                    $.when(inst.draw(), utils.loadViews(subViews, inst)).done(function () {
+                        res.resolve(inst);
                     });
                 });
                 queue = $.when(queue, res.promise());
@@ -86,25 +184,6 @@ define("app/jira/base/base", ["require", "exports", 'underscore', 'app/jira/util
         return Base;
     }());
     return Base;
-});
-define("app/jira/command", ["require", "exports", "app/jira/base/base"], function (require, exports, Base) {
-    "use strict";
-    var Command = (function (_super) {
-        __extends(Command, _super);
-        function Command(opts) {
-            _super.call(this);
-            this.init(opts);
-        }
-        Command.prototype.init = function (opts) {
-            this.handler = opts.execute;
-            this.scope = opts.scope || this;
-        };
-        Command.prototype.execute = function () {
-            this.handler.apply(this.scope, arguments);
-        };
-        return Command;
-    }(Base));
-    return Command;
 });
 /// <reference path="base.ts" />
 /// <reference path="../command.ts" />
@@ -250,79 +329,6 @@ define("app/jira/ui_dispatcher", ["require", "exports", "app/jira/base/base_even
     }(BaseEventDispatcher));
     inst = new UIDispatcher({});
     return inst;
-});
-/// <reference path="../../../vendor.d.ts" />
-/// <reference path="base.ts" />
-/// <reference path="base_view_model.ts" />
-/// <reference path="../command.ts" />
-define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base"], function (require, exports, $, _, Base) {
-    "use strict";
-    var BaseView = (function (_super) {
-        __extends(BaseView, _super);
-        function BaseView(opts) {
-            _super.call(this);
-            this.init(opts);
-            //console.log('Created: ' + this.constructor.name)
-        }
-        BaseView.prototype.commands = function () {
-            // declare commands from the child view
-            return {};
-        };
-        BaseView.prototype.bindings = function () {
-            // declare binding rules from the child view
-            return {};
-        };
-        BaseView.prototype.init = function (opts) {
-            this.viewModel = opts.viewModel;
-            var bindings = _.extend({}, _.result(this, 'bindings'), _.result(opts, 'bindings') || {});
-            $(this.viewModel).on('viewModel.finish', _.bind(this.finish, this));
-            this.initBindings(bindings);
-            this.initCommands(_.result(this, 'commands'));
-            this.$el.toggleClass('highlight', true);
-            this.$el.attr('data-type', this.__name);
-        };
-        BaseView.prototype.finish = function () {
-            this.$el.off();
-            this.$el.remove();
-            delete this.$el;
-            _super.prototype.finish.call(this);
-            //console.log('Removed: ' + this.constructor.name);
-        };
-        BaseView.prototype.initBindings = function (bindings) {
-            var _this = this;
-            _.each(bindings, function (value, key) {
-                var value = value, key = key;
-                $(_this.viewModel).on(key, function () {
-                    value.call(_this, _this, _this.viewModel);
-                });
-            }, this);
-        };
-        BaseView.prototype.initCommands = function (commands) {
-            var _this = this;
-            _.each(commands, function (value, key) {
-                var pair = key.split(/\s+/);
-                $(_this.$el).on(pair[0], pair[1], function (evnt) {
-                    var command = _this.viewModel.getCommand(value);
-                    command.execute();
-                });
-            }, this);
-        };
-        BaseView.prototype.appendTo = function (el) {
-            $(el).append(this.$el);
-            return this;
-        };
-        BaseView.prototype.onNavigateTo = function () {
-            this.viewModel && this.viewModel.navigateTo();
-        };
-        BaseView.prototype.onNavigateFrom = function () {
-            this.viewModel && this.viewModel.navigateFrom();
-        };
-        BaseView.prototype.draw = function () {
-            return this;
-        };
-        return BaseView;
-    }(Base));
-    return BaseView;
 });
 /// <reference path="base.ts" />
 define("app/jira/base/model_base", ["require", "exports", 'jquery', "app/jira/base/base"], function (require, exports, $, Base) {

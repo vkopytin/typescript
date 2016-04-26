@@ -16,6 +16,7 @@ interface IBaseViewOptions<TViewModel extends BaseViewModel> {
 class BaseView<TViewModel extends BaseViewModel> extends Base {
     viewModel: TViewModel
     $el: any
+    [key: string]: any
     
     constructor (opts: IBaseViewOptions<TViewModel>) {
         super();

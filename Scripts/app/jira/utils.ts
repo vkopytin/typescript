@@ -1,5 +1,10 @@
+/// <reference path="base/base_view.ts" />
+/// <reference path="base/base_view_model.ts" />
+
 import _ = require('underscore');
 import $ = require('jquery');
+import BaseView = require('app/jira/base/base_view');
+import BaseViewModel = require('app/jira/base/base_view_model');
 
 module utils {
     export function extend (protoProps: any, staticProps: any) {
@@ -34,21 +39,25 @@ module utils {
 
         return child;
     }
-    export function loadViews (jsml: any, view: any): JQueryPromise<{}> {
+    function Create<T>(Type: any, options: any): T {
+        return new Type(options);
+    }
+    export function loadViews<T extends BaseViewModel> (jsml: {[key: string]: any}, view: BaseView<T>): JQueryPromise<{}> {
         var queue: JQueryPromise<{}> = null;
         _.each(jsml, function (item: any[], propName: string) {
             var res = $.Deferred(),
                 typeName: string = item[0],
                 options: any = item[1],
-                subViews: any = item[2];
+                subViews: {[key: string]: any} = item[2];
                 
-            require([typeName], function (SubView: any) {
-                view[propName] = new SubView(_.extend({}, options, {
+            require([typeName], (SubView: any) => {
+                var inst = Create<BaseView<T>>(SubView, _.extend({}, options, {
                     el: $(options.el, view.$el)
                 }));
                 
-                $.when(view[propName].draw(), utils.loadViews(subViews, view[propName])).done(() => {
-                    res.resolve(view[propName]);
+                view[propName] = inst;
+                $.when(inst.draw(), utils.loadViews(subViews, inst)).done(() => {
+                    res.resolve(inst);
                 });
             });
             queue = $.when(queue, res.promise());

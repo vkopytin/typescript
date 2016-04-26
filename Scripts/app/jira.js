@@ -52,13 +52,20 @@ define("app/jira/utils", ["require", "exports", 'underscore', 'jquery'], functio
     return utils;
 });
 /// <reference path="../../../vendor.d.ts" />
-define("app/jira/base/base", ["require", "exports", 'app/jira/utils'], function (require, exports, Utils) {
+define("app/jira/base/base", ["require", "exports", 'underscore', 'app/jira/utils'], function (require, exports, _, Utils) {
     "use strict";
     var report = {};
     window.report = report;
     window.__extends = function (child, base) {
         child.prototype.ctor = child;
         Utils.extend.call(base, child.prototype);
+    };
+    window.__decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+        console.log('__decorate:', { decorators: decorators, target: target, key: key, desc: desc });
+        _.each(decorators, function (func) {
+            var defFunc = target[key];
+            target[key] = func(target, key, { value: defFunc }).value;
+        });
     };
     var Base = (function () {
         function Base() {
@@ -676,6 +683,19 @@ define("app/jira/view_models/filter_epic_view_model", ["require", "exports", 'un
 });
 define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/filter_entry_view_model", "app/jira/view_models/filter_epic_view_model", "app/jira/view_models/issue_entry_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, FilterEntryViewModel, FilterEpicViewModel, IssueEntryViewModel, Command, Model) {
     "use strict";
+    var triggerPropertyChange = function (target, key, descriptor) {
+        return {
+            value: function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i - 0] = arguments[_i];
+                }
+                var result = descriptor.value.apply(this, args);
+                console.log("decorator: ", { context: this, key: key, args: args, result: result });
+                return result;
+            }
+        };
+    };
     var filters = [{
             id: 'Deploy',
             selected: false,
@@ -826,6 +846,9 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
             var model = Model.getCurrent();
             model.fetchEpics();
         };
+        __decorate([
+            triggerPropertyChange
+        ], JiraViewModel.prototype, "setIssues");
         return JiraViewModel;
     }(BaseViewModel));
     return JiraViewModel;

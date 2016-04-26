@@ -3,6 +3,7 @@
         "target": "ES3",
         "module": "amd",
         "jsx": "react",
+        "experimentalDecorators": true,
         "declaration": false,
         "noImplicitAny": true,
         "removeComments": false,

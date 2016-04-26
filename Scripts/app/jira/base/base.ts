@@ -10,7 +10,13 @@ window.__extends = function (child: any, base: any): void {
     child.prototype.ctor = child;
     Utils.extend.call(base, child.prototype);
 };
-
+window.__decorate = (this && this.__decorate) || function (decorators: any, target: any, key: any, desc: any): any {
+    console.log('__decorate:', {decorators: decorators, target: target, key: key, desc: desc});
+    _.each(decorators, function (func: Function) {
+        var defFunc: Function = target[key];
+        target[key] = func(target, key, {value: defFunc}).value;
+    })
+};
 class Base {
 	__name: string
 	

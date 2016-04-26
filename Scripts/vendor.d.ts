@@ -4,6 +4,7 @@
 /// <reference path="jquery.d.ts" />
 
 declare var object: any;
+declare var Reflect: any;
 
 interface Function {
   name: string;
@@ -11,6 +12,7 @@ interface Function {
 
 interface Window {
     __extends: Function;
+    __decorate: Function;
     report: any;
 }
 declare var window: Window;

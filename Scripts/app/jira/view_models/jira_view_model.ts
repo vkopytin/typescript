@@ -16,7 +16,17 @@ import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_mode
 import Command = require('app/jira/command');
 import Model = require('app/jira/models/model');
 import Utils = require('app/jira/utils');
-    
+
+var triggerPropertyChange: any = function (target: Function, key: string, descriptor: any): any {
+    return {
+        value: function (...args: any[]) {
+             var result = descriptor.value.apply(this, args);
+            console.log("decorator: ", {context: this, key: key, args: args, result: result});
+            return result;
+        }
+    };
+}
+
 var filters = [{
         id: 'Deploy',
         selected: false,
@@ -54,6 +64,8 @@ class JiraViewModel extends BaseViewModel {
     getIssues () : IssueEntryViewModel[] {
         return this.issues;
     }
+    
+    @triggerPropertyChange
     setIssues (value: IssueEntryViewModel[]) {
         var issues = this.issues;
         _.defer(() => {

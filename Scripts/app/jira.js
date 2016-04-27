@@ -987,11 +987,11 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
         __extends(FilterItemView, _super);
         function FilterItemView(opts) {
             _super.call(this, opts);
-            this.state = opts.viewModel.toJSON();
         }
         FilterItemView.prototype.init = function (opts) {
             this.$el = opts.el || $('<span />');
             _super.prototype.init.call(this, opts);
+            this.state = this.viewModel.toJSON();
             $(opts.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
         };
         FilterItemView.prototype.onChangeSelected = function () {
@@ -1004,9 +1004,9 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
         FilterItemView.prototype.render = function () {
             var _this = this;
             if (this.viewModel.isFinish) {
-                return React.createElement("span", null);
+                return null;
             }
-            return React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name", onClick: function () { return _this.toggleSelected(); }, title: this.state.description, style: { margin: '4px 6px' }}, this.state.name);
+            return React.createElement("span", {className: "highlight"}, React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name", onClick: function () { return _this.toggleSelected(); }, title: this.state.description, style: { margin: '4px 6px' }}, this.state.name));
         };
         return FilterItemView;
     }(BaseView));
@@ -1105,23 +1105,20 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
 });
 /// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
-define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react', 'react-dom'], function (require, exports, _, $, BaseView, FilterItemView, React, ReactDOM) {
+define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react', 'react-dom'], function (require, exports, $, BaseView, FilterItemView, React, ReactDOM) {
     "use strict";
     var StatusFilterItemView = FilterItemView;
     var FilterView = (function (_super) {
         __extends(FilterView, _super);
-        function FilterView() {
-            _super.apply(this, arguments);
+        function FilterView(opts) {
+            _super.call(this, opts);
             this.views = [];
         }
         FilterView.prototype.setItems = function (items) {
-            var _this = this;
-            this.views = [];
-            _.each(items, function (item) {
-                var view = React.createElement(StatusFilterItemView, {viewModel: item});
-                _this.views.push(view);
-            }, this);
-            this.drawItems();
+            //this.setState({
+            //    items: items
+            //});
+            console.log('setItems');
         };
         FilterView.prototype.filterStatuses = function () {
             return $('.filter-statuses', this.$el);
@@ -1129,20 +1126,40 @@ define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquer
         FilterView.prototype.init = function (opts) {
             this.$el = opts.el ? $(opts.el) : $('<div/>');
             _super.prototype.init.call(this, opts);
-            this.views = [];
-            this.setItems(this.viewModel.getFilterItems());
+            this.state = {
+                items: this.viewModel.getFilterItems()
+            };
         };
-        FilterView.prototype.drawItem = function (itemView) {
-            var el = $('<span class="highlight" />');
-            el.appendTo(this.filterStatuses());
-            ReactDOM.render(itemView, el.get(0));
+        FilterView.prototype.componentWillUnmount = function () {
+            console.log('umounting');
         };
-        FilterView.prototype.drawItems = function () {
-            _.each(this.views, this.drawItem, this);
+        FilterView.prototype.componentDidMount = function () {
+            console.log('didMount');
+            this.setState({
+                items: this.viewModel.getFilterItems()
+            });
+        };
+        FilterView.prototype.componentWillMount = function () {
+            console.log('willMount');
+            this.setState({
+                items: this.viewModel.getFilterItems()
+            });
+        };
+        FilterView.prototype.finish = function () {
+            ReactDOM.unmountComponentAtNode(this.filterStatuses().get(0));
+            _super.prototype.finish.call(this);
         };
         FilterView.prototype.draw = function () {
-            this.drawItems();
+            ReactDOM.render(this.render(), this.filterStatuses().get(0));
             return this;
+        };
+        FilterView.prototype.render = function () {
+            if (this.isFinish) {
+                return null;
+            }
+            return React.createElement("div", null, this.state.items.map(function (entry, index) {
+                return React.createElement(StatusFilterItemView, {viewModel: entry, key: index});
+            }));
         };
         return FilterView;
     }(BaseView));

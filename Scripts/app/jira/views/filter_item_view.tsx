@@ -21,16 +21,15 @@ interface IFilterEntryViewModel extends BaseViewModel {
 }
 
 class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<TViewModel, IFilterItemView<TViewModel>> {
-    
+
     constructor (opts: any) {
         super(opts);
-        this.state = opts.viewModel.toJSON();
     }
-
+    
     init (opts: any) {
         this.$el = opts.el || $('<span />');
         super.init(opts);
-        
+        this.state = this.viewModel.toJSON();        
         $(opts.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
     }
     
@@ -45,17 +44,17 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     
     render () {
         if (this.viewModel.isFinish) {
-            return <span/>;
+            return null;
         }
         
-        return <button
+        return <span className="highlight"><button
          type="button"
          className={"btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name"}
          onClick={() => this.toggleSelected()}
          title={this.state.description}
          style={{margin: '4px 6px'}}>
             {this.state.name}
-        </button>;
+        </button></span>;
     }
 }
 export = FilterItemView;

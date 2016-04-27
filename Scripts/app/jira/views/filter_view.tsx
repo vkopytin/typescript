@@ -23,15 +23,15 @@ let StatusFilterItemView: IFilterItemView<FilterEntryViewModel> = FilterItemView
 class FilterView extends BaseView<JiraViewModel, IFilterView> {
     views: any[] = []
     
+    constructor (opts: any) {
+        super(opts);
+    }
+    
     setItems (items: FilterEntryViewModel[]) {
-        this.views = [];
-        _.each(items, (item) => {
-            var view = <StatusFilterItemView viewModel = {item}/>;
-            
-            this.views.push(view);
-        }, this);
-        
-        this.drawItems();
+        //this.setState({
+        //    items: items
+        //});
+        console.log('setItems')
     }
     filterStatuses () {
         return $('.filter-statuses', this.$el);
@@ -40,22 +40,49 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
     init (opts: any): void {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
-        this.views = [];
-        this.setItems(this.viewModel.getFilterItems());
+        this.state = {
+            items: this.viewModel.getFilterItems()
+        };
     }
     
-    drawItem (itemView: any): void {
-        var el = $('<span class="highlight" />');
-        el.appendTo(this.filterStatuses());
-        ReactDOM.render(itemView, el.get(0));
+    componentWillUnmount () {
+        console.log('umounting');
     }
-    drawItems (): void {
-        _.each(this.views, this.drawItem, this);
+    
+    componentDidMount () {
+        console.log('didMount');
+        this.setState({
+            items: this.viewModel.getFilterItems()
+        });
     }
+
+    componentWillMount () {
+        console.log('willMount');
+        this.setState({
+            items: this.viewModel.getFilterItems()
+        });
+    }
+    
+    finish () {
+        ReactDOM.unmountComponentAtNode(this.filterStatuses().get(0));
+        super.finish();
+    }
+    
     draw () {
-        this.drawItems();
+        ReactDOM.render(this.render(), this.filterStatuses().get(0));
         
         return this;
+    }
+    render () {
+        if (this.isFinish) {
+            return null;
+        }
+        
+        return <div>
+        {this.state.items.map((entry: FilterEntryViewModel, index: number) => 
+            <StatusFilterItemView viewModel={entry} key={index}/>
+        )}
+        </div>;
     }
 }
 export = FilterView;

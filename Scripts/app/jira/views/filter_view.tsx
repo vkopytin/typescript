@@ -14,13 +14,19 @@ interface IFilterView {
     
 }
 
+interface IFilterItemView<TViewModel extends FilterEntryViewModel> {
+    new(opts: any): FilterItemView<TViewModel>;
+}
+
+let StatusFilterItemView: IFilterItemView<FilterEntryViewModel> = FilterItemView;
+
 class FilterView extends BaseView<JiraViewModel, IFilterView> {
     views: any[] = []
     
     setItems (items: FilterEntryViewModel[]) {
         this.views = [];
         _.each(items, (item) => {
-            var view = <FilterItemView viewModel = {item}/>;
+            var view = <StatusFilterItemView viewModel = {item}/>;
             
             this.views.push(view);
         }, this);

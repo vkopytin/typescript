@@ -1013,7 +1013,7 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
     return FilterItemView;
 });
 /// <reference path="../../../vendor.d.ts" />
-define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'app/jira/views/filter_item_view', 'react', 'react-dom'], function (require, exports, _, $, BaseView, FilterItemView, React, ReactDOM) {
+define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react', 'react-dom'], function (require, exports, _, $, BaseView, FilterItemView, React, ReactDOM) {
     "use strict";
     var EpicsView = (function (_super) {
         __extends(EpicsView, _super);
@@ -1105,8 +1105,9 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
 });
 /// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
-define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'app/jira/views/filter_item_view', 'react', 'react-dom'], function (require, exports, _, $, BaseView, FilterItemView, React, ReactDOM) {
+define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react', 'react-dom'], function (require, exports, _, $, BaseView, FilterItemView, React, ReactDOM) {
     "use strict";
+    var StatusFilterItemView = FilterItemView;
     var FilterView = (function (_super) {
         __extends(FilterView, _super);
         function FilterView() {
@@ -1117,7 +1118,7 @@ define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquer
             var _this = this;
             this.views = [];
             _.each(items, function (item) {
-                var view = React.createElement(FilterItemView, {viewModel: item});
+                var view = React.createElement(StatusFilterItemView, {viewModel: item});
                 _this.views.push(view);
             }, this);
             this.drawItems();

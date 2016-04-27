@@ -13,9 +13,6 @@ import React = require('react');
 import ReactDOM = require('react-dom');
 
 interface IFilterItemView<TViewModel extends IFilterEntryViewModel> extends React.Props<any> {
-    name: string;
-    selected: boolean;
-    description: string;
     viewModel: TViewModel;
 } 
 

@@ -10,7 +10,7 @@ import BaseViewModel = require('app/jira/base/base_view_model');
 import Command = require('app/jira/command');
 import React = require('react');
 
-class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<any>> extends React.Component<TBaseView, {}> {
+class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<any>> extends React.Component<TBaseView, any> {
     __name: string
     viewModel: TViewModel
     $el: any

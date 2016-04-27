@@ -8,6 +8,8 @@ import BaseView = require('app/jira/base/base_view');
 import FilterItemView = require('app/jira/views/filter_item_view');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import EpicsEntryViewModel = require('app/jira/view_models/filter_epic_view_model');
+import React = require('react');
+import ReactDOM = require('react-dom');
 
 interface IEpicsView {
     
@@ -19,9 +21,7 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
     setItems (items: EpicsEntryViewModel[]) {
         this.views = [];
         _.each(items, (item) => {
-            var view = new FilterItemView({
-                viewModel: item
-            });
+            var view = React.createElement(FilterItemView, {viewModel: item});
             this.views.push(view);
         }, this);
         
@@ -37,7 +37,9 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
         this.setItems(this.viewModel.getEpics());
     }
     drawItem (itemView: any): void {
-        itemView.appendTo(this.filterEpics()).draw();
+        var el = $('<span class="highlight" />');
+        el.appendTo(this.filterEpics());
+        ReactDOM.render(itemView, el.get(0));
     }
     drawItems (): void {
         _.each(this.views, this.drawItem, this);

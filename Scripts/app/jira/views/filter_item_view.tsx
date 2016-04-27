@@ -27,45 +27,41 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     
     constructor (opts: any) {
         super(opts);
+        this.state = opts.viewModel.toJSON();
     }
-    
-    button () {
-        return $('button', this.$el);
-    }
-    commands (): { [key: string]: string } {
-        return {
-            'click.command .status-name': 'SelectCommand'
-        };
-    }
-    
+
     init (opts: any) {
         this.$el = opts.el || $('<span />');
         super.init(opts);
         
-        $(this.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
+        $(opts.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
     }
     
     onChangeSelected (): void {
-        var $el = this.button(),
-            isSelected = !!this.viewModel.getSelected();
+        var isSelected = !!this.viewModel.getSelected();
         
-        $el.toggleClass('btn-primary', isSelected);
-        $el.toggleClass('btn-default', !isSelected);
+        this.setState({
+            selected: isSelected
+        });
     }
-    draw (): any {
-        var data = this.viewModel.toJSON(),
-            html = template(data);
-            
-        var fit = new FilterItemTemplate(data);
-        ReactDOM.render(fit.render(), this.$el.get(0));
-        //this.$el.html(html);
-        
-        return this;
+    
+    toggleSelected (): void {
+        var cmd = this.props.viewModel.getCommand('SelectCommand');
+        cmd.execute();
     }
+    
     render () {
-        var data = this.props.viewModel.toJSON();
-        return <button type="button" className={"btn btn-sm btn-" + (data.selected ? 'primary' : 'default') + " status-name"} title={data.description} style={{margin: '4px 6px'}}>
-            {data.name}
+        if (this.props.viewModel.isFinish) {
+            return <span/>;
+        }
+        
+        return <button
+         type="button"
+         className={"btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name"}
+         onClick={() => this.toggleSelected()}
+         title={this.state.description}
+         style={{margin: '4px 6px'}}>
+            {this.state.name}
         </button>;
     }
 }

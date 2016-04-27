@@ -38,20 +38,16 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     }
     
     onChangeSelected (): void {
-        var isSelected = !!this.viewModel.getSelected();
-        
-        this.setState({
-            selected: isSelected
-        });
+        this.setState(this.viewModel.toJSON());
     }
     
     toggleSelected (): void {
-        var cmd = this.props.viewModel.getCommand('SelectCommand');
+        var cmd = this.viewModel.getCommand('SelectCommand');
         cmd.execute();
     }
     
     render () {
-        if (this.props.viewModel.isFinish) {
+        if (this.viewModel.isFinish) {
             return <span/>;
         }
         

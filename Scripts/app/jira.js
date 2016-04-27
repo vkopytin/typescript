@@ -995,18 +995,15 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
             $(opts.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
         };
         FilterItemView.prototype.onChangeSelected = function () {
-            var isSelected = !!this.viewModel.getSelected();
-            this.setState({
-                selected: isSelected
-            });
+            this.setState(this.viewModel.toJSON());
         };
         FilterItemView.prototype.toggleSelected = function () {
-            var cmd = this.props.viewModel.getCommand('SelectCommand');
+            var cmd = this.viewModel.getCommand('SelectCommand');
             cmd.execute();
         };
         FilterItemView.prototype.render = function () {
             var _this = this;
-            if (this.props.viewModel.isFinish) {
+            if (this.viewModel.isFinish) {
                 return React.createElement("span", null);
             }
             return React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name", onClick: function () { return _this.toggleSelected(); }, title: this.state.description, style: { margin: '4px 6px' }}, this.state.name);

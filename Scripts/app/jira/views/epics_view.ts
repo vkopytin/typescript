@@ -8,18 +8,13 @@ import BaseView = require('app/jira/base/base_view');
 import FilterItemView = require('app/jira/views/filter_item_view');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import EpicsEntryViewModel = require('app/jira/view_models/filter_epic_view_model');
+import template = require('app/jira/templates/epics_view_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
 interface IEpicsView {
     
 }
-
-interface IFilterItemView<TViewModel extends EpicsEntryViewModel> {
-    new(opts: any): FilterItemView<TViewModel>;
-}
-
-let EpicFilterItemView: IFilterItemView<EpicsEntryViewModel> = FilterItemView;
 
 class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
 
@@ -47,14 +42,10 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
     }
     render () {
         if (this.isFinish) {
-            return <div/>;
+            return null;
         }
         
-        return <div>
-        {this.state.items.map((entry: EpicsEntryViewModel) => 
-            <EpicFilterItemView viewModel={entry} key={entry.getId()}/>
-        )}
-        </div>;
+        return template.call(this);
     }
 }
 export = EpicsView;

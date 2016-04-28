@@ -6,7 +6,7 @@ import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import BaseViewModel = require('app/jira/base/base_view_model');
-import template = require('hgn!app/jira/templates/filter_item_template');
+import template = require('app/jira/templates/filter_item_view_template');
 import FilterEntryViewModel = require('app/jira/view_models/filter_entry_view_model');
 import FilterItemTemplate = require('app/jira/templates/filter_item_template');
 import React = require('react');
@@ -59,17 +59,10 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     
     render () {
         if (this.props.viewModel.isFinish) {
-            return <div/>;
+            return null;
         }
         
-        return <span className="highlight"><button
-         type="button"
-         className={"btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name"}
-         onClick={() => this.toggleSelected()}
-         title={this.state.description}
-         style={{margin: '4px 6px'}}>
-            {this.state.name}
-        </button></span>;
+        return template.call(this);
     }
 }
 export = FilterItemView;

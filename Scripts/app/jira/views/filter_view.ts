@@ -7,18 +7,13 @@ import BaseView = require('app/jira/base/base_view');
 import FilterItemView = require('app/jira/views/filter_item_view');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import FilterEntryViewModel = require('app/jira/view_models/filter_entry_view_model');
+import template = require('app/jira/templates/filter_view_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
 interface IFilterView {
     
 }
-
-interface IFilterItemView<TViewModel extends FilterEntryViewModel> {
-    new(opts: any): FilterItemView<TViewModel>;
-}
-
-let StatusFilterItemView: IFilterItemView<FilterEntryViewModel> = FilterItemView;
 
 class FilterView extends BaseView<JiraViewModel, IFilterView> {
 
@@ -52,14 +47,10 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
     }
     render () {
         if (this.isFinish) {
-            return <div/>;
+            return null;
         }
         
-        return <div>
-        {this.state.items.map((entry: FilterEntryViewModel) => 
-            <StatusFilterItemView viewModel={entry} key={entry.getId()}/>
-        )}
-        </div>;
+        return template.call(this);
     }
 }
 export = FilterView;

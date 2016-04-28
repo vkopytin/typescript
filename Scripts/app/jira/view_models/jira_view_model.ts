@@ -54,10 +54,10 @@ class JiraViewModel extends BaseViewModel {
     changeStatusesDelegate: any
     changeEpicsDelegate: any
     
-    issues: IssueEntryViewModel[]
-    filterItems: FilterEntryViewModel[]
-    epics: FilterEpicViewModel[]
-    currentFiler: any
+    issues: IssueEntryViewModel[] = []
+    filterItems: FilterEntryViewModel[] = []
+    epics: FilterEpicViewModel[] = []
+    currentFiler: any = {}
     
     ResetFiltersCommand: Command
     

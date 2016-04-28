@@ -29,22 +29,37 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     init (opts: any) {
         this.$el = opts.el || $('<span />');
         super.init(opts);
-        this.state = this.viewModel.toJSON();        
-        $(opts.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
+        this.state = this.props.viewModel.toJSON();
+    }
+    
+    componentWillMount () {
+        $(this.props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
+    }
+    
+    componentWillUnmount () {
+        $(this.props.viewModel).off('change:selected');
+    }
+    
+    componentWillReceiveProps (props: any) {
+        $(this.props.viewModel).off('change:selected');
+        $(props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
+    }
+    
+    finish () {
     }
     
     onChangeSelected (): void {
-        this.setState(this.viewModel.toJSON());
+        this.setState(this.props.viewModel.toJSON());
     }
     
     toggleSelected (): void {
-        var cmd = this.viewModel.getCommand('SelectCommand');
+        var cmd = this.props.viewModel.getCommand('SelectCommand');
         cmd.execute();
     }
     
     render () {
-        if (this.viewModel.isFinish) {
-            return null;
+        if (this.props.viewModel.isFinish) {
+            return <div/>;
         }
         
         return <span className="highlight"><button

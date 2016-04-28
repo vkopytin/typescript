@@ -15,39 +15,46 @@ interface IEpicsView {
     
 }
 
+interface IFilterItemView<TViewModel extends EpicsEntryViewModel> {
+    new(opts: any): FilterItemView<TViewModel>;
+}
+
+let EpicFilterItemView: IFilterItemView<EpicsEntryViewModel> = FilterItemView;
+
 class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
-    views: any[] = []
+
+    constructor (opts: any) {
+        super(opts);
+    }
     
     setItems (items: EpicsEntryViewModel[]) {
-        this.views = [];
-        _.each(items, (item) => {
-            var view = React.createElement(FilterItemView, {viewModel: item});
-            this.views.push(view);
-        }, this);
-        
-        this.drawItems();
+        this.setState({
+            items: items
+        });
     }
-    filterEpics () {
-        return $('.filter-epics', this.$el);
-    }
+    
     init (opts: any) {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
-        this.views = [];
-        this.setItems(this.viewModel.getEpics());
+        this.state = {
+            items: this.viewModel.getEpics()
+        };
     }
-    drawItem (itemView: any): void {
-        var el = $('<span class="highlight" />');
-        el.appendTo(this.filterEpics());
-        ReactDOM.render(itemView, el.get(0));
-    }
-    drawItems (): void {
-        _.each(this.views, this.drawItem, this);
-    }
+    
     draw (): any {
-        this.drawItems();
         
         return this;
+    }
+    render () {
+        if (this.isFinish) {
+            return <div/>;
+        }
+        
+        return <div>
+        {this.state.items.map((entry: EpicsEntryViewModel) => 
+            <EpicFilterItemView viewModel={entry} key={entry.getId()}/>
+        )}
+        </div>;
     }
 }
 export = EpicsView;

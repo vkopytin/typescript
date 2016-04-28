@@ -21,17 +21,15 @@ interface IFilterItemView<TViewModel extends FilterEntryViewModel> {
 let StatusFilterItemView: IFilterItemView<FilterEntryViewModel> = FilterItemView;
 
 class FilterView extends BaseView<JiraViewModel, IFilterView> {
-    views: any[] = []
-    
+
     constructor (opts: any) {
         super(opts);
     }
     
     setItems (items: FilterEntryViewModel[]) {
-        //this.setState({
-        //    items: items
-        //});
-        console.log('setItems')
+        this.setState({
+            items: items
+        });
     }
     filterStatuses () {
         return $('.filter-statuses', this.$el);
@@ -45,42 +43,21 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
         };
     }
     
-    componentWillUnmount () {
-        console.log('umounting');
-    }
-    
-    componentDidMount () {
-        console.log('didMount');
-        this.setState({
-            items: this.viewModel.getFilterItems()
-        });
-    }
-
-    componentWillMount () {
-        console.log('willMount');
-        this.setState({
-            items: this.viewModel.getFilterItems()
-        });
-    }
-    
-    finish () {
-        ReactDOM.unmountComponentAtNode(this.filterStatuses().get(0));
-        super.finish();
+    componentWillReceiveProps (newProps: any) {
     }
     
     draw () {
-        ReactDOM.render(this.render(), this.filterStatuses().get(0));
         
         return this;
     }
     render () {
         if (this.isFinish) {
-            return null;
+            return <div/>;
         }
         
         return <div>
-        {this.state.items.map((entry: FilterEntryViewModel, index: number) => 
-            <StatusFilterItemView viewModel={entry} key={index}/>
+        {this.state.items.map((entry: FilterEntryViewModel) => 
+            <StatusFilterItemView viewModel={entry} key={entry.getId()}/>
         )}
         </div>;
     }

@@ -93,13 +93,16 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
         BaseView.prototype.draw = function () {
             return this;
         };
+        BaseView.prototype.render = function () {
+            return null;
+        };
         return BaseView;
     }(React.Component));
     return BaseView;
 });
 /// <reference path="base/base_view.ts" />
 /// <reference path="base/base_view_model.ts" />
-define("app/jira/utils", ["require", "exports", 'underscore', 'jquery'], function (require, exports, _, $) {
+define("app/jira/utils", ["require", "exports", 'underscore', 'jquery', 'react', 'react-dom'], function (require, exports, _, $, React, ReactDOM) {
     "use strict";
     var utils;
     (function (utils) {
@@ -133,16 +136,19 @@ define("app/jira/utils", ["require", "exports", 'underscore', 'jquery'], functio
         }
         utils.extend = extend;
         function Create(Type, options) {
-            return new Type(options);
+            //return new Type(options);
+            return React.createElement.call(React, Type, options);
         }
         function loadViews(jsml, view) {
             var queue = null;
             _.each(jsml, function (item, propName) {
                 var res = $.Deferred(), typeName = item[0], options = item[1], subViews = item[2];
                 require([typeName], function (SubView) {
-                    var inst = Create(SubView, _.extend({}, options, {
-                        el: $(options.el, view.$el)
+                    var el = $(options.el, view.$el);
+                    var component = Create(SubView, _.extend({}, options, {
+                        el: el
                     }));
+                    var inst = ReactDOM.render.call(ReactDOM, component, el.get(0));
                     view[propName] = inst;
                     $.when(inst.draw(), utils.loadViews(subViews, inst)).done(function () {
                         res.resolve(inst);
@@ -734,6 +740,10 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
         __extends(JiraViewModel, _super);
         function JiraViewModel() {
             _super.apply(this, arguments);
+            this.issues = [];
+            this.filterItems = [];
+            this.epics = [];
+            this.currentFiler = {};
         }
         JiraViewModel.prototype.getIssues = function () {
             return this.issues;
@@ -919,7 +929,7 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
                                 viewModel: this.viewModel
                             }, {
                                 epicsView: ['app/jira/views/epics_view', {
-                                        el: '.filter-items-epics',
+                                        el: '.filter-epics',
                                         viewModel: this.viewModel,
                                         bindings: {
                                             'change:epics': function (view, viewModel) {
@@ -966,94 +976,6 @@ define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery
         return EmailView;
     }(BaseView));
     return EmailView;
-});
-define("app/jira/templates/filter_item_template", ["require", "exports", 'react'], function (require, exports, React) {
-    "use strict";
-    var FilterItemTemplate = (function (_super) {
-        __extends(FilterItemTemplate, _super);
-        function FilterItemTemplate() {
-            _super.apply(this, arguments);
-        }
-        FilterItemTemplate.prototype.render = function () {
-            return React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.props.selected ? 'primary' : 'default') + " status-name", title: this.props.description, style: { margin: '4px 6px' }}, this.props.name);
-        };
-        return FilterItemTemplate;
-    }(React.Component));
-    return FilterItemTemplate;
-});
-define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'react'], function (require, exports, _, $, BaseView, React) {
-    "use strict";
-    var FilterItemView = (function (_super) {
-        __extends(FilterItemView, _super);
-        function FilterItemView(opts) {
-            _super.call(this, opts);
-        }
-        FilterItemView.prototype.init = function (opts) {
-            this.$el = opts.el || $('<span />');
-            _super.prototype.init.call(this, opts);
-            this.state = this.viewModel.toJSON();
-            $(opts.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
-        };
-        FilterItemView.prototype.onChangeSelected = function () {
-            this.setState(this.viewModel.toJSON());
-        };
-        FilterItemView.prototype.toggleSelected = function () {
-            var cmd = this.viewModel.getCommand('SelectCommand');
-            cmd.execute();
-        };
-        FilterItemView.prototype.render = function () {
-            var _this = this;
-            if (this.viewModel.isFinish) {
-                return null;
-            }
-            return React.createElement("span", {className: "highlight"}, React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name", onClick: function () { return _this.toggleSelected(); }, title: this.state.description, style: { margin: '4px 6px' }}, this.state.name));
-        };
-        return FilterItemView;
-    }(BaseView));
-    return FilterItemView;
-});
-/// <reference path="../../../vendor.d.ts" />
-define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react', 'react-dom'], function (require, exports, _, $, BaseView, FilterItemView, React, ReactDOM) {
-    "use strict";
-    var EpicsView = (function (_super) {
-        __extends(EpicsView, _super);
-        function EpicsView() {
-            _super.apply(this, arguments);
-            this.views = [];
-        }
-        EpicsView.prototype.setItems = function (items) {
-            var _this = this;
-            this.views = [];
-            _.each(items, function (item) {
-                var view = React.createElement(FilterItemView, { viewModel: item });
-                _this.views.push(view);
-            }, this);
-            this.drawItems();
-        };
-        EpicsView.prototype.filterEpics = function () {
-            return $('.filter-epics', this.$el);
-        };
-        EpicsView.prototype.init = function (opts) {
-            this.$el = opts.el ? $(opts.el) : $('<div/>');
-            _super.prototype.init.call(this, opts);
-            this.views = [];
-            this.setItems(this.viewModel.getEpics());
-        };
-        EpicsView.prototype.drawItem = function (itemView) {
-            var el = $('<span class="highlight" />');
-            el.appendTo(this.filterEpics());
-            ReactDOM.render(itemView, el.get(0));
-        };
-        EpicsView.prototype.drawItems = function () {
-            _.each(this.views, this.drawItem, this);
-        };
-        EpicsView.prototype.draw = function () {
-            this.drawItems();
-            return this;
-        };
-        return EpicsView;
-    }(BaseView));
-    return EpicsView;
 });
 define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'hgn!app/jira/templates/jira_issue_item_template'], function (require, exports, _, $, BaseView, itemTemplate) {
     "use strict";
@@ -1103,22 +1025,76 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
     }(BaseView));
     return IssueView;
 });
+define("app/jira/templates/filter_item_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var FilterItemTemplate = (function (_super) {
+        __extends(FilterItemTemplate, _super);
+        function FilterItemTemplate() {
+            _super.apply(this, arguments);
+        }
+        FilterItemTemplate.prototype.render = function () {
+            return React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.props.selected ? 'primary' : 'default') + " status-name", title: this.props.description, style: { margin: '4px 6px' }}, this.props.name);
+        };
+        return FilterItemTemplate;
+    }(React.Component));
+    return FilterItemTemplate;
+});
+define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'react'], function (require, exports, _, $, BaseView, React) {
+    "use strict";
+    var FilterItemView = (function (_super) {
+        __extends(FilterItemView, _super);
+        function FilterItemView(opts) {
+            _super.call(this, opts);
+        }
+        FilterItemView.prototype.init = function (opts) {
+            this.$el = opts.el || $('<span />');
+            _super.prototype.init.call(this, opts);
+            this.state = this.props.viewModel.toJSON();
+        };
+        FilterItemView.prototype.componentWillMount = function () {
+            $(this.props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
+        };
+        FilterItemView.prototype.componentWillUnmount = function () {
+            $(this.props.viewModel).off('change:selected');
+        };
+        FilterItemView.prototype.componentWillReceiveProps = function (props) {
+            $(this.props.viewModel).off('change:selected');
+            $(props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
+        };
+        FilterItemView.prototype.finish = function () {
+        };
+        FilterItemView.prototype.onChangeSelected = function () {
+            this.setState(this.props.viewModel.toJSON());
+        };
+        FilterItemView.prototype.toggleSelected = function () {
+            var cmd = this.props.viewModel.getCommand('SelectCommand');
+            cmd.execute();
+        };
+        FilterItemView.prototype.render = function () {
+            var _this = this;
+            if (this.props.viewModel.isFinish) {
+                return React.createElement("div", null);
+            }
+            return React.createElement("span", {className: "highlight"}, React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name", onClick: function () { return _this.toggleSelected(); }, title: this.state.description, style: { margin: '4px 6px' }}, this.state.name));
+        };
+        return FilterItemView;
+    }(BaseView));
+    return FilterItemView;
+});
 /// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
-define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react', 'react-dom'], function (require, exports, $, BaseView, FilterItemView, React, ReactDOM) {
+define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react'], function (require, exports, $, BaseView, FilterItemView, React) {
     "use strict";
     var StatusFilterItemView = FilterItemView;
     var FilterView = (function (_super) {
         __extends(FilterView, _super);
         function FilterView(opts) {
             _super.call(this, opts);
-            this.views = [];
         }
         FilterView.prototype.setItems = function (items) {
-            //this.setState({
-            //    items: items
-            //});
-            console.log('setItems');
+            this.setState({
+                items: items
+            });
         };
         FilterView.prototype.filterStatuses = function () {
             return $('.filter-statuses', this.$el);
@@ -1130,35 +1106,17 @@ define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/
                 items: this.viewModel.getFilterItems()
             };
         };
-        FilterView.prototype.componentWillUnmount = function () {
-            console.log('umounting');
-        };
-        FilterView.prototype.componentDidMount = function () {
-            console.log('didMount');
-            this.setState({
-                items: this.viewModel.getFilterItems()
-            });
-        };
-        FilterView.prototype.componentWillMount = function () {
-            console.log('willMount');
-            this.setState({
-                items: this.viewModel.getFilterItems()
-            });
-        };
-        FilterView.prototype.finish = function () {
-            ReactDOM.unmountComponentAtNode(this.filterStatuses().get(0));
-            _super.prototype.finish.call(this);
+        FilterView.prototype.componentWillReceiveProps = function (newProps) {
         };
         FilterView.prototype.draw = function () {
-            ReactDOM.render(this.render(), this.filterStatuses().get(0));
             return this;
         };
         FilterView.prototype.render = function () {
             if (this.isFinish) {
-                return null;
+                return React.createElement("div", null);
             }
-            return React.createElement("div", null, this.state.items.map(function (entry, index) {
-                return React.createElement(StatusFilterItemView, {viewModel: entry, key: index});
+            return React.createElement("div", null, this.state.items.map(function (entry) {
+                return React.createElement(StatusFilterItemView, {viewModel: entry, key: entry.getId()});
             }));
         };
         return FilterView;
@@ -1166,11 +1124,46 @@ define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/
     return FilterView;
 });
 /// <reference path="../../../vendor.d.ts" />
+define("app/jira/views/epics_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/views/filter_item_view", 'react'], function (require, exports, $, BaseView, FilterItemView, React) {
+    "use strict";
+    var EpicFilterItemView = FilterItemView;
+    var EpicsView = (function (_super) {
+        __extends(EpicsView, _super);
+        function EpicsView(opts) {
+            _super.call(this, opts);
+        }
+        EpicsView.prototype.setItems = function (items) {
+            this.setState({
+                items: items
+            });
+        };
+        EpicsView.prototype.init = function (opts) {
+            this.$el = opts.el ? $(opts.el) : $('<div/>');
+            _super.prototype.init.call(this, opts);
+            this.state = {
+                items: this.viewModel.getEpics()
+            };
+        };
+        EpicsView.prototype.draw = function () {
+            return this;
+        };
+        EpicsView.prototype.render = function () {
+            if (this.isFinish) {
+                return React.createElement("div", null);
+            }
+            return React.createElement("div", null, this.state.items.map(function (entry) {
+                return React.createElement(EpicFilterItemView, {viewModel: entry, key: entry.getId()});
+            }));
+        };
+        return EpicsView;
+    }(BaseView));
+    return EpicsView;
+});
+/// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
 /// <reference path="../view_models/jira_view_model.ts" />
 /// <reference path="../view_models/issue_entry_view_model.ts" />
 /// <reference path="issue_view.ts" />
-/// <reference path="epics_view.ts" />
 define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issue_view", 'hgn!app/jira/templates/jira_template'], function (require, exports, $, _, BaseView, IssueView, template) {
     "use strict";
     var JiraView = (function (_super) {

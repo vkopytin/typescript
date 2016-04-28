@@ -93,5 +93,8 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<a
     draw () : any {
         return this;
     }
+    render (): any {
+        return null;
+    }
 }
 export = BaseView;

@@ -3,7 +3,6 @@
 /// <reference path="../view_models/jira_view_model.ts" />
 /// <reference path="../view_models/issue_entry_view_model.ts" />
 /// <reference path="issue_view.ts" />
-/// <reference path="epics_view.ts" />
 
 import $ = require('jquery');
 import _ = require('underscore');

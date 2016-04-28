@@ -5,6 +5,8 @@ import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import BaseViewModel = require('app/jira/base/base_view_model');
+import React = require('react');
+import ReactDOM = require('react-dom');
 
 module utils {
     export function extend (protoProps: any, staticProps: any) {
@@ -40,7 +42,8 @@ module utils {
         return child;
     }
     function Create<T>(Type: any, options: any): T {
-        return new Type(options);
+        //return new Type(options);
+        return React.createElement.call(React, Type, options);
     }
     export function loadViews<T extends BaseViewModel, Y> (jsml: {[key: string]: any}, view: BaseView<T, Y>): JQueryPromise<{}> {
         var queue: JQueryPromise<{}> = null;
@@ -51,9 +54,11 @@ module utils {
                 subViews: {[key: string]: any} = item[2];
                 
             require([typeName], (SubView: any) => {
-                var inst = Create<BaseView<T, Y>>(SubView, _.extend({}, options, {
-                    el: $(options.el, view.$el)
+                var el = $(options.el, view.$el);
+                var component = Create<BaseView<T, Y>>(SubView, _.extend({}, options, {
+                    el: el
                 }));
+                var inst = ReactDOM.render.call(ReactDOM, component, el.get(0));
                 
                 view[propName] = inst;
                 $.when(inst.draw(), utils.loadViews(subViews, inst)).done(() => {

@@ -69,7 +69,7 @@ class JiraPage extends BaseView<JiraViewModel, IJiraPage> {
                     viewModel: this.viewModel
                 }, {
                     epicsView: ['app/jira/views/epics_view', {
-                        el: '.filter-items-epics',
+                        el: '.filter-epics',
                         viewModel: this.viewModel,
                         bindings: {
                             'change:epics': (view: any, viewModel: JiraViewModel) => {

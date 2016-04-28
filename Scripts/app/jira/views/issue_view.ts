@@ -4,7 +4,9 @@ import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
-import itemTemplate = require('hgn!app/jira/templates/jira_issue_item_template');
+import template = require('app/jira/templates/jira_issue_item_template');
+import React = require('react');
+import ReactDOM = require('react-dom');
 
 function toDate(ticks: number) : Date {
     
@@ -39,7 +41,7 @@ function padStr(i: number): string {
 }
 
 interface IIssueView {
-    
+    viewModel: IssueEntryViewModel
 }
 
 class IssueView extends BaseView<IssueEntryViewModel, IIssueView> {
@@ -50,17 +52,18 @@ class IssueView extends BaseView<IssueEntryViewModel, IIssueView> {
     }
     
     draw () {
-        var data = this.viewModel.toJSON(),
-            html = itemTemplate(_.extend(data, {
-                updated: () => () => {
-                    var date = new Date(data.fields.updated);
-                    return printDate(date, 'YYYY-MM-DD hh:mm:ss');
-                }
-            }));
-        
-        this.$el.html(html);
-        
         return this;
+    }
+    
+    render () {
+        var data = this.viewModel.toJSON();
+        
+        return template.call(this, _.extend(data, {
+            updated: () => {
+                var date = new Date(data.fields.updated);
+                return printDate(date, 'YYYY-MM-DD hh:mm:ss');
+            }
+        }));
     }
 }
 export = IssueView;

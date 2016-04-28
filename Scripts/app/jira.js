@@ -499,6 +499,9 @@ define("app/jira/view_models/issue_entry_view_model", ["require", "exports", "ap
         function IssueEntryViewModel() {
             _super.apply(this, arguments);
         }
+        IssueEntryViewModel.prototype.getId = function () {
+            return this.opts.Key;
+        };
         return IssueEntryViewModel;
     }(BaseViewModel));
     return IssueEntryViewModel;
@@ -1118,7 +1121,14 @@ define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/
     }(BaseView));
     return FilterView;
 });
-define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'hgn!app/jira/templates/jira_issue_item_template'], function (require, exports, _, $, BaseView, itemTemplate) {
+define("app/jira/templates/jira_issue_item_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function (data) {
+        return (React.createElement("tr", null, React.createElement("td", {style: { width: "140px" }}, React.createElement("img", {src: data.fields.priority.iconUrl, title: data.fields.priority.name, style: { width: "16px", height: "16px" }}), data.fields.priority.name), React.createElement("td", null, React.createElement("div", null, data.Key, ": ", data.fields.summary), React.createElement("div", null, data.fields.status.name)), React.createElement("td", null), React.createElement("td", {style: { width: "140px", textAlign: "center" }}, data.updated()), React.createElement("td", {style: { minWidth: "140px" }}, data.fields.assignee && data.fields.assignee.displayName)));
+    };
+    return template;
+});
+define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/jira_issue_item_template"], function (require, exports, _, $, BaseView, template) {
     "use strict";
     function toDate(ticks) {
         //ticks are in nanotime; convert to microtime
@@ -1153,25 +1163,34 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
             _super.prototype.init.call(this, opts);
         };
         IssueView.prototype.draw = function () {
-            var data = this.viewModel.toJSON(), html = itemTemplate(_.extend(data, {
-                updated: function () { return function () {
+            return this;
+        };
+        IssueView.prototype.render = function () {
+            var data = this.viewModel.toJSON();
+            return template.call(this, _.extend(data, {
+                updated: function () {
                     var date = new Date(data.fields.updated);
                     return printDate(date, 'YYYY-MM-DD hh:mm:ss');
-                }; }
+                }
             }));
-            this.$el.html(html);
-            return this;
         };
         return IssueView;
     }(BaseView));
     return IssueView;
+});
+define("app/jira/templates/jira_view_template", ["require", "exports", 'react', "app/jira/views/issue_view"], function (require, exports, React, IssueView) {
+    "use strict";
+    var template = function () {
+        return (React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Priority"), React.createElement("th", null, React.createElement("div", null, "Key: Summary"), React.createElement("div", null, "Status")), React.createElement("th", null, "X"), React.createElement("th", null, "Updated"), React.createElement("th", null, "Assignee"))), React.createElement("tbody", {className: "issues-list"}, this.state.issues && this.state.issues.map(function (entity) { return React.createElement(IssueView, {viewModel: entity, key: entity.getId()}); }))));
+    };
+    return template;
 });
 /// <reference path="../../../vendor.d.ts" />
 /// <reference path="../base/base_view.ts" />
 /// <reference path="../view_models/jira_view_model.ts" />
 /// <reference path="../view_models/issue_entry_view_model.ts" />
 /// <reference path="issue_view.ts" />
-define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issue_view", 'hgn!app/jira/templates/jira_template'], function (require, exports, $, _, BaseView, IssueView, template) {
+define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", 'hgn!app/jira/templates/jira_template', "app/jira/templates/jira_view_template", 'react-dom'], function (require, exports, $, _, BaseView, template, template2, ReactDOM) {
     "use strict";
     var JiraView = (function (_super) {
         __extends(JiraView, _super);
@@ -1190,16 +1209,10 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
             this.views = [];
             $(this.viewModel).on('change:issues', _.bind(this.drawItems, this));
         };
-        JiraView.prototype.drawItem = function (viewModel) {
-            var view = new IssueView({
-                viewModel: viewModel
-            }).appendTo($('.issues-list')).draw();
-            this.views.push(view);
-        };
         JiraView.prototype.drawItems = function () {
             var issues = this.viewModel.getIssues();
-            this.views = [];
-            _.each(issues, this.drawItem, this);
+            var view = template2.call({ state: { issues: issues } });
+            ReactDOM.render(view, $('.issues-list-container', this.$el).get(0));
         };
         JiraView.prototype.draw = function () {
             var data = {

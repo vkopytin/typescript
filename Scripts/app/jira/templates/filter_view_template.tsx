@@ -9,7 +9,7 @@ interface IFilterItemView<TViewModel extends FilterEntryViewModel> {
 let StatusFilterItemView: IFilterItemView<FilterEntryViewModel> = FilterItemView;
 
 var template = function () {
-	return (<div>
+	return (<div className={"filter-statuses highlight"}>
         {this.state.items.map((entry: FilterEntryViewModel) => 
             <StatusFilterItemView viewModel={entry} key={entry.getId()}/>
         )}

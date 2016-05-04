@@ -2,7 +2,7 @@ import React = require('react');
 
 var template = function () {
     return (
-    <div className={"epics-panel panel panel-default"}>
+    <div className={"epics-panel panel panel-default highlight"}>
         <div className={"panel-heading"}>
             <label>{this.props.title}</label>
         </div>

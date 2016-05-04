@@ -1001,7 +1001,7 @@ define("app/jira/templates/filter_view_template", ["require", "exports", 'react'
     "use strict";
     var StatusFilterItemView = FilterItemView;
     var template = function () {
-        return (React.createElement("div", null, this.state.items.map(function (entry) {
+        return (React.createElement("div", {className: "filter-statuses highlight"}, this.state.items.map(function (entry) {
             return React.createElement(StatusFilterItemView, {viewModel: entry, key: entry.getId()});
         })));
     };
@@ -1050,7 +1050,7 @@ define("app/jira/templates/epics_view_template", ["require", "exports", 'react',
     "use strict";
     var EpicFilterItemView = FilterItemView;
     var template = function () {
-        return (React.createElement("div", {className: "filter-epics"}, this.state.items.map(function (entry) {
+        return (React.createElement("div", {className: "filter-epics highlight"}, this.state.items.map(function (entry) {
             return React.createElement(EpicFilterItemView, {viewModel: entry, key: entry.getId()});
         })));
     };
@@ -1092,7 +1092,7 @@ define("app/jira/views/epics_view", ["require", "exports", 'jquery', "app/jira/b
 define("app/jira/templates/jira_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function (IssueView) {
-        return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h1", {className: "page-head-line"}, "JIRA Report"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "jira-issues-list col-md-12"}, "JIRA Issues", React.createElement("div", {className: "panel panel-default"}, React.createElement("div", {className: "panel-heading"}, React.createElement("a", {href: "javascript:(function(){HOST = '{{domain}}';var jsCode = document.createElement('script');jsCode.setAttribute('src', HOST + '/mvc/jira/bookmarklet?' + Math.random());jsCode.setAttribute('id','jira-worktool-bookmarklet');document.getElementsByTagName('head')[0].appendChild(jsCode);}());"}, React.createElement("button", {className: "btn btn-lg btn-info"}, "Jira bookmarklet")), React.createElement("button", {type: "button", className: "filter-reset btn btn-lg btn-primary"}, "Reset"), React.createElement("label", null, "Filter By Status")), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-statuses"}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "filter-statuses"}, this.props.children.find(function (item) { return item.ref === "filterStatuses"; })))))), this.props.children.find(function (item) { return item.ref === "epicsPanel"; }))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Priority"), React.createElement("th", null, React.createElement("div", null, "Key: Summary"), React.createElement("div", null, "Status")), React.createElement("th", null, "X"), React.createElement("th", null, "Updated"), React.createElement("th", null, "Assignee"))), React.createElement("tbody", {className: "issues-list"}, this.state.issues && this.state.issues.map(function (entity) { return React.createElement(IssueView, {viewModel: entity, key: entity.getId()}); })))))));
+        return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h1", {className: "page-head-line"}, "JIRA Report"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "jira-issues-list col-md-12"}, "JIRA Issues", React.createElement("div", {className: "panel panel-default"}, React.createElement("div", {className: "panel-heading"}, React.createElement("a", {href: "javascript:(function(){HOST = '{{domain}}';var jsCode = document.createElement('script');jsCode.setAttribute('src', HOST + '/mvc/jira/bookmarklet?' + Math.random());jsCode.setAttribute('id','jira-worktool-bookmarklet');document.getElementsByTagName('head')[0].appendChild(jsCode);}());"}, React.createElement("button", {className: "btn btn-lg btn-info"}, "Jira bookmarklet")), React.createElement("button", {type: "button", className: "filter-reset btn btn-lg btn-primary"}, "Reset"), React.createElement("label", null, "Filter By Status")), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-statuses"}, React.createElement("div", {className: "form-group"}, this.props.children.find(function (item) { return item.ref === "filterStatuses"; }))))), this.props.children.find(function (item) { return item.ref === "epicsPanel"; }))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Priority"), React.createElement("th", null, React.createElement("div", null, "Key: Summary"), React.createElement("div", null, "Status")), React.createElement("th", null, "X"), React.createElement("th", null, "Updated"), React.createElement("th", null, "Assignee"))), React.createElement("tbody", {className: "issues-list"}, this.state.issues && this.state.issues.map(function (entity) { return React.createElement(IssueView, {viewModel: entity, key: entity.getId()}); })))))));
     };
     return template;
 });
@@ -1150,7 +1150,7 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
 define("app/jira/templates/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
-        return (React.createElement("div", {className: "epics-panel panel panel-default"}, React.createElement("div", {className: "panel-heading"}, React.createElement("label", null, this.props.title)), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-epics"}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "filter-epics"}), this.props.children)))));
+        return (React.createElement("div", {className: "epics-panel panel panel-default highlight"}, React.createElement("div", {className: "panel-heading"}, React.createElement("label", null, this.props.title)), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-epics"}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "filter-epics"}), this.props.children)))));
     };
     return template;
 });

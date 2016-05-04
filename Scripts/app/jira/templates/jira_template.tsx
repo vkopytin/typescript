@@ -21,9 +21,7 @@ var template = function (IssueView: any) {
                 <div className={"panel-body"}>
                     <div className={"filter-items-statuses"}>
                         <div className={"form-group"}>
-                            <div className={"filter-statuses"}>
                             {this.props.children.find((item: any) => item.ref === "filterStatuses")}
-                            </div>
                         </div>
                     </div>
                 </div>

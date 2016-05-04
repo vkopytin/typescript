@@ -11,8 +11,9 @@ import template = require('app/jira/templates/filter_view_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
-interface IFilterView {
-    
+interface IFilterView extends React.Props<any> {
+    viewModel: JiraViewModel
+    bindings: {[key: string]: Function}
 }
 
 class FilterView extends BaseView<JiraViewModel, IFilterView> {

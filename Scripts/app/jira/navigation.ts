@@ -3,6 +3,9 @@
 import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');
+import React = require('react');
+import ReactDOM = require('react-dom');
+
 var components: { [key: string]: string[] } = {
         'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/jira_view_model'],
         'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_view_model']
@@ -37,11 +40,23 @@ class Navigation extends Base {
         
         if (deps) {
             require(deps, (View: any, ViewModel: any) => {
-                this.view = new View({
-                    el: $(document.body),
-                    viewModel: new ViewModel()
-                });
-                this.view.draw();
+                switch (componentName) {
+                    case 'deploy-email':
+                        this.view = new View({
+                            el: $(document.body),
+                            viewModel: new ViewModel()
+                        });
+                        this.view.draw();
+                        break;
+                    case 'jira-report':
+                    default:
+                        var view = React.createElement(View, {
+                            el: $(document.body),
+                            viewModel: new ViewModel()
+                        });
+                        View.initHTML($(document.body));
+                        this.view = ReactDOM.render(view, document.getElementById('page-wrapper'));
+                }
                 
                 _.defer(_.bind(this.view.onNavigateTo, this.view), 0);
             });

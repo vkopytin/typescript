@@ -14,7 +14,7 @@ import Utils = require('app/jira/utils');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
 import template = require('hgn!app/jira/templates/jira_template');
-import template2 = require('app/jira/templates/jira_view_template');
+import template2 = require('app/jira/templates/jira_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
@@ -23,8 +23,8 @@ interface IJiraViewOptions {
     el: any;
 }
 
-interface IJiraView {
-    
+interface IJiraView extends React.Props<any> {
+    viewModel: JiraViewModel;
 }
 
 class JiraView extends BaseView<JiraViewModel, IJiraView> {
@@ -40,14 +40,27 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         
-        this.views = [];
+        this.state = {
+            issues: this.viewModel.getIssues()
+        };
         
-        $(this.viewModel).on('change:issues', _.bind(this.drawItems, this));
+        $(this.viewModel).on('change:issues', _.bind(this.setIssues, this));
+        
+    }
+    
+    setIssues () {
+        this.setState({
+            issues: this.viewModel.getIssues()
+        })
+    }
+    
+    render () {
+        return template2.call(this, IssueView);
     }
     
     drawItems (): void {
         var issues = this.viewModel.getIssues();
-        var view = template2.call({state: {issues: issues}});
+        var view = template2.call(this);
 
         ReactDOM.render(view, $('.issues-list-container', this.$el).get(0));
     }

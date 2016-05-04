@@ -9,7 +9,7 @@ interface IFilterItemView<TViewModel extends EpicsEntryViewModel> {
 let EpicFilterItemView: IFilterItemView<EpicsEntryViewModel> = FilterItemView;
 
 var template = function () {
-	return (<div>
+	return (<div className={"filter-epics"}>
         {this.state.items.map((entry: EpicsEntryViewModel) => 
             <EpicFilterItemView viewModel={entry} key={entry.getId()}/>
         )}

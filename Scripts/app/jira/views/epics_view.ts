@@ -12,8 +12,9 @@ import template = require('app/jira/templates/epics_view_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
-interface IEpicsView {
-    
+interface IEpicsView extends React.Props<any> {
+    viewModel: JiraViewModel
+    bindings: {[key: string]: Function}
 }
 
 class EpicsView extends BaseView<JiraViewModel, IEpicsView> {

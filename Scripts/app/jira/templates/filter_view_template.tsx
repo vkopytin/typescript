@@ -13,6 +13,6 @@ var template = function () {
         {this.state.items.map((entry: FilterEntryViewModel) => 
             <StatusFilterItemView viewModel={entry} key={entry.getId()}/>
         )}
-        </div>);
+    </div>);
 };
 export = template;

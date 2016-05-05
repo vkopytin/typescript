@@ -4,12 +4,14 @@
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
-import template = require('hgn!app/jira/templates/email_template');
-import emailTemplate = require('hgn!app/main/templates/deploy_email.email_template');
+import template = require('app/jira/templates/email_template');
+import emailTemplate = require('hgn!app/jira/templates/email_template');
 import EmailViewModel = require('app/jira/view_models/email_view_model');
+import Utils = require('app/jira/utils');
+import ReactDOM = require('react-dom');
 
 interface IEmailView {
-    
+    viewModel: EmailViewModel
 }
 
 class EmailView extends BaseView<EmailViewModel, IEmailView> {
@@ -19,24 +21,41 @@ class EmailView extends BaseView<EmailViewModel, IEmailView> {
         this.$el = opts.el || $('<div/>');
         super.init(opts);
         
-        $(this.viewModel).on('change:issues', _.bind(this.draw, this));
-    }
-    
-    draw () {
-        var data = {
-                issues: _.map(this.viewModel.getIssues(), (viewModel) => viewModel.toJSON())
-            },
-            html = template(data);
-        
-        this.$el.html(html);
-        
-        $('.auto-email', this.$el).html(emailTemplate({
+        this.state = {
+            issues: this.viewModel.getIssues(),
             'email-to': 'qa@rebelmouse.com',
             subject: encodeURIComponent('Tomorrow deploy'),
-            body: encodeURIComponent($('.email-contents', this.$el).text())
-        }));
+            body: this.getEmailText()
+        };
         
-        return this;
+        $(this.viewModel).on('change:issues', _.bind(this.setIssues, this));
+    }
+    
+    getEmailHTML () {
+        var data = {
+            issues: () => {
+                    return _.map(this.viewModel.getIssues(), (issue) => issue.toJSON());
+                }
+            },
+            html = emailTemplate(data);
+            
+        return { __html: html };
+    }
+    
+    getEmailText () {
+        var html = this.getEmailHTML();
+        
+        return encodeURIComponent($('<div/>').html(html.__html).text());
+    }
+    
+    setIssues () {
+        this.setState(_.extend({}, this.state, {
+            issues: this.viewModel.getIssues()
+        }));
+    }
+    
+    render () {
+        return template.call(this);
     }
 }
 export = EmailView;

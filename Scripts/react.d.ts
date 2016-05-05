@@ -2369,6 +2369,7 @@ declare namespace JSX {
         figcaption: React.HTMLProps<HTMLElement>;
         figure: React.HTMLProps<HTMLElement>;
         footer: React.HTMLProps<HTMLElement>;
+        font: React.HTMLProps<HTMLDivElement>;
         form: React.HTMLProps<HTMLFormElement>;
         h1: React.HTMLProps<HTMLHeadingElement>;
         h2: React.HTMLProps<HTMLHeadingElement>;

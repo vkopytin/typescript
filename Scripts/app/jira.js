@@ -159,6 +159,25 @@ define("app/jira/utils", ["require", "exports", 'underscore', 'jquery', 'react',
             return queue;
         }
         utils.loadViews = loadViews;
+        // event handler
+        function copy(e) {
+            // find target element
+            var inp = e.currentTarget;
+            // select text
+            var selection = window.getSelection();
+            var range = document.createRange();
+            range.selectNodeContents(inp);
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                // copy text
+                document.execCommand('copy');
+            }
+            catch (err) {
+                alert('please press Ctrl/Cmd+C to copy');
+            }
+        }
+        utils.copy = copy;
     })(utils || (utils = {}));
     return utils;
 });
@@ -266,12 +285,13 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
             if (deps) {
                 require(deps, function (View, ViewModel) {
                     switch (componentName) {
-                        case 'deploy-email':
+                        case '-deploy-email':
                             _this.view = new View({
                                 el: $(document.body),
                                 viewModel: new ViewModel()
                             });
                             _this.view.draw();
+                            _.defer(_.bind(_this.view.onNavigateTo, _this.view), 0);
                             break;
                         case 'jira-report':
                         default:
@@ -280,9 +300,10 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
                                 viewModel: new ViewModel()
                             });
                             View.initHTML($(document.body));
-                            _this.view = ReactDOM.render(view, document.getElementById('page-wrapper'));
+                            _this.view = ReactDOM.render(view, document.getElementById('page-wrapper'), function () {
+                                _.defer(_.bind(this.onNavigateTo, this), 0);
+                            });
                     }
-                    _.defer(_.bind(_this.view.onNavigateTo, _this.view), 0);
                 });
             }
         };
@@ -569,7 +590,64 @@ define("app/jira/view_models/email_view_model", ["require", "exports", 'jquery',
     }(BaseViewModel));
     return EmailViewModel;
 });
-define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template'], function (require, exports, _, $, BaseView, Base, Utils, template) {
+define("app/jira/templates/email_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function () {
+        return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row pad-top-botm "}, React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, React.createElement("h1", {className: "page-head-line"}, "Tomorrow Deploy"), React.createElement("h1", {className: "page-subhead-line"}, "Tomorrow deploy"))), React.createElement("div", {className: "row"}, React.createElement("div", {style: { fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }, className: "email-contents col-lg-12 col-md-12 col-sm-12", dangerouslySetInnerHTML: this.getEmailHTML()})), React.createElement("div", {className: "row pad-top-botm"}, React.createElement("div", {className: "auto-email col-lg-12 col-md-12 col-sm-12"}, React.createElement("hr", null), React.createElement("a", {className: "btn btn-primary btn-lg", href: "mailto:qa@rebelmouse.com?subject=" + this.state.subject + "&body=" + this.getEmailText()}, "Create mail")))));
+    };
+    return template;
+});
+define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/email_template", 'hgn!app/jira/templates/email_template'], function (require, exports, _, $, BaseView, template, emailTemplate) {
+    "use strict";
+    var EmailView = (function (_super) {
+        __extends(EmailView, _super);
+        function EmailView() {
+            _super.apply(this, arguments);
+        }
+        EmailView.prototype.init = function (opts) {
+            this.$el = opts.el || $('<div/>');
+            _super.prototype.init.call(this, opts);
+            this.state = {
+                issues: this.viewModel.getIssues(),
+                'email-to': 'qa@rebelmouse.com',
+                subject: encodeURIComponent('Tomorrow deploy'),
+                body: this.getEmailText()
+            };
+            $(this.viewModel).on('change:issues', _.bind(this.setIssues, this));
+        };
+        EmailView.prototype.getEmailHTML = function () {
+            var _this = this;
+            var data = {
+                issues: function () {
+                    return _.map(_this.viewModel.getIssues(), function (issue) { return issue.toJSON(); });
+                }
+            }, html = emailTemplate(data);
+            return { __html: html };
+        };
+        EmailView.prototype.getEmailText = function () {
+            var html = this.getEmailHTML();
+            return encodeURIComponent($('<div/>').html(html.__html).text());
+        };
+        EmailView.prototype.setIssues = function () {
+            this.setState(_.extend({}, this.state, {
+                issues: this.viewModel.getIssues()
+            }));
+        };
+        EmailView.prototype.render = function () {
+            return template.call(this);
+        };
+        return EmailView;
+    }(BaseView));
+    return EmailView;
+});
+define("app/jira/templates/email_page_template", ["require", "exports", 'react', "app/jira/views/email_view"], function (require, exports, React, EmailView) {
+    "use strict";
+    var template = function (viewModel) {
+        return (React.createElement(EmailView, {viewModel: viewModel}));
+    };
+    return template;
+});
+define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template', "app/jira/templates/email_page_template"], function (require, exports, _, $, BaseView, Base, Utils, template, template2) {
     "use strict";
     var EmailPage = (function (_super) {
         __extends(EmailPage, _super);
@@ -597,6 +675,13 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
             this.$el.empty();
             delete this.$el;
             Base.prototype.finish.apply(this, arguments);
+        };
+        EmailPage.prototype.render = function () {
+            return template2.call(this, this.viewModel);
+        };
+        EmailPage.initHTML = function ($el) {
+            var data = {}, html = template(data), res = $.Deferred();
+            $el.html(html);
         };
         EmailPage.prototype.draw = function () {
             var data = {}, html = template(data);
@@ -1221,6 +1306,10 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
             delete this.$el;
             Base.prototype.finish.apply(this, arguments);
         };
+        JiraPage.prototype.onNavigateTo = function () {
+            this.handlers.onDraw.call(this);
+            return _super.prototype.onNavigateTo.call(this);
+        };
         JiraPage.prototype.render = function () {
             return template2.call(this, this.viewModel);
         };
@@ -1271,34 +1360,6 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
         return JiraPage;
     }(BaseView));
     return JiraPage;
-});
-define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", 'hgn!app/jira/templates/email_template', 'hgn!app/main/templates/deploy_email.email_template'], function (require, exports, _, $, BaseView, template, emailTemplate) {
-    "use strict";
-    var EmailView = (function (_super) {
-        __extends(EmailView, _super);
-        function EmailView() {
-            _super.apply(this, arguments);
-        }
-        EmailView.prototype.init = function (opts) {
-            this.$el = opts.el || $('<div/>');
-            _super.prototype.init.call(this, opts);
-            $(this.viewModel).on('change:issues', _.bind(this.draw, this));
-        };
-        EmailView.prototype.draw = function () {
-            var data = {
-                issues: _.map(this.viewModel.getIssues(), function (viewModel) { return viewModel.toJSON(); })
-            }, html = template(data);
-            this.$el.html(html);
-            $('.auto-email', this.$el).html(emailTemplate({
-                'email-to': 'qa@rebelmouse.com',
-                subject: encodeURIComponent('Tomorrow deploy'),
-                body: encodeURIComponent($('.email-contents', this.$el).text())
-            }));
-            return this;
-        };
-        return EmailView;
-    }(BaseView));
-    return EmailView;
 });
 define("app/jira/templates/jira_view_template", ["require", "exports", 'react', "app/jira/views/issue_view"], function (require, exports, React, IssueView) {
     "use strict";

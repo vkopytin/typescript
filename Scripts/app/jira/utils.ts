@@ -41,10 +41,12 @@ module utils {
 
         return child;
     }
+    
     function Create<T>(Type: any, options: any): T {
         //return new Type(options);
         return React.createElement.call(React, Type, options);
     }
+    
     export function loadViews<T extends BaseViewModel, Y> (jsml: {[key: string]: any}, view: BaseView<T, Y>): JQueryPromise<{}> {
         var queue: JQueryPromise<{}> = null;
         _.each(jsml, function (item: any[], propName: string) {
@@ -69,6 +71,30 @@ module utils {
         });
        
        return queue;
+    }
+
+    // event handler
+    export function copy (e: any): void {
+
+        // find target element
+        var inp = e.currentTarget;
+
+        // select text
+        var selection = window.getSelection();
+        var range = document.createRange();
+
+        range.selectNodeContents(inp);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+
+        try {
+            // copy text
+            document.execCommand('copy');
+        }
+        catch (err) {
+            alert('please press Ctrl/Cmd+C to copy');
+        }
     }
 }
 

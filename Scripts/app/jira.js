@@ -1042,9 +1042,6 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
             cmd.execute();
         };
         FilterItemView.prototype.render = function () {
-            if (this.props.viewModel.isFinish) {
-                return null;
-            }
             return template.call(this);
         };
         return FilterItemView;
@@ -1082,15 +1079,12 @@ define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/
             this.$el = opts.el ? $(opts.el) : $('<div/>');
             _super.prototype.init.call(this, opts);
             this.state = {
-                items: this.viewModel.getStatuses()
+                items: this.props.statuses()
             };
         };
         FilterView.prototype.componentWillReceiveProps = function (newProps) {
         };
         FilterView.prototype.render = function () {
-            if (this.isFinish) {
-                return null;
-            }
             return template.call(this);
         };
         return FilterView;
@@ -1123,13 +1117,10 @@ define("app/jira/views/epics_view", ["require", "exports", "app/jira/base/base_v
         EpicsView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
             this.state = {
-                items: this.viewModel.getEpics()
+                items: this.props.epics()
             };
         };
         EpicsView.prototype.render = function () {
-            if (this.isFinish) {
-                return null;
-            }
             return template.call(this);
         };
         return EpicsView;
@@ -1163,7 +1154,7 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
         JiraView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
             this.state = {
-                issues: this.viewModel.getIssues()
+                issues: this.props.issues()
             };
         };
         JiraView.prototype.componentWillMount = function () {
@@ -1217,11 +1208,11 @@ define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_v
 define("app/jira/templates/jira_page_template", ["require", "exports", 'react', "app/jira/views/jira_view", "app/jira/views/filter_view", "app/jira/views/panel_view", "app/jira/views/epics_view"], function (require, exports, React, JiraView, FilterView, PanelView, EpicsView) {
     "use strict";
     var template = function (viewModel) {
-        return (React.createElement(JiraView, {viewModel: viewModel}, React.createElement(FilterView, {ref: "filterStatuses", viewModel: viewModel, bindings: {
+        return (React.createElement(JiraView, {viewModel: viewModel, issues: function () { return viewModel.getIssues(); }}, React.createElement(FilterView, {ref: "filterStatuses", viewModel: viewModel, statuses: function () { return viewModel.getStatuses(); }, bindings: {
             'change:statuses': function (view, viewModel) {
                 view.setItems(viewModel.getStatuses());
             }
-        }}), React.createElement(PanelView, {ref: "epicsPanel", viewModel: viewModel, title: "Filter by Epic"}, React.createElement(EpicsView, {ref: "filterEpics", viewModel: viewModel, bindings: {
+        }}), React.createElement(PanelView, {ref: "epicsPanel", viewModel: viewModel, title: "Filter by Epic"}, React.createElement(EpicsView, {ref: "filterEpics", viewModel: viewModel, epics: function () { return viewModel.getEpics(); }, bindings: {
             'change:epics': function (view, viewModel) {
                 view.setItems(viewModel.getEpics());
             }

@@ -57,10 +57,6 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     }
     
     render () {
-        if (this.props.viewModel.isFinish) {
-            return null;
-        }
-        
         return template.call(this);
     }
 }

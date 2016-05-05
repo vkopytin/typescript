@@ -13,6 +13,7 @@ import ReactDOM = require('react-dom');
 
 interface IFilterView extends React.Props<any> {
     viewModel: JiraViewModel
+    statuses: () => FilterEntryViewModel[]
     bindings: {[key: string]: Function}
 }
 
@@ -35,7 +36,7 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         this.state = {
-            items: this.viewModel.getStatuses()
+            items: this.props.statuses()
         };
     }
     
@@ -43,10 +44,6 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
     }
     
     render () {
-        if (this.isFinish) {
-            return null;
-        }
-        
         return template.call(this);
     }
 }

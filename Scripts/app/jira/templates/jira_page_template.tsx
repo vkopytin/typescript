@@ -7,14 +7,16 @@ import JiraViewModel = require('app/jira/view_models/jira_view_model');
 
 var template = function (viewModel: any) {
 	return (
-		<JiraView viewModel={viewModel}>
-			<FilterView ref="filterStatuses" viewModel={viewModel} bindings={{
+		<JiraView viewModel={viewModel} issues={() => viewModel.getIssues()}>
+			<FilterView ref="filterStatuses" viewModel={viewModel} statuses={() => viewModel.getStatuses()}
+			 bindings={{
                         'change:statuses': (view: any, viewModel: JiraViewModel) => {
                             view.setItems(viewModel.getStatuses());
                         }
                     }}/>
 			<PanelView ref="epicsPanel" viewModel={viewModel} title={"Filter by Epic"}>
-				<EpicsView ref="filterEpics" viewModel={viewModel} bindings={{
+				<EpicsView ref="filterEpics" viewModel={viewModel} epics={() => viewModel.getEpics()}
+				 bindings={{
                         'change:epics': (view: any, viewModel: JiraViewModel) => {
                             view.setItems(viewModel.getEpics());
                         }

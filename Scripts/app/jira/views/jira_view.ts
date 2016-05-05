@@ -18,12 +18,12 @@ import React = require('react');
 import ReactDOM = require('react-dom');
 
 interface IJiraViewOptions {
-    viewModel: JiraViewModel;
-    el: any;
+    viewModel: JiraViewModel
 }
 
 interface IJiraView extends React.Props<any> {
-    viewModel: JiraViewModel;
+    viewModel: JiraViewModel
+    issues: () => IssueEntryViewModel[]
 }
 
 class JiraView extends BaseView<JiraViewModel, IJiraView> {
@@ -38,7 +38,7 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
         super.init(opts);
         
         this.state = {
-            issues: this.viewModel.getIssues()
+            issues: this.props.issues()
         };
         
     }

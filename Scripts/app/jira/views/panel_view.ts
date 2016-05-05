@@ -15,7 +15,6 @@ class PanelView extends BaseView<JiraViewModel, IPanelView> {
     opts: any
     
     init (opts: any): void {
-        this.$el = opts.el ? $(opts.el) : $('<div />');
         super.init(opts);
         this.opts = opts;
     }

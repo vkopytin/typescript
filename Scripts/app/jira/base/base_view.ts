@@ -47,13 +47,8 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<a
         
         this.initBindings(bindings);
         this.initCommands(_.result(this, 'commands'));
-        this.$el.toggleClass('highlight', true);
-        this.$el.attr('data-type', this.__name);
     }
     finish (): void {
-        this.$el.off();
-        this.$el.remove();
-        delete this.$el;
         window.report[this.__name] = --window.report[this.__name];
         if (this.isFinish) {
             throw('Warinig: Object is removed two times.');
@@ -79,19 +74,11 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<a
             });
         }, this);
     }
-    appendTo (el: any): BaseView<TViewModel, TBaseView> {
-        $(el).append(this.$el);
-        
-        return this;
-    }
     onNavigateTo (): void {
         this.viewModel && this.viewModel.navigateTo();
     }
     onNavigateFrom (): void {
         this.viewModel && this.viewModel.navigateFrom();
-    }
-    render (): any {
-        return null;
     }
 }
 export = BaseView;

@@ -47,7 +47,6 @@ interface IIssueView {
 class IssueView extends BaseView<IssueEntryViewModel, IIssueView> {
 
     init (opts: any) {
-        this.$el = $('<tr/>');
         super.init(opts);
     }
     

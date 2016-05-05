@@ -47,13 +47,8 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             $(this.viewModel).on('viewModel.finish', _.bind(this.finish, this));
             this.initBindings(bindings);
             this.initCommands(_.result(this, 'commands'));
-            this.$el.toggleClass('highlight', true);
-            this.$el.attr('data-type', this.__name);
         };
         BaseView.prototype.finish = function () {
-            this.$el.off();
-            this.$el.remove();
-            delete this.$el;
             window.report[this.__name] = --window.report[this.__name];
             if (this.isFinish) {
                 throw ('Warinig: Object is removed two times.');
@@ -80,18 +75,11 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
                 });
             }, this);
         };
-        BaseView.prototype.appendTo = function (el) {
-            $(el).append(this.$el);
-            return this;
-        };
         BaseView.prototype.onNavigateTo = function () {
             this.viewModel && this.viewModel.navigateTo();
         };
         BaseView.prototype.onNavigateFrom = function () {
             this.viewModel && this.viewModel.navigateFrom();
-        };
-        BaseView.prototype.render = function () {
-            return null;
         };
         return BaseView;
     }(React.Component));
@@ -591,7 +579,6 @@ define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery
             _super.apply(this, arguments);
         }
         EmailView.prototype.init = function (opts) {
-            this.$el = opts.el || $('<div/>');
             _super.prototype.init.call(this, opts);
             this.state = {
                 issues: this.viewModel.getIssues(),
@@ -964,7 +951,7 @@ define("app/jira/templates/jira_issue_item_template", ["require", "exports", 're
     };
     return template;
 });
-define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/jira_issue_item_template"], function (require, exports, _, $, BaseView, template) {
+define("app/jira/views/issue_view", ["require", "exports", 'underscore', "app/jira/base/base_view", "app/jira/templates/jira_issue_item_template"], function (require, exports, _, BaseView, template) {
     "use strict";
     function toDate(ticks) {
         //ticks are in nanotime; convert to microtime
@@ -995,7 +982,6 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
             _super.apply(this, arguments);
         }
         IssueView.prototype.init = function (opts) {
-            this.$el = $('<tr/>');
             _super.prototype.init.call(this, opts);
         };
         IssueView.prototype.render = function () {
@@ -1027,7 +1013,6 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
             _super.call(this, opts);
         }
         FilterItemView.prototype.init = function (opts) {
-            this.$el = opts.el || $('<span />');
             _super.prototype.init.call(this, opts);
             this.state = this.props.viewModel.toJSON();
         };
@@ -1117,7 +1102,7 @@ define("app/jira/templates/epics_view_template", ["require", "exports", 'react',
     return template;
 });
 /// <reference path="../../../vendor.d.ts" />
-define("app/jira/views/epics_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/templates/epics_view_template"], function (require, exports, $, BaseView, template) {
+define("app/jira/views/epics_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/epics_view_template"], function (require, exports, BaseView, template) {
     "use strict";
     var EpicsView = (function (_super) {
         __extends(EpicsView, _super);
@@ -1130,7 +1115,6 @@ define("app/jira/views/epics_view", ["require", "exports", 'jquery', "app/jira/b
             });
         };
         EpicsView.prototype.init = function (opts) {
-            this.$el = opts.el ? $(opts.el) : $('<div/>');
             _super.prototype.init.call(this, opts);
             this.state = {
                 items: this.viewModel.getEpics()
@@ -1164,7 +1148,6 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
         __extends(JiraView, _super);
         function JiraView() {
             _super.apply(this, arguments);
-            this.views = [];
         }
         JiraView.prototype.commands = function () {
             return {
@@ -1172,7 +1155,6 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
             };
         };
         JiraView.prototype.init = function (opts) {
-            this.$el = opts.el ? $(opts.el) : $('<div/>');
             _super.prototype.init.call(this, opts);
             this.state = {
                 issues: this.viewModel.getIssues()
@@ -1199,7 +1181,7 @@ define("app/jira/templates/panel_template", ["require", "exports", 'react'], fun
     return template;
 });
 /// <reference path="../base/base_view.ts" />
-define("app/jira/views/panel_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/templates/panel_template"], function (require, exports, $, BaseView, template) {
+define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/panel_template"], function (require, exports, BaseView, template) {
     "use strict";
     var PanelView = (function (_super) {
         __extends(PanelView, _super);
@@ -1207,7 +1189,6 @@ define("app/jira/views/panel_view", ["require", "exports", 'jquery', "app/jira/b
             _super.apply(this, arguments);
         }
         PanelView.prototype.init = function (opts) {
-            this.$el = opts.el ? $(opts.el) : $('<div />');
             _super.prototype.init.call(this, opts);
             this.opts = opts;
         };

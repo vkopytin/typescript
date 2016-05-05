@@ -30,7 +30,6 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
     }
     
     init (opts: any) {
-        this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         this.state = {
             items: this.viewModel.getEpics()

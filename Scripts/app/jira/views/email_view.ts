@@ -15,10 +15,8 @@ interface IEmailView {
 }
 
 class EmailView extends BaseView<EmailViewModel, IEmailView> {
-    $el: any
-    
+
     init (opts: any) {
-        this.$el = opts.el || $('<div/>');
         super.init(opts);
         
         this.state = {

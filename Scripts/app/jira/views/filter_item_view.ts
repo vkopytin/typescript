@@ -27,7 +27,6 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
     }
     
     init (opts: any) {
-        this.$el = opts.el || $('<span />');
         super.init(opts);
         this.state = this.props.viewModel.toJSON();
     }

@@ -27,8 +27,7 @@ interface IJiraView extends React.Props<any> {
 }
 
 class JiraView extends BaseView<JiraViewModel, IJiraView> {
-    views : any[] = []
-    
+
     commands (): { [key: string]: string } {
         return {
             'click.command .filter-reset': 'ResetFiltersCommand'
@@ -36,7 +35,6 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
     }
     
     init (opts: IJiraViewOptions): void {
-        this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         
         this.state = {

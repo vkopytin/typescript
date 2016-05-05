@@ -42,6 +42,11 @@ class EmailPage extends BaseView<EmailViewModel, IEmailPage> {
         Base.prototype.finish.apply(this, arguments);
     }
     
+    onNavigateTo (): any {
+        this.handlers.onDraw.call(this);
+        return super.onNavigateTo();
+    }
+    
     render () {
         return template2.call(this, this.viewModel);
     }

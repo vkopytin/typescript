@@ -284,26 +284,14 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
             this.setHash(componentName);
             if (deps) {
                 require(deps, function (View, ViewModel) {
-                    switch (componentName) {
-                        case '-deploy-email':
-                            _this.view = new View({
-                                el: $(document.body),
-                                viewModel: new ViewModel()
-                            });
-                            _this.view.draw();
-                            _.defer(_.bind(_this.view.onNavigateTo, _this.view), 0);
-                            break;
-                        case 'jira-report':
-                        default:
-                            var view = React.createElement(View, {
-                                el: $(document.body),
-                                viewModel: new ViewModel()
-                            });
-                            View.initHTML($(document.body));
-                            _this.view = ReactDOM.render(view, document.getElementById('page-wrapper'), function () {
-                                _.defer(_.bind(this.onNavigateTo, this), 0);
-                            });
-                    }
+                    var view = React.createElement(View, {
+                        el: $(document.body),
+                        viewModel: new ViewModel()
+                    });
+                    View.initHTML($(document.body));
+                    _this.view = ReactDOM.render(view, document.getElementById('page-wrapper'), function () {
+                        _.defer(_.bind(this.onNavigateTo, this), 0);
+                    });
                 });
             }
         };
@@ -675,6 +663,10 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
             this.$el.empty();
             delete this.$el;
             Base.prototype.finish.apply(this, arguments);
+        };
+        EmailPage.prototype.onNavigateTo = function () {
+            this.handlers.onDraw.call(this);
+            return _super.prototype.onNavigateTo.call(this);
         };
         EmailPage.prototype.render = function () {
             return template2.call(this, this.viewModel);

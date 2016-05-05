@@ -40,27 +40,14 @@ class Navigation extends Base {
         
         if (deps) {
             require(deps, (View: any, ViewModel: any) => {
-                switch (componentName) {
-                    case '-deploy-email':
-                        this.view = new View({
-                            el: $(document.body),
-                            viewModel: new ViewModel()
-                        });
-                        this.view.draw();
-                        _.defer(_.bind(this.view.onNavigateTo, this.view), 0);
-                        break;
-                    case 'jira-report':
-                    default:
-                        var view = React.createElement(View, {
-                            el: $(document.body),
-                            viewModel: new ViewModel()
-                        });
-                        View.initHTML($(document.body));
-                        this.view = ReactDOM.render(view, document.getElementById('page-wrapper'), function () {
-                            _.defer(_.bind(this.onNavigateTo, this), 0);
-                        });
-                }
-                
+                var view = React.createElement(View, {
+                    el: $(document.body),
+                    viewModel: new ViewModel()
+                });
+                View.initHTML($(document.body));
+                this.view = ReactDOM.render(view, document.getElementById('page-wrapper'), function () {
+                    _.defer(_.bind(this.onNavigateTo, this), 0);
+                });
             });
         }
     }

@@ -13,8 +13,7 @@ import IssueView = require('app/jira/views/issue_view');
 import Utils = require('app/jira/utils');
 import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
-import template = require('hgn!app/jira/templates/jira_template');
-import template2 = require('app/jira/templates/jira_template');
+import template = require('app/jira/templates/jira_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
@@ -55,26 +54,7 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
     }
     
     render () {
-        return template2.call(this, IssueView);
-    }
-    
-    drawItems (): void {
-        var issues = this.viewModel.getIssues();
-        var view = template2.call(this);
-
-        ReactDOM.render(view, $('.issues-list-container', this.$el).get(0));
-    }
-    draw (): any {
-        var data = {
-                domain: 'https://dev.local'
-            },
-            html = template(data);
-            
-        this.$el.html(html);
-        
-        this.drawItems();
-        
-        return this;
+        return template.call(this, IssueView);
     }
 }
 export = JiraView;

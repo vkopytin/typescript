@@ -40,12 +40,13 @@ class Navigation extends Base {
         
         if (deps) {
             require(deps, (View: any, ViewModel: any) => {
+                var $root = $('<div/>');
+                $(document.body).empty().append($root);
                 var view = React.createElement(View, {
-                    el: $(document.body),
+                    el: $root,
                     viewModel: new ViewModel()
                 });
-                View.initHTML($(document.body));
-                this.view = ReactDOM.render(view, document.getElementById('page-wrapper'), function () {
+                this.view = ReactDOM.render(view, $root.get(0), function () {
                     _.defer(_.bind(this.onNavigateTo, this), 0);
                 });
             });

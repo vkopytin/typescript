@@ -8,8 +8,8 @@ import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
 import Base = require('app/jira/base/base');
 import Utils = require('app/jira/utils');
-import template = require('hgn!app/jira/templates/page_template');
-import template2 = require('app/jira/templates/email_page_template');
+import template = require('app/jira/templates/email_page_template');
+import master_page_template = require('app/jira/templates/master_page_template');
 import EmailViewModel = require('app/jira/view_models/email_view_model');
 
 interface IEmailPage {
@@ -48,33 +48,9 @@ class EmailPage extends BaseView<EmailViewModel, IEmailPage> {
     }
     
     render () {
-        return template2.call(this, this.viewModel);
-    }
-    
-    static initHTML ($el: any) {
-        var data = {},
-            html = template(data),
-            res = $.Deferred();
-            
-        $el.html(html);
-    }
-    
-    draw (): any {
-        var data = {},
-            html = template(data);
-            
-        this.$el.html(html);
-        
-        Utils.loadViews({
-            emailView: ['app/jira/views/email_view', {
-                el: '#page-wrapper',
-                viewModel: this.viewModel
-            }]
-        }, this);
-                    
-        this.handlers.onDraw.call(this);
-        
-        return this;              
+        return master_page_template.call(this,
+                template.call(this, this.viewModel)
+            );
     }
 }
 export = EmailPage;

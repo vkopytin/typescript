@@ -284,12 +284,13 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
             this.setHash(componentName);
             if (deps) {
                 require(deps, function (View, ViewModel) {
+                    var $root = $('<div/>');
+                    $(document.body).empty().append($root);
                     var view = React.createElement(View, {
-                        el: $(document.body),
+                        el: $root,
                         viewModel: new ViewModel()
                     });
-                    View.initHTML($(document.body));
-                    _this.view = ReactDOM.render(view, document.getElementById('page-wrapper'), function () {
+                    _this.view = ReactDOM.render(view, $root.get(0), function () {
                         _.defer(_.bind(this.onNavigateTo, this), 0);
                     });
                 });
@@ -635,7 +636,14 @@ define("app/jira/templates/email_page_template", ["require", "exports", 'react',
     };
     return template;
 });
-define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template', "app/jira/templates/email_page_template"], function (require, exports, _, $, BaseView, Base, Utils, template, template2) {
+define("app/jira/templates/master_page_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function (view) {
+        return (React.createElement("div", null, React.createElement("div", {id: "wrapper"}, React.createElement("nav", {className: "navbar navbar-default navbar-cls-top ", role: "navigation", style: { marginBottom: 0 }}, React.createElement("div", {className: "navbar-header"}, React.createElement("button", {type: "button", className: "navbar-toggle", "data-toggle": "collapse", "data-target": ".sidebar-collapse"}, React.createElement("span", {className: "sr-only"}, "Toggle navigation"), React.createElement("span", {className: "icon-bar"}), React.createElement("span", {className: "icon-bar"}), React.createElement("span", {className: "icon-bar"})), React.createElement("a", {className: "navbar-brand", href: "index.html"}, "COMPANY NAME")), React.createElement("div", {className: "header-right"}, React.createElement("a", {href: "message-task.html", className: "btn btn-info", title: "New Message"}, React.createElement("b", null, "30 "), React.createElement("i", {className: "fa fa-envelope-o fa-2x"})), React.createElement("a", {href: "message-task.html", className: "btn btn-primary", title: "New Task"}, React.createElement("b", null, "40 "), React.createElement("i", {className: "fa fa-bars fa-2x"})), React.createElement("a", {href: "javascript:(function () { parent.postMessage('bookmarklet:close', '*'); })();", className: "btn btn-danger", title: "Logout"}, React.createElement("i", {className: "fa fa-exclamation-circle fa-2x"})))), React.createElement("nav", {className: "navbar-default navbar-side", role: "navigation"}, React.createElement("div", {className: "sidebar-collapse"}, React.createElement("ul", {className: "nav", id: "main-menu"}, React.createElement("li", null, React.createElement("div", {className: "user-img-div"}, React.createElement("img", {src: "assets/img/user.png", className: "img-thumbnail"}), React.createElement("div", {className: "inner-text"}, "Jhon Deo Alex", React.createElement("br", null), React.createElement("small", null, "Last Login : 2 Weeks Ago ")))), React.createElement("li", null, React.createElement("a", {className: "jira-deploy-email", href: "#deploy-email"}, React.createElement("i", {className: "fa fa-dashboard "}), "Deploy e-mail")), React.createElement("li", null, React.createElement("a", {className: "jira-jira-report", href: "#jira-report"}, React.createElement("i", {className: "fa fa-dashboard "}), "JIRA Report")), React.createElement("li", null, React.createElement("a", {href: "index.html"}, React.createElement("i", {className: "fa fa-dashboard "}), "Dashboard")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-desktop "}), "UI Elements ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "panel-tabs.html"}, React.createElement("i", {className: "fa fa-toggle-on"}), "Tabs & Panels")), React.createElement("li", null, React.createElement("a", {href: "notification.html"}, React.createElement("i", {className: "fa fa-bell "}), "Notifications")), React.createElement("li", null, React.createElement("a", {href: "progress.html"}, React.createElement("i", {className: "fa fa-circle-o "}), "Progressbars")), React.createElement("li", null, React.createElement("a", {href: "buttons.html"}, React.createElement("i", {className: "fa fa-code "}), "Buttons")), React.createElement("li", null, React.createElement("a", {href: "icons.html"}, React.createElement("i", {className: "fa fa-bug "}), "Icons")), React.createElement("li", null, React.createElement("a", {href: "wizard.html"}, React.createElement("i", {className: "fa fa-bug "}), "Wizard")), React.createElement("li", null, React.createElement("a", {href: "typography.html"}, React.createElement("i", {className: "fa fa-edit "}), "Typography")), React.createElement("li", null, React.createElement("a", {href: "grid.html"}, React.createElement("i", {className: "fa fa-eyedropper "}), "Grid")))), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-yelp "}), "Extra Pages ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "invoice.html"}, React.createElement("i", {className: "fa fa-coffee"}), "Invoice")), React.createElement("li", null, React.createElement("a", {href: "pricing.html"}, React.createElement("i", {className: "fa fa-flash "}), "Pricing")), React.createElement("li", null, React.createElement("a", {href: "component.html"}, React.createElement("i", {className: "fa fa-key "}), "Components")), React.createElement("li", null, React.createElement("a", {href: "social.html"}, React.createElement("i", {className: "fa fa-send "}), "Social")), React.createElement("li", null, React.createElement("a", {href: "message-task.html"}, React.createElement("i", {className: "fa fa-recycle "}), "Messages & Tasks")))), React.createElement("li", null, React.createElement("a", {className: "active-menu", href: "table.html"}, React.createElement("i", {className: "fa fa-flash "}), "Data Tables ")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-bicycle "}), "Forms ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "form.html"}, React.createElement("i", {className: "fa fa-desktop "}), "Basic ")), React.createElement("li", null, React.createElement("a", {href: "form-advance.html"}, React.createElement("i", {className: "fa fa-code "}), "Advance")))), React.createElement("li", null, React.createElement("a", {href: "gallery.html"}, React.createElement("i", {className: "fa fa-anchor "}), "Gallery")), React.createElement("li", null, React.createElement("a", {href: "error.html"}, React.createElement("i", {className: "fa fa-bug "}), "Error Page")), React.createElement("li", null, React.createElement("a", {href: "login.html"}, React.createElement("i", {className: "fa fa-sign-in "}), "Login Page")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-sitemap "}), "Multilevel Link ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-bicycle "}), "Second Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-flask "}), "Second Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, "Second Level Link", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-third-level"}, React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-plus "}), "Third Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-comments-o "}), "Third Level Link")))))), React.createElement("li", null, React.createElement("a", {href: "blank.html"}, React.createElement("i", {className: "fa fa-square-o "}), "Blank Page"))))), React.createElement("div", {id: "page-wrapper"}, view)), React.createElement("div", {id: "footer-sec"}, "© 2014 YourCompany | Design By : ", React.createElement("a", {href: "http://www.binarytheme.com/", target: "_blank"}, "BinaryTheme.com"))));
+    };
+    return template;
+});
+define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/email_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var EmailPage = (function (_super) {
         __extends(EmailPage, _super);
@@ -669,23 +677,7 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
             return _super.prototype.onNavigateTo.call(this);
         };
         EmailPage.prototype.render = function () {
-            return template2.call(this, this.viewModel);
-        };
-        EmailPage.initHTML = function ($el) {
-            var data = {}, html = template(data), res = $.Deferred();
-            $el.html(html);
-        };
-        EmailPage.prototype.draw = function () {
-            var data = {}, html = template(data);
-            this.$el.html(html);
-            Utils.loadViews({
-                emailView: ['app/jira/views/email_view', {
-                        el: '#page-wrapper',
-                        viewModel: this.viewModel
-                    }]
-            }, this);
-            this.handlers.onDraw.call(this);
-            return this;
+            return master_page_template.call(this, template.call(this, this.viewModel));
         };
         return EmailPage;
     }(BaseView));
@@ -1178,7 +1170,7 @@ define("app/jira/templates/jira_template", ["require", "exports", 'react'], func
 /// <reference path="../view_models/jira_view_model.ts" />
 /// <reference path="../view_models/issue_entry_view_model.ts" />
 /// <reference path="issue_view.ts" />
-define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issue_view", 'hgn!app/jira/templates/jira_template', "app/jira/templates/jira_template", 'react-dom'], function (require, exports, $, _, BaseView, IssueView, template, template2, ReactDOM) {
+define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issue_view", "app/jira/templates/jira_template"], function (require, exports, $, _, BaseView, IssueView, template) {
     "use strict";
     var JiraView = (function (_super) {
         __extends(JiraView, _super);
@@ -1205,20 +1197,7 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
             });
         };
         JiraView.prototype.render = function () {
-            return template2.call(this, IssueView);
-        };
-        JiraView.prototype.drawItems = function () {
-            var issues = this.viewModel.getIssues();
-            var view = template2.call(this);
-            ReactDOM.render(view, $('.issues-list-container', this.$el).get(0));
-        };
-        JiraView.prototype.draw = function () {
-            var data = {
-                domain: 'https://dev.local'
-            }, html = template(data);
-            this.$el.html(html);
-            this.drawItems();
-            return this;
+            return template.call(this, IssueView);
         };
         return JiraView;
     }(BaseView));
@@ -1269,7 +1248,7 @@ define("app/jira/templates/jira_page_template", ["require", "exports", 'react', 
     };
     return template;
 });
-define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", 'app/jira/utils', 'hgn!app/jira/templates/page_template', "app/jira/templates/jira_page_template"], function (require, exports, _, $, BaseView, Base, Utils, template, template2) {
+define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/jira_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var JiraPage = (function (_super) {
         __extends(JiraPage, _super);
@@ -1303,51 +1282,7 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
             return _super.prototype.onNavigateTo.call(this);
         };
         JiraPage.prototype.render = function () {
-            return template2.call(this, this.viewModel);
-        };
-        JiraPage.initHTML = function ($el) {
-            var data = {}, html = template(data), res = $.Deferred();
-            $el.html(html);
-        };
-        JiraPage.prototype.draw = function () {
-            var _this = this;
-            var data = {}, html = template(data), res = $.Deferred();
-            this.$el.html(html);
-            Utils.loadViews({
-                jiraView: ['app/jira/views/jira_view', {
-                        el: '#page-wrapper',
-                        viewModel: this.viewModel
-                    }, {
-                        filterView: ['app/jira/views/filter_view', {
-                                el: '.filter-items-statuses',
-                                viewModel: this.viewModel,
-                                bindings: {
-                                    'change:statuses': function (view, viewModel) {
-                                        view.setItems(viewModel.getFilterItems());
-                                    }
-                                }
-                            }],
-                        panelView: ['app/jira/views/panel_view', {
-                                el: '.epics-panel',
-                                title: 'Filter by Epic',
-                                viewModel: this.viewModel
-                            }, {
-                                epicsView: ['app/jira/views/epics_view', {
-                                        el: '.filter-epics',
-                                        viewModel: this.viewModel,
-                                        bindings: {
-                                            'change:epics': function (view, viewModel) {
-                                                view.setItems(viewModel.getEpics());
-                                            }
-                                        }
-                                    }]
-                            }]
-                    }]
-            }, this).done(function () {
-                _this.handlers.onDraw.call(_this);
-                res.resolve(_this);
-            });
-            return res.promise();
+            return master_page_template.call(this, template.call(this, this.viewModel));
         };
         return JiraPage;
     }(BaseView));

@@ -42,10 +42,6 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
     componentWillReceiveProps (newProps: any) {
     }
     
-    draw () {
-        
-        return this;
-    }
     render () {
         if (this.isFinish) {
             return null;

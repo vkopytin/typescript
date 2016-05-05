@@ -23,10 +23,5 @@ class PanelView extends BaseView<JiraViewModel, IPanelView> {
     render () {
         return template.call(this);
     }
-    
-    draw (): any {
-        
-        return this;
-    }
 }
 export = PanelView;

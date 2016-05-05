@@ -51,10 +51,6 @@ class IssueView extends BaseView<IssueEntryViewModel, IIssueView> {
         super.init(opts);
     }
     
-    draw () {
-        return this;
-    }
-    
     render () {
         var data = this.viewModel.toJSON();
         

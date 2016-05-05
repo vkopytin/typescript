@@ -36,11 +36,7 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
             items: this.viewModel.getEpics()
         };
     }
-    
-    draw (): any {
-        
-        return this;
-    }
+   
     render () {
         if (this.isFinish) {
             return null;

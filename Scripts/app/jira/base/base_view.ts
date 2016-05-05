@@ -90,9 +90,6 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<a
     onNavigateFrom (): void {
         this.viewModel && this.viewModel.navigateFrom();
     }
-    draw () : any {
-        return this;
-    }
     render (): any {
         return null;
     }

@@ -90,9 +90,6 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
         BaseView.prototype.onNavigateFrom = function () {
             this.viewModel && this.viewModel.navigateFrom();
         };
-        BaseView.prototype.draw = function () {
-            return this;
-        };
         BaseView.prototype.render = function () {
             return null;
         };
@@ -1001,9 +998,6 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', 'jquery
             this.$el = $('<tr/>');
             _super.prototype.init.call(this, opts);
         };
-        IssueView.prototype.draw = function () {
-            return this;
-        };
         IssueView.prototype.render = function () {
             var data = this.viewModel.toJSON();
             return template.call(this, _.extend(data, {
@@ -1102,9 +1096,6 @@ define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/
         };
         FilterView.prototype.componentWillReceiveProps = function (newProps) {
         };
-        FilterView.prototype.draw = function () {
-            return this;
-        };
         FilterView.prototype.render = function () {
             if (this.isFinish) {
                 return null;
@@ -1144,9 +1135,6 @@ define("app/jira/views/epics_view", ["require", "exports", 'jquery', "app/jira/b
             this.state = {
                 items: this.viewModel.getEpics()
             };
-        };
-        EpicsView.prototype.draw = function () {
-            return this;
         };
         EpicsView.prototype.render = function () {
             if (this.isFinish) {
@@ -1225,9 +1213,6 @@ define("app/jira/views/panel_view", ["require", "exports", 'jquery', "app/jira/b
         };
         PanelView.prototype.render = function () {
             return template.call(this);
-        };
-        PanelView.prototype.draw = function () {
-            return this;
         };
         return PanelView;
     }(BaseView));

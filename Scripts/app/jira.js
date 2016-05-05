@@ -581,12 +581,21 @@ define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery
         EmailView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
             this.state = {
-                issues: this.viewModel.getIssues(),
+                issues: this.props.viewModel.getIssues(),
                 'email-to': 'qa@rebelmouse.com',
                 subject: encodeURIComponent('Tomorrow deploy'),
                 body: this.getEmailText()
             };
-            $(this.viewModel).on('change:issues', _.bind(this.setIssues, this));
+        };
+        EmailView.prototype.componentWillMount = function () {
+            $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
+        };
+        EmailView.prototype.componentWillUnmount = function () {
+            $(this.props.viewModel).off('change:issues');
+        };
+        EmailView.prototype.componentWillReceiveProps = function (props) {
+            $(this.props.viewModel).off('change:issues');
+            $(props.viewModel).on('change:issues', _.bind(this.setIssues, this));
         };
         EmailView.prototype.getEmailHTML = function () {
             var _this = this;

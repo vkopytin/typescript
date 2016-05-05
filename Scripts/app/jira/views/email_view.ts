@@ -20,13 +20,24 @@ class EmailView extends BaseView<EmailViewModel, IEmailView> {
         super.init(opts);
         
         this.state = {
-            issues: this.viewModel.getIssues(),
+            issues: this.props.viewModel.getIssues(),
             'email-to': 'qa@rebelmouse.com',
             subject: encodeURIComponent('Tomorrow deploy'),
             body: this.getEmailText()
         };
-        
-        $(this.viewModel).on('change:issues', _.bind(this.setIssues, this));
+    }
+    
+    componentWillMount () {
+        $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
+    }
+    
+    componentWillUnmount () {
+        $(this.props.viewModel).off('change:issues');
+    }
+    
+    componentWillReceiveProps (props: any) {
+        $(this.props.viewModel).off('change:issues');
+        $(props.viewModel).on('change:issues', _.bind(this.setIssues, this));
     }
     
     getEmailHTML () {

@@ -651,9 +651,6 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
             _super.prototype.init.call(this, options);
         };
         EmailPage.prototype.finish = function () {
-            this.$el.off();
-            this.$el.empty();
-            delete this.$el;
             Base.prototype.finish.apply(this, arguments);
         };
         EmailPage.prototype.onNavigateTo = function () {
@@ -809,7 +806,7 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
         function JiraViewModel() {
             _super.apply(this, arguments);
             this.issues = [];
-            this.filterItems = [];
+            this.statuses = [];
             this.epics = [];
             this.currentFiler = {};
         }
@@ -826,17 +823,17 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
             this.issues = value;
             this.triggerProperyChanged('change:issues');
         };
-        JiraViewModel.prototype.getFilterItems = function () {
-            return this.filterItems;
+        JiraViewModel.prototype.getStatuses = function () {
+            return this.statuses;
         };
         JiraViewModel.prototype.setStatuses = function (value) {
-            var filterItems = this.filterItems;
+            var filterItems = this.statuses;
             _.defer(function () {
                 _.each(filterItems, function (viewModel) {
                     viewModel.finish();
                 });
             }, 0);
-            this.filterItems = value;
+            this.statuses = value;
             this.triggerProperyChanged('change:statuses');
         };
         JiraViewModel.prototype.getEpics = function () {
@@ -853,7 +850,7 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
             this.triggerProperyChanged('change:epics');
         };
         JiraViewModel.prototype.getFilter = function () {
-            var filterItems = _.reduce(this.filterItems, function (res, item) {
+            var filterItems = _.reduce(this.statuses, function (res, item) {
                 if (item.getSelected()) {
                     res.push(item.getId());
                 }
@@ -868,7 +865,7 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
             var model = Model.getCurrent();
             _super.prototype.init.call(this, opts);
             this.currentFiler = {};
-            this.filterItems = _.map(filters, function (item) {
+            this.statuses = _.map(filters, function (item) {
                 return new FilterEntryViewModel(item);
             });
             this.ResetFiltersCommand = new Command({ execute: this.onResetFilters, scope: this });
@@ -1076,7 +1073,7 @@ define("app/jira/views/filter_view", ["require", "exports", 'jquery', "app/jira/
             this.$el = opts.el ? $(opts.el) : $('<div/>');
             _super.prototype.init.call(this, opts);
             this.state = {
-                items: this.viewModel.getFilterItems()
+                items: this.viewModel.getStatuses()
             };
         };
         FilterView.prototype.componentWillReceiveProps = function (newProps) {
@@ -1159,11 +1156,20 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
             this.state = {
                 issues: this.viewModel.getIssues()
             };
-            $(this.viewModel).on('change:issues', _.bind(this.setIssues, this));
+        };
+        JiraView.prototype.componentWillMount = function () {
+            $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
+        };
+        JiraView.prototype.componentWillUnmount = function () {
+            $(this.props.viewModel).off('change:issues');
+        };
+        JiraView.prototype.componentWillReceiveProps = function (props) {
+            $(this.props.viewModel).off('change:issues');
+            $(props.viewModel).on('change:issues', _.bind(this.setIssues, this));
         };
         JiraView.prototype.setIssues = function () {
             this.setState({
-                issues: this.viewModel.getIssues()
+                issues: this.props.viewModel.getIssues()
             });
         };
         JiraView.prototype.render = function () {
@@ -1204,7 +1210,7 @@ define("app/jira/templates/jira_page_template", ["require", "exports", 'react', 
     var template = function (viewModel) {
         return (React.createElement(JiraView, {viewModel: viewModel}, React.createElement(FilterView, {ref: "filterStatuses", viewModel: viewModel, bindings: {
             'change:statuses': function (view, viewModel) {
-                view.setItems(viewModel.getFilterItems());
+                view.setItems(viewModel.getStatuses());
             }
         }}), React.createElement(PanelView, {ref: "epicsPanel", viewModel: viewModel, title: "Filter by Epic"}, React.createElement(EpicsView, {ref: "filterEpics", viewModel: viewModel, bindings: {
             'change:epics': function (view, viewModel) {
@@ -1238,9 +1244,6 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
             _super.prototype.init.call(this, options);
         };
         JiraPage.prototype.finish = function () {
-            this.$el.off();
-            this.$el.empty();
-            delete this.$el;
             Base.prototype.finish.apply(this, arguments);
         };
         JiraPage.prototype.onNavigateTo = function () {

@@ -35,7 +35,7 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
         this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         this.state = {
-            items: this.viewModel.getFilterItems()
+            items: this.viewModel.getStatuses()
         };
     }
     

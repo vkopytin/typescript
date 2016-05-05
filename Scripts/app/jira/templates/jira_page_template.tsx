@@ -10,7 +10,7 @@ var template = function (viewModel: any) {
 		<JiraView viewModel={viewModel}>
 			<FilterView ref="filterStatuses" viewModel={viewModel} bindings={{
                         'change:statuses': (view: any, viewModel: JiraViewModel) => {
-                            view.setItems(viewModel.getFilterItems());
+                            view.setItems(viewModel.getStatuses());
                         }
                     }}/>
 			<PanelView ref="epicsPanel" viewModel={viewModel} title={"Filter by Epic"}>

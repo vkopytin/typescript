@@ -41,13 +41,24 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
             issues: this.viewModel.getIssues()
         };
         
-        $(this.viewModel).on('change:issues', _.bind(this.setIssues, this));
-        
+    }
+    
+    componentWillMount () {
+        $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
+    }
+    
+    componentWillUnmount () {
+        $(this.props.viewModel).off('change:issues');
+    }
+    
+    componentWillReceiveProps (props: any) {
+        $(this.props.viewModel).off('change:issues');
+        $(props.viewModel).on('change:issues', _.bind(this.setIssues, this));
     }
     
     setIssues () {
         this.setState({
-            issues: this.viewModel.getIssues()
+            issues: this.props.viewModel.getIssues()
         })
     }
     

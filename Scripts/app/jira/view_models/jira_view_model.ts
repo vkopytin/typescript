@@ -55,7 +55,7 @@ class JiraViewModel extends BaseViewModel {
     changeEpicsDelegate: any
     
     issues: IssueEntryViewModel[] = []
-    filterItems: FilterEntryViewModel[] = []
+    statuses: FilterEntryViewModel[] = []
     epics: FilterEpicViewModel[] = []
     currentFiler: any = {}
     
@@ -76,17 +76,17 @@ class JiraViewModel extends BaseViewModel {
         this.issues = value;
         this.triggerProperyChanged('change:issues');
     }
-    getFilterItems () : FilterEntryViewModel[] {
-        return this.filterItems;
+    getStatuses () : FilterEntryViewModel[] {
+        return this.statuses;
     }
     setStatuses (value: FilterEntryViewModel[]) : void {
-        var filterItems = this.filterItems;
+        var filterItems = this.statuses;
         _.defer(() => {
             _.each(filterItems, (viewModel) => {
                 viewModel.finish();
             });
         }, 0);
-        this.filterItems = value;
+        this.statuses = value;
         this.triggerProperyChanged('change:statuses');
     }
     getEpics () : FilterEpicViewModel[] {
@@ -103,7 +103,7 @@ class JiraViewModel extends BaseViewModel {
         this.triggerProperyChanged('change:epics');
     }
     getFilter () : any {
-        var filterItems = _.reduce(this.filterItems, (res: any[], item: FilterEntryViewModel) => {
+        var filterItems = _.reduce(this.statuses, (res: any[], item: FilterEntryViewModel) => {
             if (item.getSelected()) {
                 res.push(item.getId());
             }
@@ -119,7 +119,7 @@ class JiraViewModel extends BaseViewModel {
         var model = Model.getCurrent();
         super.init(opts);
         this.currentFiler = {};
-        this.filterItems = _.map(filters, (item) => {
+        this.statuses = _.map(filters, (item) => {
             return new FilterEntryViewModel(item);
         });
         

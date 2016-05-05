@@ -38,10 +38,6 @@ class JiraPage extends BaseView<JiraViewModel, IJiraPage> {
         super.init(options);
     }
     finish (): void {
-        this.$el.off();
-        this.$el.empty();
-        delete this.$el;
-        
         Base.prototype.finish.apply(this, arguments);
     }
     

@@ -35,10 +35,6 @@ class EmailPage extends BaseView<EmailViewModel, IEmailPage> {
         super.init(options);
     }
     finish (): void {
-        this.$el.off();
-        this.$el.empty();
-        delete this.$el;
-        
         Base.prototype.finish.apply(this, arguments);
     }
     

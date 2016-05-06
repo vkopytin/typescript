@@ -23,7 +23,7 @@ interface IJiraViewOptions {
 
 interface IJiraView extends React.Props<any> {
     viewModel: JiraViewModel
-    issues: () => IssueEntryViewModel[]
+    issues: (vm: JiraViewModel) => IssueEntryViewModel[]
 }
 
 class JiraView extends BaseView<JiraViewModel, IJiraView> {
@@ -34,13 +34,18 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
         };
     }
     
+    setIssues () {
+        this.setState({
+            issues: this.props.issues(this.props.viewModel)
+        })
+    }
+    
     init (opts: IJiraViewOptions): void {
         super.init(opts);
         
         this.state = {
-            issues: this.props.issues()
+            issues: this.props.issues(this.props.viewModel)
         };
-        
     }
     
     componentWillMount () {
@@ -51,15 +56,9 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
         $(this.props.viewModel).off('change:issues');
     }
     
-    componentWillReceiveProps (props: any) {
+    componentWillReceiveProps (props: IJiraView) {
         $(this.props.viewModel).off('change:issues');
         $(props.viewModel).on('change:issues', _.bind(this.setIssues, this));
-    }
-    
-    setIssues () {
-        this.setState({
-            issues: this.props.viewModel.getIssues()
-        })
     }
     
     render () {

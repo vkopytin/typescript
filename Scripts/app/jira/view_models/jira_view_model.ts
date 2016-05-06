@@ -55,7 +55,7 @@ class JiraViewModel extends BaseViewModel {
     changeEpicsDelegate: any
     
     issues: IssueEntryViewModel[] = []
-    statuses: FilterEntryViewModel[] = []
+    statuses: FilterEntryViewModel[] = filters.map((item) => new FilterEntryViewModel(item))
     epics: FilterEpicViewModel[] = []
     currentFiler: any = {}
     
@@ -119,9 +119,6 @@ class JiraViewModel extends BaseViewModel {
         var model = Model.getCurrent();
         super.init(opts);
         this.currentFiler = {};
-        this.statuses = _.map(filters, (item) => {
-            return new FilterEntryViewModel(item);
-        });
         
         this.ResetFiltersCommand = new Command({ execute: this.onResetFilters, scope: this });
 

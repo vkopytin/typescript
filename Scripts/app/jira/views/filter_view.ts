@@ -13,8 +13,7 @@ import ReactDOM = require('react-dom');
 
 interface IFilterView extends React.Props<any> {
     viewModel: JiraViewModel
-    statuses: () => FilterEntryViewModel[]
-    bindings: {[key: string]: Function}
+    statuses: (vm: JiraViewModel) => FilterEntryViewModel[]
 }
 
 class FilterView extends BaseView<JiraViewModel, IFilterView> {
@@ -28,19 +27,31 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
             items: items
         });
     }
-    filterStatuses () {
-        return $('.filter-statuses', this.$el);
+    
+    setStatuses () {
+        this.setState({
+            items: this.props.statuses(this.props.viewModel)
+        });
     }
     
     init (opts: any): void {
-        this.$el = opts.el ? $(opts.el) : $('<div/>');
         super.init(opts);
         this.state = {
-            items: this.props.statuses()
+            items: this.props.statuses(this.props.viewModel)
         };
     }
     
-    componentWillReceiveProps (newProps: any) {
+    componentWillMount () {
+        $(this.props.viewModel).on('change:statuses', _.bind(this.setStatuses, this));
+    }
+    
+    componentWillUnmount () {
+        $(this.props.viewModel).off('change:statuses');
+    }
+    
+    componentWillReceiveProps (props: IFilterView) {
+        $(this.props.viewModel).off('change:statuses');
+        $(props.viewModel).on('change:statuses', _.bind(this.setStatuses, this));
     }
     
     render () {

@@ -16,6 +16,12 @@ interface IEmailView {
 
 class EmailView extends BaseView<EmailViewModel, IEmailView> {
 
+    setIssues () {
+        this.setState(_.extend({}, this.state, {
+            issues: this.viewModel.getIssues()
+        }));
+    }
+
     init (opts: any) {
         super.init(opts);
         
@@ -55,12 +61,6 @@ class EmailView extends BaseView<EmailViewModel, IEmailView> {
         var html = this.getEmailHTML();
         
         return encodeURIComponent($('<div/>').html(html.__html).text());
-    }
-    
-    setIssues () {
-        this.setState(_.extend({}, this.state, {
-            issues: this.viewModel.getIssues()
-        }));
     }
     
     render () {

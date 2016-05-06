@@ -14,8 +14,7 @@ import ReactDOM = require('react-dom');
 
 interface IEpicsView extends React.Props<any> {
     viewModel: JiraViewModel
-    epics: () => EpicsEntryViewModel[]
-    bindings: {[key: string]: Function}
+    epics: (vm: JiraViewModel) => EpicsEntryViewModel[]
 }
 
 class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
@@ -30,13 +29,32 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
         });
     }
     
+    setEpics () {
+        this.setState({
+           items: this.props.epics(this.props.viewModel) 
+        });
+    }
+    
     init (opts: any) {
         super.init(opts);
         this.state = {
-            items: this.props.epics()
+            items: this.props.epics(this.props.viewModel)
         };
     }
-   
+    
+    componentWillMount () {
+        $(this.props.viewModel).on('change:epics', _.bind(this.setEpics, this));
+    }
+    
+    componentWillUnmount () {
+        $(this.props.viewModel).off('change:epics');
+    }
+    
+    componentWillReceiveProps (props: IEpicsView) {
+        $(this.props.viewModel).off('change:epics');
+        $(props.viewModel).on('change:epics', _.bind(this.setEpics, this));
+    }
+    
     render () {
         return template.call(this);
     }

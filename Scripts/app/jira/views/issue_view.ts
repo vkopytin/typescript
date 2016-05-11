@@ -46,6 +46,10 @@ interface IIssueView {
 
 class IssueView extends BaseView<IssueEntryViewModel, IIssueView> {
 
+    constructor(opts: any) {
+        super(opts);
+    }
+    
     init (opts: any) {
         super.init(opts);
     }

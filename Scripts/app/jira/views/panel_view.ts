@@ -14,9 +14,13 @@ interface IPanelView extends React.Props<any> {
 class PanelView extends BaseView<JiraViewModel, IPanelView> {
     opts: any
     
+    constructor(opts: any) {
+        super(opts);
+        this.opts = opts;
+    }
+    
     init (opts: any): void {
         super.init(opts);
-        this.opts = opts;
     }
     
     render () {

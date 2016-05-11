@@ -20,6 +20,10 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
 
     constructor (opts: any) {
         super(opts);
+
+        this.state = {
+            items: this.props.statuses(this.props.viewModel)
+        };
     }
     
     setItems (items: FilterEntryViewModel[]) {
@@ -36,9 +40,6 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
     
     init (opts: any): void {
         super.init(opts);
-        this.state = {
-            items: this.props.statuses(this.props.viewModel)
-        };
     }
     
     componentWillMount () {

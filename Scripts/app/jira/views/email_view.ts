@@ -16,14 +16,8 @@ interface IEmailView {
 
 class EmailView extends BaseView<EmailViewModel, IEmailView> {
 
-    setIssues () {
-        this.setState(_.extend({}, this.state, {
-            issues: this.viewModel.getIssues()
-        }));
-    }
-
-    init (opts: any) {
-        super.init(opts);
+    constructor(opts: any) {
+        super(opts);
         
         this.state = {
             issues: this.props.viewModel.getIssues(),
@@ -31,6 +25,16 @@ class EmailView extends BaseView<EmailViewModel, IEmailView> {
             subject: encodeURIComponent('Tomorrow deploy'),
             body: this.getEmailText()
         };
+    }
+    
+    setIssues () {
+        this.setState(_.extend({}, this.state, {
+            issues: this.props.viewModel.getIssues()
+        }));
+    }
+
+    init (opts: any) {
+        super.init(opts);
     }
     
     componentWillMount () {

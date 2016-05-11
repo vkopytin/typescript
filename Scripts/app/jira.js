@@ -575,22 +575,22 @@ define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery
     "use strict";
     var EmailView = (function (_super) {
         __extends(EmailView, _super);
-        function EmailView() {
-            _super.apply(this, arguments);
-        }
-        EmailView.prototype.setIssues = function () {
-            this.setState(_.extend({}, this.state, {
-                issues: this.viewModel.getIssues()
-            }));
-        };
-        EmailView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
+        function EmailView(opts) {
+            _super.call(this, opts);
             this.state = {
                 issues: this.props.viewModel.getIssues(),
                 'email-to': 'qa@rebelmouse.com',
                 subject: encodeURIComponent('Tomorrow deploy'),
                 body: this.getEmailText()
             };
+        }
+        EmailView.prototype.setIssues = function () {
+            this.setState(_.extend({}, this.state, {
+                issues: this.props.viewModel.getIssues()
+            }));
+        };
+        EmailView.prototype.init = function (opts) {
+            _super.prototype.init.call(this, opts);
         };
         EmailView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
@@ -981,8 +981,8 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', "app/ji
     }
     var IssueView = (function (_super) {
         __extends(IssueView, _super);
-        function IssueView() {
-            _super.apply(this, arguments);
+        function IssueView(opts) {
+            _super.call(this, opts);
         }
         IssueView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
@@ -1014,10 +1014,10 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
         __extends(FilterItemView, _super);
         function FilterItemView(opts) {
             _super.call(this, opts);
+            this.state = this.props.viewModel.toJSON();
         }
         FilterItemView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
-            this.state = this.props.viewModel.toJSON();
         };
         FilterItemView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
@@ -1063,6 +1063,9 @@ define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquer
         __extends(FilterView, _super);
         function FilterView(opts) {
             _super.call(this, opts);
+            this.state = {
+                items: this.props.statuses(this.props.viewModel)
+            };
         }
         FilterView.prototype.setItems = function (items) {
             this.setState({
@@ -1076,9 +1079,6 @@ define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquer
         };
         FilterView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
-            this.state = {
-                items: this.props.statuses(this.props.viewModel)
-            };
         };
         FilterView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:statuses', _.bind(this.setStatuses, this));
@@ -1108,12 +1108,16 @@ define("app/jira/templates/epics_view_template", ["require", "exports", 'react',
     return template;
 });
 /// <reference path="../../../vendor.d.ts" />
+/// <reference path="../base/base_view.ts" />
 define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/epics_view_template"], function (require, exports, _, $, BaseView, template) {
     "use strict";
     var EpicsView = (function (_super) {
         __extends(EpicsView, _super);
         function EpicsView(opts) {
             _super.call(this, opts);
+            this.state = {
+                items: this.props.epics(this.props.viewModel)
+            };
         }
         EpicsView.prototype.setItems = function (items) {
             this.setState({
@@ -1127,9 +1131,6 @@ define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery
         };
         EpicsView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
-            this.state = {
-                items: this.props.epics(this.props.viewModel)
-            };
         };
         EpicsView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:epics', _.bind(this.setEpics, this));
@@ -1164,8 +1165,11 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
     "use strict";
     var JiraView = (function (_super) {
         __extends(JiraView, _super);
-        function JiraView() {
-            _super.apply(this, arguments);
+        function JiraView(opts) {
+            _super.call(this, opts);
+            this.state = {
+                issues: this.props.issues(this.props.viewModel)
+            };
         }
         JiraView.prototype.commands = function () {
             return {
@@ -1179,9 +1183,6 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
         };
         JiraView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
-            this.state = {
-                issues: this.props.issues(this.props.viewModel)
-            };
         };
         JiraView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
@@ -1212,12 +1213,12 @@ define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_v
     "use strict";
     var PanelView = (function (_super) {
         __extends(PanelView, _super);
-        function PanelView() {
-            _super.apply(this, arguments);
+        function PanelView(opts) {
+            _super.call(this, opts);
+            this.opts = opts;
         }
         PanelView.prototype.init = function (opts) {
             _super.prototype.init.call(this, opts);
-            this.opts = opts;
         };
         PanelView.prototype.render = function () {
             return template.call(this);

@@ -14,7 +14,7 @@ import ReactDOM = require('react-dom');
 
 interface IFilterItemView<TViewModel extends IFilterEntryViewModel> extends React.Props<any> {
     viewModel: TViewModel;
-} 
+}
 
 interface IFilterEntryViewModel extends BaseViewModel {
 	getSelected(): boolean;
@@ -24,11 +24,11 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
 
     constructor (opts: any) {
         super(opts);
+        this.state = this.props.viewModel.toJSON();
     }
     
     init (opts: any) {
         super.init(opts);
-        this.state = this.props.viewModel.toJSON();
     }
     
     componentWillMount () {

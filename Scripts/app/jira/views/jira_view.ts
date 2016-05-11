@@ -28,6 +28,14 @@ interface IJiraView extends React.Props<any> {
 
 class JiraView extends BaseView<JiraViewModel, IJiraView> {
 
+    constructor(opts: any) {
+        super(opts);
+        
+        this.state = {
+            issues: this.props.issues(this.props.viewModel)
+        };
+    }
+
     commands (): { [key: string]: string } {
         return {
             'click.command .filter-reset': 'ResetFiltersCommand'
@@ -42,10 +50,6 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
     
     init (opts: IJiraViewOptions): void {
         super.init(opts);
-        
-        this.state = {
-            issues: this.props.issues(this.props.viewModel)
-        };
     }
     
     componentWillMount () {

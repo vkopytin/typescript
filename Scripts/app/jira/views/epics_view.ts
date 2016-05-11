@@ -1,5 +1,4 @@
 /// <reference path="../../../vendor.d.ts" />
-
 /// <reference path="../base/base_view.ts" />
 
 import _ = require('underscore');
@@ -21,6 +20,10 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
 
     constructor (opts: any) {
         super(opts);
+
+        this.state = {
+            items: this.props.epics(this.props.viewModel)
+        };
     }
     
     setItems (items: EpicsEntryViewModel[]) {
@@ -37,9 +40,6 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
     
     init (opts: any) {
         super.init(opts);
-        this.state = {
-            items: this.props.epics(this.props.viewModel)
-        };
     }
     
     componentWillMount () {

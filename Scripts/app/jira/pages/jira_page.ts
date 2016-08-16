@@ -19,12 +19,6 @@ interface IJiraPage {
 
 class JiraPage extends BaseView<JiraViewModel, IJiraPage> {
 
-    commands (): { [key: string]: string } {
-        return { 
-            'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
-            'click.command .jira-jira-report': 'JiraReportNavigateCommand'
-        };
-    }
     handlers = {
         onDraw: function () {
             $('#main-menu').metisMenu();

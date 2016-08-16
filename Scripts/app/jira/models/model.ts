@@ -99,4 +99,5 @@ class JiraModel extends ModelBase {
         return inst;
     }
 }
+
 export = JiraModel;

@@ -15,7 +15,11 @@ var template = function (IssueView: any) {
             <div className={"panel panel-default"}>
                 <div className={"panel-heading"}>
                     <a href={"javascript:(function(){HOST = '{{domain}}';var jsCode = document.createElement('script');jsCode.setAttribute('src', HOST + '/mvc/jira/bookmarklet?' + Math.random());jsCode.setAttribute('id','jira-worktool-bookmarklet');document.getElementsByTagName('head')[0].appendChild(jsCode);}());"}><button className={"btn btn-lg btn-info"}>Jira bookmarklet</button></a>
-                    <button type={"button"} className={"filter-reset btn btn-lg btn-primary"}>Reset</button>
+                    <button
+                      type={"button"}
+                      className={"filter-reset btn btn-lg btn-primary"}
+                      onClick={() => this.runCommand('ResetFiltersCommand')}
+                     >Reset</button>
                     <label>Filter By Status</label>
                 </div>
                 <div className={"panel-body"}>

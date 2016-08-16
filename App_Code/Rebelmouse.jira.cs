@@ -1,12 +1,14 @@
 using System;
 using System.IO;
 using System.Collections.Specialized;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Web;
 using System.Web.Script.Serialization;
-using System.Collections.Generic;
+using System.Linq.Expressions;
+
 
 namespace Rebelmouse.jira {
     public class JiraClient {
@@ -91,7 +93,11 @@ namespace Rebelmouse.jira {
             {
                 webClient.Headers.Set("Authorization", "Basic " + encodedCredentials);
 
-                return webClient.DownloadString(url);
+                try {
+                    return webClient.DownloadString(url);
+                } catch (Exception ex) {
+                    throw new Exception(url);
+                }
             }
         }
 

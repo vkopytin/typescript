@@ -39,13 +39,28 @@ var template = function (view: any) {
 
 
                     <li>
-                        <a className={"jira-deploy-email"} href={"#deploy-email"}><i className={"fa fa-dashboard "}></i>Deploy e-mail</a>
+                        <a className={"jira-deploy-email"}
+                         href={"#deploy-email"}
+                         onClick={() => this.runCommand('DeployEmailNavigateCommand')}
+                         >
+                            <i className={"fa fa-dashboard "}></i>
+                            Deploy e-mail
+                        </a>
                     </li>
                     <li>
-                        <a className={"jira-jira-report"} href={"#jira-report"}><i className={"fa fa-dashboard "}></i>JIRA Report</a>
+                        <a className={"jira-jira-report"}
+                         href={"#jira-report"}
+                         onClick={() => this.runCommand('JiraReportNavigateCommand')}
+                         >
+                            <i className={"fa fa-dashboard "}></i>
+                            JIRA Report
+                        </a>
                     </li>
                     <li>
-                        <a  href={"index.html"}><i className={"fa fa-dashboard "}></i>Dashboard</a>
+                        <a className={"feeding-feeding"}
+                         href={"#feeding"}
+                         onClick={() => this.runCommand('FeedingPageNavigateCommand')}
+                         ><i className={"fa fa-dashboard "}></i>Feeding</a>
                     </li>
                     <li>
                         <a href={"#"}><i className={"fa fa-desktop "}></i>UI Elements <span className={"fa arrow"}></span></a>

@@ -70,10 +70,15 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             _.each(commands, function (value, key) {
                 var pair = key.split(/\s+/);
                 $(_this.$el).on(pair[0], pair[1], function (evnt) {
-                    var command = _this.viewModel.getCommand(value);
-                    command.execute();
+                    _this.runCommand(value, {});
                 });
             }, this);
+        };
+        BaseView.prototype.runCommand = function (name, options) {
+            var command = this.viewModel.getCommand(name);
+            if (command) {
+                command.execute.apply(command, arguments);
+            }
         };
         BaseView.prototype.onNavigateTo = function () {
             this.viewModel && this.viewModel.navigateTo();
@@ -245,7 +250,8 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
     "use strict";
     var components = {
         'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/jira_view_model'],
-        'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_view_model']
+        'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_view_model'],
+        'feeding': ['app/jira/pages/feeding_page', 'app/jira/view_models/feeding_view_model']
     }, inst;
     var Navigation = (function (_super) {
         __extends(Navigation, _super);
@@ -369,6 +375,46 @@ define("app/jira/base/model_base", ["require", "exports", 'jquery', "app/jira/ba
     }(Base));
     return ModelBase;
 });
+define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app/jira/base/model_base"], function (require, exports, $, ModelBase) {
+    "use strict";
+    var fetchProductsXhr = null, inst;
+    var AccountingModel = (function (_super) {
+        __extends(AccountingModel, _super);
+        function AccountingModel() {
+            _super.apply(this, arguments);
+            this.products = [];
+        }
+        AccountingModel.prototype.getProducts = function () {
+            return this.products;
+        };
+        AccountingModel.prototype.setProducts = function (value) {
+            this.products = value;
+            this.triggerProperyChanged('accounting_model.products');
+        };
+        AccountingModel.prototype.fetchProducts = function () {
+            var _this = this;
+            fetchProductsXhr = $.when(fetchProductsXhr).then(function () {
+                return $.ajax({
+                    url: '/jira/schedule',
+                    type: 'GET',
+                    data: {},
+                    success: function (items, success, xhr) {
+                        _this.setProducts(items);
+                    }
+                });
+            });
+        };
+        AccountingModel.getCurrent = function () {
+            if (inst) {
+                return inst;
+            }
+            inst = new AccountingModel({});
+            return inst;
+        };
+        return AccountingModel;
+    }(ModelBase));
+    return AccountingModel;
+});
 define("app/jira/models/model", ["require", "exports", 'underscore', 'jquery', "app/jira/base/model_base"], function (require, exports, _, $, ModelBase) {
     "use strict";
     var fetchIssuesXhr = null, fetchEpicsXhr = null, fetchStatusesXhr = null, inst;
@@ -478,6 +524,7 @@ define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/
             _super.prototype.init.call(this, opts);
             this.DeployEmailNavigateCommand = new Command({ execute: this.onDeployEmailNavigateCommand, scope: this });
             this.JiraReportNavigateCommand = new Command({ execute: this.onJiraReportNavigateCommand, scope: this });
+            this.FeedingPageNavigateCommand = new Command({ execute: this.onFeedingPageNavigateCommand, scope: this });
         };
         PageViewModel.prototype.getCommand = function (name) {
             switch (name) {
@@ -485,6 +532,8 @@ define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/
                     return this.DeployEmailNavigateCommand;
                 case 'JiraReportNavigateCommand':
                     return this.JiraReportNavigateCommand;
+                case 'FeedingPageNavigateCommand':
+                    return this.FeedingPageNavigateCommand;
                 default:
                     return _super.prototype.getCommand.call(this, name);
             }
@@ -494,6 +543,9 @@ define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/
         };
         PageViewModel.prototype.onJiraReportNavigateCommand = function () {
             this.navigation.navigateTo('jira-report');
+        };
+        PageViewModel.prototype.onFeedingPageNavigateCommand = function () {
+            this.navigation.navigateTo('feeding');
         };
         return PageViewModel;
     }(BaseViewModel));
@@ -632,7 +684,8 @@ define("app/jira/templates/email_page_template", ["require", "exports", 'react',
 define("app/jira/templates/master_page_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function (view) {
-        return (React.createElement("div", null, React.createElement("div", {id: "wrapper"}, React.createElement("nav", {className: "navbar navbar-default navbar-cls-top ", role: "navigation", style: { marginBottom: 0 }}, React.createElement("div", {className: "navbar-header"}, React.createElement("button", {type: "button", className: "navbar-toggle", "data-toggle": "collapse", "data-target": ".sidebar-collapse"}, React.createElement("span", {className: "sr-only"}, "Toggle navigation"), React.createElement("span", {className: "icon-bar"}), React.createElement("span", {className: "icon-bar"}), React.createElement("span", {className: "icon-bar"})), React.createElement("a", {className: "navbar-brand", href: "index.html"}, "COMPANY NAME")), React.createElement("div", {className: "header-right"}, React.createElement("a", {href: "message-task.html", className: "btn btn-info", title: "New Message"}, React.createElement("b", null, "30 "), React.createElement("i", {className: "fa fa-envelope-o fa-2x"})), React.createElement("a", {href: "message-task.html", className: "btn btn-primary", title: "New Task"}, React.createElement("b", null, "40 "), React.createElement("i", {className: "fa fa-bars fa-2x"})), React.createElement("a", {href: "javascript:(function () { parent.postMessage('bookmarklet:close', '*'); })();", className: "btn btn-danger", title: "Logout"}, React.createElement("i", {className: "fa fa-exclamation-circle fa-2x"})))), React.createElement("nav", {className: "navbar-default navbar-side", role: "navigation"}, React.createElement("div", {className: "sidebar-collapse"}, React.createElement("ul", {className: "nav", id: "main-menu"}, React.createElement("li", null, React.createElement("div", {className: "user-img-div"}, React.createElement("img", {src: "assets/img/user.png", className: "img-thumbnail"}), React.createElement("div", {className: "inner-text"}, "Jhon Deo Alex", React.createElement("br", null), React.createElement("small", null, "Last Login : 2 Weeks Ago ")))), React.createElement("li", null, React.createElement("a", {className: "jira-deploy-email", href: "#deploy-email"}, React.createElement("i", {className: "fa fa-dashboard "}), "Deploy e-mail")), React.createElement("li", null, React.createElement("a", {className: "jira-jira-report", href: "#jira-report"}, React.createElement("i", {className: "fa fa-dashboard "}), "JIRA Report")), React.createElement("li", null, React.createElement("a", {href: "index.html"}, React.createElement("i", {className: "fa fa-dashboard "}), "Dashboard")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-desktop "}), "UI Elements ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "panel-tabs.html"}, React.createElement("i", {className: "fa fa-toggle-on"}), "Tabs & Panels")), React.createElement("li", null, React.createElement("a", {href: "notification.html"}, React.createElement("i", {className: "fa fa-bell "}), "Notifications")), React.createElement("li", null, React.createElement("a", {href: "progress.html"}, React.createElement("i", {className: "fa fa-circle-o "}), "Progressbars")), React.createElement("li", null, React.createElement("a", {href: "buttons.html"}, React.createElement("i", {className: "fa fa-code "}), "Buttons")), React.createElement("li", null, React.createElement("a", {href: "icons.html"}, React.createElement("i", {className: "fa fa-bug "}), "Icons")), React.createElement("li", null, React.createElement("a", {href: "wizard.html"}, React.createElement("i", {className: "fa fa-bug "}), "Wizard")), React.createElement("li", null, React.createElement("a", {href: "typography.html"}, React.createElement("i", {className: "fa fa-edit "}), "Typography")), React.createElement("li", null, React.createElement("a", {href: "grid.html"}, React.createElement("i", {className: "fa fa-eyedropper "}), "Grid")))), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-yelp "}), "Extra Pages ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "invoice.html"}, React.createElement("i", {className: "fa fa-coffee"}), "Invoice")), React.createElement("li", null, React.createElement("a", {href: "pricing.html"}, React.createElement("i", {className: "fa fa-flash "}), "Pricing")), React.createElement("li", null, React.createElement("a", {href: "component.html"}, React.createElement("i", {className: "fa fa-key "}), "Components")), React.createElement("li", null, React.createElement("a", {href: "social.html"}, React.createElement("i", {className: "fa fa-send "}), "Social")), React.createElement("li", null, React.createElement("a", {href: "message-task.html"}, React.createElement("i", {className: "fa fa-recycle "}), "Messages & Tasks")))), React.createElement("li", null, React.createElement("a", {className: "active-menu", href: "table.html"}, React.createElement("i", {className: "fa fa-flash "}), "Data Tables ")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-bicycle "}), "Forms ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "form.html"}, React.createElement("i", {className: "fa fa-desktop "}), "Basic ")), React.createElement("li", null, React.createElement("a", {href: "form-advance.html"}, React.createElement("i", {className: "fa fa-code "}), "Advance")))), React.createElement("li", null, React.createElement("a", {href: "gallery.html"}, React.createElement("i", {className: "fa fa-anchor "}), "Gallery")), React.createElement("li", null, React.createElement("a", {href: "error.html"}, React.createElement("i", {className: "fa fa-bug "}), "Error Page")), React.createElement("li", null, React.createElement("a", {href: "login.html"}, React.createElement("i", {className: "fa fa-sign-in "}), "Login Page")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-sitemap "}), "Multilevel Link ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-bicycle "}), "Second Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-flask "}), "Second Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, "Second Level Link", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-third-level"}, React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-plus "}), "Third Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-comments-o "}), "Third Level Link")))))), React.createElement("li", null, React.createElement("a", {href: "blank.html"}, React.createElement("i", {className: "fa fa-square-o "}), "Blank Page"))))), React.createElement("div", {id: "page-wrapper"}, view)), React.createElement("div", {id: "footer-sec"}, "© 2014 YourCompany | Design By : ", React.createElement("a", {href: "http://www.binarytheme.com/", target: "_blank"}, "BinaryTheme.com"))));
+        var _this = this;
+        return (React.createElement("div", null, React.createElement("div", {id: "wrapper"}, React.createElement("nav", {className: "navbar navbar-default navbar-cls-top ", role: "navigation", style: { marginBottom: 0 }}, React.createElement("div", {className: "navbar-header"}, React.createElement("button", {type: "button", className: "navbar-toggle", "data-toggle": "collapse", "data-target": ".sidebar-collapse"}, React.createElement("span", {className: "sr-only"}, "Toggle navigation"), React.createElement("span", {className: "icon-bar"}), React.createElement("span", {className: "icon-bar"}), React.createElement("span", {className: "icon-bar"})), React.createElement("a", {className: "navbar-brand", href: "index.html"}, "COMPANY NAME")), React.createElement("div", {className: "header-right"}, React.createElement("a", {href: "message-task.html", className: "btn btn-info", title: "New Message"}, React.createElement("b", null, "30 "), React.createElement("i", {className: "fa fa-envelope-o fa-2x"})), React.createElement("a", {href: "message-task.html", className: "btn btn-primary", title: "New Task"}, React.createElement("b", null, "40 "), React.createElement("i", {className: "fa fa-bars fa-2x"})), React.createElement("a", {href: "javascript:(function () { parent.postMessage('bookmarklet:close', '*'); })();", className: "btn btn-danger", title: "Logout"}, React.createElement("i", {className: "fa fa-exclamation-circle fa-2x"})))), React.createElement("nav", {className: "navbar-default navbar-side", role: "navigation"}, React.createElement("div", {className: "sidebar-collapse"}, React.createElement("ul", {className: "nav", id: "main-menu"}, React.createElement("li", null, React.createElement("div", {className: "user-img-div"}, React.createElement("img", {src: "assets/img/user.png", className: "img-thumbnail"}), React.createElement("div", {className: "inner-text"}, "Jhon Deo Alex", React.createElement("br", null), React.createElement("small", null, "Last Login : 2 Weeks Ago ")))), React.createElement("li", null, React.createElement("a", {className: "jira-deploy-email", href: "#deploy-email", onClick: function () { return _this.runCommand('DeployEmailNavigateCommand'); }}, React.createElement("i", {className: "fa fa-dashboard "}), "Deploy e-mail")), React.createElement("li", null, React.createElement("a", {className: "jira-jira-report", href: "#jira-report", onClick: function () { return _this.runCommand('JiraReportNavigateCommand'); }}, React.createElement("i", {className: "fa fa-dashboard "}), "JIRA Report")), React.createElement("li", null, React.createElement("a", {className: "feeding-feeding", href: "#feeding", onClick: function () { return _this.runCommand('FeedingPageNavigateCommand'); }}, React.createElement("i", {className: "fa fa-dashboard "}), "Feeding")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-desktop "}), "UI Elements ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "panel-tabs.html"}, React.createElement("i", {className: "fa fa-toggle-on"}), "Tabs & Panels")), React.createElement("li", null, React.createElement("a", {href: "notification.html"}, React.createElement("i", {className: "fa fa-bell "}), "Notifications")), React.createElement("li", null, React.createElement("a", {href: "progress.html"}, React.createElement("i", {className: "fa fa-circle-o "}), "Progressbars")), React.createElement("li", null, React.createElement("a", {href: "buttons.html"}, React.createElement("i", {className: "fa fa-code "}), "Buttons")), React.createElement("li", null, React.createElement("a", {href: "icons.html"}, React.createElement("i", {className: "fa fa-bug "}), "Icons")), React.createElement("li", null, React.createElement("a", {href: "wizard.html"}, React.createElement("i", {className: "fa fa-bug "}), "Wizard")), React.createElement("li", null, React.createElement("a", {href: "typography.html"}, React.createElement("i", {className: "fa fa-edit "}), "Typography")), React.createElement("li", null, React.createElement("a", {href: "grid.html"}, React.createElement("i", {className: "fa fa-eyedropper "}), "Grid")))), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-yelp "}), "Extra Pages ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "invoice.html"}, React.createElement("i", {className: "fa fa-coffee"}), "Invoice")), React.createElement("li", null, React.createElement("a", {href: "pricing.html"}, React.createElement("i", {className: "fa fa-flash "}), "Pricing")), React.createElement("li", null, React.createElement("a", {href: "component.html"}, React.createElement("i", {className: "fa fa-key "}), "Components")), React.createElement("li", null, React.createElement("a", {href: "social.html"}, React.createElement("i", {className: "fa fa-send "}), "Social")), React.createElement("li", null, React.createElement("a", {href: "message-task.html"}, React.createElement("i", {className: "fa fa-recycle "}), "Messages & Tasks")))), React.createElement("li", null, React.createElement("a", {className: "active-menu", href: "table.html"}, React.createElement("i", {className: "fa fa-flash "}), "Data Tables ")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-bicycle "}), "Forms ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "form.html"}, React.createElement("i", {className: "fa fa-desktop "}), "Basic ")), React.createElement("li", null, React.createElement("a", {href: "form-advance.html"}, React.createElement("i", {className: "fa fa-code "}), "Advance")))), React.createElement("li", null, React.createElement("a", {href: "gallery.html"}, React.createElement("i", {className: "fa fa-anchor "}), "Gallery")), React.createElement("li", null, React.createElement("a", {href: "error.html"}, React.createElement("i", {className: "fa fa-bug "}), "Error Page")), React.createElement("li", null, React.createElement("a", {href: "login.html"}, React.createElement("i", {className: "fa fa-sign-in "}), "Login Page")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-sitemap "}), "Multilevel Link ", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-second-level"}, React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-bicycle "}), "Second Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-flask "}), "Second Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, "Second Level Link", React.createElement("span", {className: "fa arrow"})), React.createElement("ul", {className: "nav nav-third-level"}, React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-plus "}), "Third Level Link")), React.createElement("li", null, React.createElement("a", {href: "#"}, React.createElement("i", {className: "fa fa-comments-o "}), "Third Level Link")))))), React.createElement("li", null, React.createElement("a", {href: "blank.html"}, React.createElement("i", {className: "fa fa-square-o "}), "Blank Page"))))), React.createElement("div", {id: "page-wrapper"}, view)), React.createElement("div", {id: "footer-sec"}, "© 2014 YourCompany | Design By : ", React.createElement("a", {href: "http://www.binarytheme.com/", target: "_blank"}, "BinaryTheme.com"))));
     };
     return template;
 });
@@ -648,12 +701,6 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
                 }
             };
         }
-        EmailPage.prototype.commands = function () {
-            return {
-                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
-                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
-            };
-        };
         EmailPage.prototype.init = function (options) {
             this.$el = options.el || $(document.body);
             _.extend(this.handlers, options.handlers || {});
@@ -1000,11 +1047,219 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', "app/ji
     }(BaseView));
     return IssueView;
 });
+define("app/jira/view_models/product_entry_view_model", ["require", "exports", "app/jira/base/base_view_model"], function (require, exports, BaseViewModel) {
+    "use strict";
+    var ProductEntryViewModel = (function (_super) {
+        __extends(ProductEntryViewModel, _super);
+        function ProductEntryViewModel() {
+            _super.apply(this, arguments);
+        }
+        ProductEntryViewModel.prototype.getId = function () {
+            return this.opts.id;
+        };
+        return ProductEntryViewModel;
+    }(BaseViewModel));
+    return ProductEntryViewModel;
+});
+define("app/jira/view_models/feeding_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/product_entry_view_model", "app/jira/models/accounting_model"], function (require, exports, _, $, PageViewModel, ProductEntryViewModel, Model) {
+    "use strict";
+    var FeedingViewModel = (function (_super) {
+        __extends(FeedingViewModel, _super);
+        function FeedingViewModel() {
+            _super.apply(this, arguments);
+            this.products = [];
+        }
+        FeedingViewModel.prototype.getProducts = function () {
+            return this.products;
+        };
+        FeedingViewModel.prototype.setProducts = function (value) {
+            var products = this.products;
+            _.defer(function () {
+                _.each(products, function (viewModel) {
+                    viewModel.finish();
+                });
+            }, 0);
+            this.products = value;
+            this.triggerProperyChanged('change:products');
+        };
+        FeedingViewModel.prototype.init = function (opts) {
+            var _this = this;
+            var model = Model.getCurrent();
+            _super.prototype.init.call(this, opts);
+            _.each({
+                'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this)
+            }, function (h, e) { $(model).on(e, h); });
+            _.defer(_.bind(function () {
+                _this.fetchProducts();
+            }, this), 0);
+        };
+        FeedingViewModel.prototype.finish = function () {
+            var model = Model.getCurrent();
+            _.each({}, function (h, e) { $(model).off(e, h); });
+            this.setProducts([]);
+            _super.prototype.finish.call(this);
+        };
+        FeedingViewModel.prototype.changeProducts = function () {
+            var model = Model.getCurrent(), issues = model.getProducts();
+            this.setProducts(_.map(issues, function (item) {
+                return new ProductEntryViewModel(item);
+            }, this));
+        };
+        FeedingViewModel.prototype.fetchProducts = function () {
+            var model = Model.getCurrent();
+            model.fetchProducts();
+        };
+        return FeedingViewModel;
+    }(PageViewModel));
+    return FeedingViewModel;
+});
+define("app/jira/templates/product_item_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function (data) {
+        return (React.createElement("tr", null, React.createElement("td", {style: { width: "140px" }}, data.id), React.createElement("td", null, data.user), React.createElement("td", null, data.Description)));
+    };
+    return template;
+});
+define("app/jira/views/product_item_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/product_item_template"], function (require, exports, BaseView, template) {
+    "use strict";
+    var ProductItemView = (function (_super) {
+        __extends(ProductItemView, _super);
+        function ProductItemView(opts) {
+            _super.call(this, opts);
+        }
+        ProductItemView.prototype.init = function (opts) {
+            _super.prototype.init.call(this, opts);
+        };
+        ProductItemView.prototype.render = function () {
+            var data = this.viewModel.toJSON();
+            return template.call(this, data);
+        };
+        return ProductItemView;
+    }(BaseView));
+    return ProductItemView;
+});
+define("app/jira/templates/products_template", ["require", "exports", 'react', "app/jira/views/product_item_view"], function (require, exports, React, ProductItemView) {
+    "use strict";
+    var template = function () {
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Code"), React.createElement("th", null, "User"), React.createElement("th", null, "Product Description"))), React.createElement("tbody", null, this.state.products && this.state.products.map(function (entity) { return React.createElement(ProductItemView, {viewModel: entity, key: entity.getId()}); })))));
+    };
+    return template;
+});
+/// <reference path="../../../vendor.d.ts" />
+/// <reference path="../base/base_view.ts" />
+/// <reference path="../view_models/jira_view_model.ts" />
+/// <reference path="../view_models/issue_entry_view_model.ts" />
+/// <reference path="issue_view.ts" />
+define("app/jira/views/products_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products_template"], function (require, exports, $, _, BaseView, template) {
+    "use strict";
+    var ProductsView = (function (_super) {
+        __extends(ProductsView, _super);
+        function ProductsView(opts) {
+            _super.call(this, opts);
+            this.state = {
+                products: this.props.products(this.props.viewModel)
+            };
+        }
+        ProductsView.prototype.setProducts = function () {
+            this.setState({
+                products: this.props.products(this.props.viewModel)
+            });
+        };
+        ProductsView.prototype.init = function (opts) {
+            _super.prototype.init.call(this, opts);
+        };
+        ProductsView.prototype.componentWillMount = function () {
+            $(this.props.viewModel).on('change:products', _.bind(this.setProducts, this));
+        };
+        ProductsView.prototype.componentWillUnmount = function () {
+            $(this.props.viewModel).off('change:products');
+        };
+        ProductsView.prototype.componentWillReceiveProps = function (props) {
+            $(this.props.viewModel).off('change:products');
+            $(props.viewModel).on('change:products', _.bind(this.setProducts, this));
+        };
+        ProductsView.prototype.render = function () {
+            return template.call(this);
+        };
+        return ProductsView;
+    }(BaseView));
+    return ProductsView;
+});
+define("app/jira/templates/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function () {
+        return (React.createElement("div", {className: "epics-panel panel panel-default highlight"}, React.createElement("div", {className: "panel-heading"}, React.createElement("label", null, this.props.title)), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-epics"}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "filter-epics"}), this.props.children)))));
+    };
+    return template;
+});
+/// <reference path="../base/base_view.ts" />
+define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/panel_template"], function (require, exports, BaseView, template) {
+    "use strict";
+    var PanelView = (function (_super) {
+        __extends(PanelView, _super);
+        function PanelView(opts) {
+            _super.call(this, opts);
+            this.opts = opts;
+        }
+        PanelView.prototype.init = function (opts) {
+            _super.prototype.init.call(this, opts);
+        };
+        PanelView.prototype.render = function () {
+            return template.call(this);
+        };
+        return PanelView;
+    }(BaseView));
+    return PanelView;
+});
+define("app/jira/templates/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products_view", "app/jira/views/panel_view"], function (require, exports, React, ProductsView, PanelView) {
+    "use strict";
+    var template = function (viewModel) {
+        return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel, title: "Products"}, React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))));
+    };
+    return template;
+});
+define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/feeding_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
+    "use strict";
+    var FeedingPage = (function (_super) {
+        __extends(FeedingPage, _super);
+        function FeedingPage() {
+            _super.apply(this, arguments);
+            this.handlers = {
+                onDraw: function () {
+                    $('#main-menu').metisMenu();
+                }
+            };
+        }
+        FeedingPage.prototype.commands = function () {
+            return {
+                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
+                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
+            };
+        };
+        FeedingPage.prototype.init = function (options) {
+            this.$el = options.el || $(document.body);
+            _.extend(this.handlers, options.handlers || {});
+            _super.prototype.init.call(this, options);
+        };
+        FeedingPage.prototype.finish = function () {
+            Base.prototype.finish.apply(this, arguments);
+        };
+        FeedingPage.prototype.onNavigateTo = function () {
+            this.handlers.onDraw.call(this);
+            return _super.prototype.onNavigateTo.call(this);
+        };
+        FeedingPage.prototype.render = function () {
+            return master_page_template.call(this, template.call(this, this.viewModel));
+        };
+        return FeedingPage;
+    }(BaseView));
+    return FeedingPage;
+});
 define("app/jira/templates/filter_item_view_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
         var _this = this;
-        return (React.createElement("span", {className: "highlight"}, React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name", onClick: function () { return _this.toggleSelected(); }, title: this.state.description, style: { margin: '4px 6px' }}, this.state.name)));
+        return (React.createElement("span", {className: "highlight"}, React.createElement("button", {type: "button", className: "btn btn-sm btn-" + (this.state.selected ? 'primary' : 'default') + " status-name", onClick: function () { return _this.runCommand('SelectCommand'); }, title: this.state.description, style: { margin: '4px 6px' }}, this.state.name)));
     };
     return template;
 });
@@ -1028,8 +1283,6 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
         FilterItemView.prototype.componentWillReceiveProps = function (props) {
             $(this.props.viewModel).off('change:selected');
             $(props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
-        };
-        FilterItemView.prototype.finish = function () {
         };
         FilterItemView.prototype.onChangeSelected = function () {
             this.setState(this.props.viewModel.toJSON());
@@ -1152,7 +1405,8 @@ define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery
 define("app/jira/templates/jira_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function (IssueView) {
-        return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h1", {className: "page-head-line"}, "JIRA Report"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "jira-issues-list col-md-12"}, "JIRA Issues", React.createElement("div", {className: "panel panel-default"}, React.createElement("div", {className: "panel-heading"}, React.createElement("a", {href: "javascript:(function(){HOST = '{{domain}}';var jsCode = document.createElement('script');jsCode.setAttribute('src', HOST + '/mvc/jira/bookmarklet?' + Math.random());jsCode.setAttribute('id','jira-worktool-bookmarklet');document.getElementsByTagName('head')[0].appendChild(jsCode);}());"}, React.createElement("button", {className: "btn btn-lg btn-info"}, "Jira bookmarklet")), React.createElement("button", {type: "button", className: "filter-reset btn btn-lg btn-primary"}, "Reset"), React.createElement("label", null, "Filter By Status")), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-statuses"}, React.createElement("div", {className: "form-group"}, this.props.children.find(function (item) { return item.ref === "filterStatuses"; }))))), this.props.children.find(function (item) { return item.ref === "epicsPanel"; }))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Priority"), React.createElement("th", null, React.createElement("div", null, "Key: Summary"), React.createElement("div", null, "Status")), React.createElement("th", null, "X"), React.createElement("th", null, "Updated"), React.createElement("th", null, "Assignee"))), React.createElement("tbody", {className: "issues-list"}, this.state.issues && this.state.issues.map(function (entity) { return React.createElement(IssueView, {viewModel: entity, key: entity.getId()}); })))))));
+        var _this = this;
+        return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h1", {className: "page-head-line"}, "JIRA Report"))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "jira-issues-list col-md-12"}, "JIRA Issues", React.createElement("div", {className: "panel panel-default"}, React.createElement("div", {className: "panel-heading"}, React.createElement("a", {href: "javascript:(function(){HOST = '{{domain}}';var jsCode = document.createElement('script');jsCode.setAttribute('src', HOST + '/mvc/jira/bookmarklet?' + Math.random());jsCode.setAttribute('id','jira-worktool-bookmarklet');document.getElementsByTagName('head')[0].appendChild(jsCode);}());"}, React.createElement("button", {className: "btn btn-lg btn-info"}, "Jira bookmarklet")), React.createElement("button", {type: "button", className: "filter-reset btn btn-lg btn-primary", onClick: function () { return _this.runCommand('ResetFiltersCommand'); }}, "Reset"), React.createElement("label", null, "Filter By Status")), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-statuses"}, React.createElement("div", {className: "form-group"}, this.props.children.find(function (item) { return item.ref === "filterStatuses"; }))))), this.props.children.find(function (item) { return item.ref === "epicsPanel"; }))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Priority"), React.createElement("th", null, React.createElement("div", null, "Key: Summary"), React.createElement("div", null, "Status")), React.createElement("th", null, "X"), React.createElement("th", null, "Updated"), React.createElement("th", null, "Assignee"))), React.createElement("tbody", {className: "issues-list"}, this.state.issues && this.state.issues.map(function (entity) { return React.createElement(IssueView, {viewModel: entity, key: entity.getId()}); })))))));
     };
     return template;
 });
@@ -1171,11 +1425,6 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
                 issues: this.props.issues(this.props.viewModel)
             };
         }
-        JiraView.prototype.commands = function () {
-            return {
-                'click.command .filter-reset': 'ResetFiltersCommand'
-            };
-        };
         JiraView.prototype.setIssues = function () {
             this.setState({
                 issues: this.props.issues(this.props.viewModel)
@@ -1201,32 +1450,6 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
     }(BaseView));
     return JiraView;
 });
-define("app/jira/templates/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
-    "use strict";
-    var template = function () {
-        return (React.createElement("div", {className: "epics-panel panel panel-default highlight"}, React.createElement("div", {className: "panel-heading"}, React.createElement("label", null, this.props.title)), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-epics"}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "filter-epics"}), this.props.children)))));
-    };
-    return template;
-});
-/// <reference path="../base/base_view.ts" />
-define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/panel_template"], function (require, exports, BaseView, template) {
-    "use strict";
-    var PanelView = (function (_super) {
-        __extends(PanelView, _super);
-        function PanelView(opts) {
-            _super.call(this, opts);
-            this.opts = opts;
-        }
-        PanelView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
-        PanelView.prototype.render = function () {
-            return template.call(this);
-        };
-        return PanelView;
-    }(BaseView));
-    return PanelView;
-});
 define("app/jira/templates/jira_page_template", ["require", "exports", 'react', "app/jira/views/jira_view", "app/jira/views/filter_view", "app/jira/views/panel_view", "app/jira/views/epics_view"], function (require, exports, React, JiraView, FilterView, PanelView, EpicsView) {
     "use strict";
     var template = function (viewModel) {
@@ -1246,12 +1469,6 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
                 }
             };
         }
-        JiraPage.prototype.commands = function () {
-            return {
-                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
-                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
-            };
-        };
         JiraPage.prototype.init = function (options) {
             this.$el = options.el || $(document.body);
             _.extend(this.handlers, options.handlers || {});

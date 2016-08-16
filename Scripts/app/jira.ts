@@ -14,6 +14,7 @@ module jira {
     
     export function init () {
         navigation.navigateTo('jira-report');
+        
         return true;
     }
 }

@@ -35,12 +35,6 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
             issues: this.props.issues(this.props.viewModel)
         };
     }
-
-    commands (): { [key: string]: string } {
-        return {
-            'click.command .filter-reset': 'ResetFiltersCommand'
-        };
-    }
     
     setIssues () {
         this.setState({

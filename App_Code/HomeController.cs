@@ -67,17 +67,18 @@ namespace hellomvc.Controllers
         [AsyncTimeout(8000)]
         public Task<ActionResult> Issues(string status="", string epicLink="") {
             return Task.Factory.StartNew(() => {
+            var jiraManager = new JiraManager();
             var jiraClient = new JiraClient(URL, jUserID, jPassword);
             var items = default(IEnumerable<Issue>);
             
             if (string.IsNullOrEmpty(status) && string.IsNullOrEmpty(epicLink)) {
-                items = jiraClient.Issues;
+                items = jiraManager.Issues;
             } else if (string.IsNullOrEmpty(status)) {
-                items = jiraClient.GetIssuesByEpic(epicLink.Split(','));
+                items = jiraManager.GetIssuesByEpic(epicLink.Split(','));
             } else if (string.IsNullOrEmpty(epicLink)) {
-                items = jiraClient.GetIssuesByStatus(status.Split(','));
+                items = jiraManager.GetIssuesByStatus(status.Split(','));
             } else {
-                items = jiraClient.GetIssues(status.Split(','), epicLink.Split(','));
+                items = jiraManager.GetIssues(status.Split(','), epicLink.Split(','));
             }
 
             return (ActionResult)Json(items, JsonRequestBehavior.AllowGet);});
@@ -87,6 +88,14 @@ namespace hellomvc.Controllers
         public ActionResult Statuses() {
             var jiraClient = new JiraClient(URL, jUserID, jPassword);
             var items = jiraClient.Statuses;
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpGet]
+        public ActionResult Items(string jql="") {
+            var jiraManager = new JiraManager();
+            var items = jiraManager.GetIssues2();
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }

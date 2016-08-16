@@ -68,11 +68,15 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<a
         _.each(commands, (value, key) => {
             var pair: string[] = key.split(/\s+/);
             $(this.$el).on(pair[0], pair[1], (evnt) => {
-                var command = this.viewModel.getCommand(value);
-                
-                command.execute();
+                this.runCommand(value, {});
             });
         }, this);
+    }
+    runCommand (name: string, options: {[key: string]: any}): void {
+        var command = this.viewModel.getCommand(name);
+        if (command) {
+            command.execute.apply(command, arguments);
+        }
     }
     onNavigateTo (): void {
         this.viewModel && this.viewModel.navigateTo();

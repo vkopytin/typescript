@@ -155,10 +155,12 @@ class JiraViewModel extends BaseViewModel {
                 return super.getCommand(name);
         }
     }
+    
     onResetFilters (): void {
         var model = Model.getCurrent();
         model.resetFilter({});
     }
+    
     changeIssues (): void {
         var model = Model.getCurrent(),
             issues = model.getIssues();
@@ -167,12 +169,14 @@ class JiraViewModel extends BaseViewModel {
             return new IssueEntryViewModel(item);
         }, this));
     }
+    
     changeStatuses (): void {
         var model = Model.getCurrent(),
             statuses = model.getStatuses();
             
         this.setStatuses(_.map(statuses, (item) => new FilterEntryViewModel(item), this));
     }
+    
     changeEpics (): void {
         var model = Model.getCurrent(),
             epics = model.getEpics();
@@ -184,14 +188,17 @@ class JiraViewModel extends BaseViewModel {
             })
         , this));
     }
+    
     fetchIssues (): void {
         var model = Model.getCurrent();
         model.resetFilter({});
     }
+    
     fetchStatuses (): void {
         var model = Model.getCurrent();
         model.fetchStatuses();
     }
+    
     fetchEpics (): void {
         var model = Model.getCurrent();
         model.fetchEpics();

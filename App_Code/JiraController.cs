@@ -142,5 +142,13 @@ namespace hellomvc.Controllers
 }(window, window.document));";
             return this.Content(js, "application/javascript");
         }
+        
+        [HttpGet]
+        public ActionResult Schedule() {
+            var repo = Vko.Repository.General.Request<Vko.Entities.Schedule>();
+            var items = repo.Find();
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
     }
 }

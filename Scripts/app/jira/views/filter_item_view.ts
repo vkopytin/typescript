@@ -44,9 +44,6 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
         $(props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
     }
     
-    finish () {
-    }
-    
     onChangeSelected (): void {
         this.setState(this.props.viewModel.toJSON());
     }

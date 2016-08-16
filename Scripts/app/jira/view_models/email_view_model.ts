@@ -40,7 +40,11 @@ class EmailViewModel extends BaseViewModel {
     }
     finish (): void {
         var model = Model.getCurrent();
+        
         $(model).off('model.issues', this.changeIssuesDelegate);
+        
+        $(this).off();
+        
         this.setIssues([]);
         super.finish();
     }

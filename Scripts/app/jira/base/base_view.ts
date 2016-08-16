@@ -7,12 +7,12 @@ import $ = require('jquery');
 import _ = require('underscore');
 import Base = require('app/jira/base/base');
 import BaseViewModel = require('app/jira/base/base_view_model');
+import IBaseView = require('app/jira/base/i_base_view');
 import Command = require('app/jira/command');
 import React = require('react');
 
-class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<any>> extends React.Component<TBaseView, any> {
+class BaseView<TViewModel extends BaseViewModel, TBaseView extends IBaseView> extends React.Component<TBaseView, any> {
     __name: string
-    viewModel: TViewModel
     $el: any
     [key: string]: any
     
@@ -26,28 +26,12 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<a
         this.init(opts);
         //console.log('Created: ' + this.constructor.name)
     }
-    commands (): { [key: string]: string } {
-        // declare commands from the child view
-        return {};
-    }
-    bindings (): { [key: string]: Function } {
-        // declare binding rules from the child view
-        return {};
-    }
     
     init (opts: any): void {
-        
-        this.viewModel = opts.viewModel;
-        var bindings = _.extend({},
-            _.result(this, 'bindings'),
-            _.result(opts, 'bindings') || {}
-        );
-        
-        $(this.viewModel).on('viewModel.finish', _.bind(this.finish, this));
-        
-        this.initBindings(bindings);
-        this.initCommands(_.result(this, 'commands'));
+
+        $(this.props.viewModel).on('viewModel.finish', _.bind(this.finish, this));
     }
+    
     finish (): void {
         window.report[this.__name] = --window.report[this.__name];
         if (this.isFinish) {
@@ -56,33 +40,19 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends React.Props<a
         this.isFinish = true;
         //console.log('Removed: ' + this.constructor.name);
     }
-    initBindings (bindings: {[key: string]: Function}): void {
-        _.each(bindings, (value: Function, key: string) => {
-            var value = value, key = key;
-            $(this.viewModel).on(key, () => {
-                value.call(this, this, this.viewModel);
-            });
-        }, this);
-    }
-    initCommands (commands: {[key: string]: string}): void {
-        _.each(commands, (value, key) => {
-            var pair: string[] = key.split(/\s+/);
-            $(this.$el).on(pair[0], pair[1], (evnt) => {
-                this.runCommand(value, {});
-            });
-        }, this);
-    }
+
     runCommand (name: string, options: {[key: string]: any}): void {
-        var command = this.viewModel.getCommand(name);
+        var command = this.props.viewModel.getCommand(name);
         if (command) {
             command.execute.apply(command, arguments);
         }
     }
+    
     onNavigateTo (): void {
-        this.viewModel && this.viewModel.navigateTo();
+        this.props.viewModel && this.props.viewModel.navigateTo();
     }
     onNavigateFrom (): void {
-        this.viewModel && this.viewModel.navigateFrom();
+        this.props.viewModel && this.props.viewModel.navigateFrom();
     }
 }
 export = BaseView;

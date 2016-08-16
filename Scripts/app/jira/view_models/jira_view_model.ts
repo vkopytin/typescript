@@ -130,8 +130,8 @@ class JiraViewModel extends BaseViewModel {
         
         _.defer(_.bind(() => {
             this.fetchStatuses();
-            this.fetchIssues();
             this.fetchEpics();
+            this.fetchIssues();
         }, this), 0);
     }
     finish () : void {
@@ -141,6 +141,9 @@ class JiraViewModel extends BaseViewModel {
             'model.statuses': this.changeStatusesDelegate,
             'model.epics': this.changeEpicsDelegate
         }, (h, e) => { $(model).off(e, h); });
+        
+        $(this).off()
+        
         this.setIssues([]);
         this.setEpics([]);
         this.setStatuses([]);

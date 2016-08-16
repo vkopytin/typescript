@@ -36,7 +36,7 @@ class Navigation extends Base {
     loadComponent (componentName: string) {
         var deps = components[componentName];
             
-        this.view && _.defer(_.bind(this.view.onNavigateFrom, this.view), 0);
+        this.view && _.defer(() => this.view.onNavigateFrom(), 0);
         this.setHash(componentName);
         
         if (deps) {
@@ -48,7 +48,7 @@ class Navigation extends Base {
                     viewModel: new ViewModel()
                 });
                 this.view = ReactDOM.render(view, $root.get(0), function () {
-                    _.defer(_.bind(this.onNavigateTo, this), 0);
+                    _.defer(() => this.onNavigateTo(), 0);
                 });
             });
         }

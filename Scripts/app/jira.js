@@ -17,6 +17,9 @@ define("app/jira/command", ["require", "exports", "app/jira/base/base"], functio
     }(Base));
     return Command;
 });
+define("app/jira/base/i_base_view", ["require", "exports"], function (require, exports) {
+    "use strict";
+});
 /// <reference path="../../../vendor.d.ts" />
 /// <reference path="base.ts" />
 /// <reference path="base_view_model.ts" />
@@ -33,20 +36,8 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             this.init(opts);
             //console.log('Created: ' + this.constructor.name)
         }
-        BaseView.prototype.commands = function () {
-            // declare commands from the child view
-            return {};
-        };
-        BaseView.prototype.bindings = function () {
-            // declare binding rules from the child view
-            return {};
-        };
         BaseView.prototype.init = function (opts) {
-            this.viewModel = opts.viewModel;
-            var bindings = _.extend({}, _.result(this, 'bindings'), _.result(opts, 'bindings') || {});
-            $(this.viewModel).on('viewModel.finish', _.bind(this.finish, this));
-            this.initBindings(bindings);
-            this.initCommands(_.result(this, 'commands'));
+            $(this.props.viewModel).on('viewModel.finish', _.bind(this.finish, this));
         };
         BaseView.prototype.finish = function () {
             window.report[this.__name] = --window.report[this.__name];
@@ -56,35 +47,17 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             this.isFinish = true;
             //console.log('Removed: ' + this.constructor.name);
         };
-        BaseView.prototype.initBindings = function (bindings) {
-            var _this = this;
-            _.each(bindings, function (value, key) {
-                var value = value, key = key;
-                $(_this.viewModel).on(key, function () {
-                    value.call(_this, _this, _this.viewModel);
-                });
-            }, this);
-        };
-        BaseView.prototype.initCommands = function (commands) {
-            var _this = this;
-            _.each(commands, function (value, key) {
-                var pair = key.split(/\s+/);
-                $(_this.$el).on(pair[0], pair[1], function (evnt) {
-                    _this.runCommand(value, {});
-                });
-            }, this);
-        };
         BaseView.prototype.runCommand = function (name, options) {
-            var command = this.viewModel.getCommand(name);
+            var command = this.props.viewModel.getCommand(name);
             if (command) {
                 command.execute.apply(command, arguments);
             }
         };
         BaseView.prototype.onNavigateTo = function () {
-            this.viewModel && this.viewModel.navigateTo();
+            this.props.viewModel && this.props.viewModel.navigateTo();
         };
         BaseView.prototype.onNavigateFrom = function () {
-            this.viewModel && this.viewModel.navigateFrom();
+            this.props.viewModel && this.props.viewModel.navigateFrom();
         };
         return BaseView;
     }(React.Component));
@@ -271,7 +244,7 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
         Navigation.prototype.loadComponent = function (componentName) {
             var _this = this;
             var deps = components[componentName];
-            this.view && _.defer(_.bind(this.view.onNavigateFrom, this.view), 0);
+            this.view && _.defer(function () { return _this.view.onNavigateFrom(); }, 0);
             this.setHash(componentName);
             if (deps) {
                 require(deps, function (View, ViewModel) {
@@ -282,7 +255,8 @@ define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "ap
                         viewModel: new ViewModel()
                     });
                     _this.view = ReactDOM.render(view, $root.get(0), function () {
-                        _.defer(_.bind(this.onNavigateTo, this), 0);
+                        var _this = this;
+                        _.defer(function () { return _this.onNavigateTo(); }, 0);
                     });
                 });
             }
@@ -597,6 +571,7 @@ define("app/jira/view_models/email_view_model", ["require", "exports", 'jquery',
         EmailViewModel.prototype.finish = function () {
             var model = Model.getCurrent();
             $(model).off('model.issues', this.changeIssuesDelegate);
+            $(this).off();
             this.setIssues([]);
             _super.prototype.finish.call(this);
         };
@@ -658,7 +633,7 @@ define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery
             var _this = this;
             var data = {
                 issues: function () {
-                    return _.map(_this.viewModel.getIssues(), function (issue) { return issue.toJSON(); });
+                    return _.map(_this.props.viewModel.getIssues(), function (issue) { return issue.toJSON(); });
                 }
             }, html = emailTemplate(data);
             return { __html: html };
@@ -714,7 +689,7 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
             return _super.prototype.onNavigateTo.call(this);
         };
         EmailPage.prototype.render = function () {
-            return master_page_template.call(this, template.call(this, this.viewModel));
+            return master_page_template.call(this, template.call(this, this.props.viewModel));
         };
         return EmailPage;
     }(BaseView));
@@ -940,6 +915,7 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
                 'model.statuses': this.changeStatusesDelegate,
                 'model.epics': this.changeEpicsDelegate
             }, function (h, e) { $(model).off(e, h); });
+            $(this).off();
             this.setIssues([]);
             this.setEpics([]);
             this.setStatuses([]);
@@ -1035,7 +1011,7 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', "app/ji
             _super.prototype.init.call(this, opts);
         };
         IssueView.prototype.render = function () {
-            var data = this.viewModel.toJSON();
+            var data = this.props.viewModel.toJSON();
             return template.call(this, _.extend(data, {
                 updated: function () {
                     var date = new Date(data.fields.updated);
@@ -1095,7 +1071,10 @@ define("app/jira/view_models/feeding_view_model", ["require", "exports", 'unders
         };
         FeedingViewModel.prototype.finish = function () {
             var model = Model.getCurrent();
-            _.each({}, function (h, e) { $(model).off(e, h); });
+            _.each({
+                'accounting_model.products': this.changeProductsDelegate
+            }, function (h, e) { $(model).off(e, h); });
+            $(this).off();
             this.setProducts([]);
             _super.prototype.finish.call(this);
         };
@@ -1131,7 +1110,7 @@ define("app/jira/views/product_item_view", ["require", "exports", "app/jira/base
             _super.prototype.init.call(this, opts);
         };
         ProductItemView.prototype.render = function () {
-            var data = this.viewModel.toJSON();
+            var data = this.props.viewModel.toJSON();
             return template.call(this, data);
         };
         return ProductItemView;
@@ -1230,12 +1209,6 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
                 }
             };
         }
-        FeedingPage.prototype.commands = function () {
-            return {
-                'click.command .jira-deploy-email': 'DeployEmailNavigateCommand',
-                'click.command .jira-jira-report': 'JiraReportNavigateCommand'
-            };
-        };
         FeedingPage.prototype.init = function (options) {
             this.$el = options.el || $(document.body);
             _.extend(this.handlers, options.handlers || {});
@@ -1249,7 +1222,7 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
             return _super.prototype.onNavigateTo.call(this);
         };
         FeedingPage.prototype.render = function () {
-            return master_page_template.call(this, template.call(this, this.viewModel));
+            return master_page_template.call(this, template.call(this, this.props.viewModel));
         };
         return FeedingPage;
     }(BaseView));
@@ -1482,7 +1455,7 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
             return _super.prototype.onNavigateTo.call(this);
         };
         JiraPage.prototype.render = function () {
-            return master_page_template.call(this, template.call(this, this.viewModel));
+            return master_page_template.call(this, template.call(this, this.props.viewModel));
         };
         return JiraPage;
     }(BaseView));

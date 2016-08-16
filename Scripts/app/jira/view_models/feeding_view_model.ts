@@ -50,7 +50,11 @@ class FeedingViewModel extends PageViewModel {
     finish () : void {
         var model = Model.getCurrent();
         _.each({
+            'accounting_model.products': this.changeProductsDelegate
         }, (h, e) => { $(model).off(e, h); });
+        
+        $(this).off();
+        
         this.setProducts([]);
         
         super.finish();

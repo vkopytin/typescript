@@ -53,7 +53,7 @@ class EmailView extends BaseView<EmailViewModel, IEmailView> {
     getEmailHTML () {
         var data = {
             issues: () => {
-                    return _.map(this.viewModel.getIssues(), (issue) => issue.toJSON());
+                    return _.map(this.props.viewModel.getIssues(), (issue) => issue.toJSON());
                 }
             },
             html = emailTemplate(data);

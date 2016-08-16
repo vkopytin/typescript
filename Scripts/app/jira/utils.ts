@@ -3,6 +3,7 @@
 
 import _ = require('underscore');
 import $ = require('jquery');
+import IBaseView = require('app/jira/base/i_base_view');
 import BaseView = require('app/jira/base/base_view');
 import BaseViewModel = require('app/jira/base/base_view_model');
 import React = require('react');
@@ -47,7 +48,7 @@ module utils {
         return React.createElement.call(React, Type, options);
     }
     
-    export function loadViews<T extends BaseViewModel, Y> (jsml: {[key: string]: any}, view: BaseView<T, Y>): JQueryPromise<{}> {
+    export function loadViews<T extends BaseViewModel, Y extends IBaseView> (jsml: {[key: string]: any}, view: BaseView<T, Y>): JQueryPromise<{}> {
         var queue: JQueryPromise<{}> = null;
         _.each(jsml, function (item: any[], propName: string) {
             var res = $.Deferred(),

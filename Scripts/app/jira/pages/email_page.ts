@@ -5,14 +5,16 @@
 /// <reference path="../view_models/email_view_model.ts" />
 import _ = require('underscore');
 import $ = require('jquery');
+import IBaseView = require('app/jira/base/i_base_view');
 import BaseView = require('app/jira/base/base_view');
 import Base = require('app/jira/base/base');
 import Utils = require('app/jira/utils');
 import template = require('app/jira/templates/email_page_template');
 import master_page_template = require('app/jira/templates/master_page_template');
 import EmailViewModel = require('app/jira/view_models/email_view_model');
+import React = require('react');
 
-interface IEmailPage {
+interface IEmailPage extends IBaseView {
     
 }
 
@@ -40,7 +42,7 @@ class EmailPage extends BaseView<EmailViewModel, IEmailPage> {
     
     render () {
         return master_page_template.call(this,
-                template.call(this, this.viewModel)
+                template.call(this, this.props.viewModel)
             );
     }
 }

@@ -55,7 +55,7 @@ class IssueView extends BaseView<IssueEntryViewModel, IIssueView> {
     }
     
     render () {
-        var data = this.viewModel.toJSON();
+        var data = this.props.viewModel.toJSON();
         
         return template.call(this, _.extend(data, {
             updated: () => {

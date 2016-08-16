@@ -4,6 +4,7 @@
 /// <reference path="../view_models/jira_view_model.ts" />
 import _ = require('underscore');
 import $ = require('jquery');
+import IBaseView = require('app/jira/base/i_base_view');
 import BaseView = require('app/jira/base/base_view');
 import Base = require('app/jira/base/base');
 import Utils = require('app/jira/utils');
@@ -13,7 +14,7 @@ import JiraViewModel = require('app/jira/view_models/jira_view_model');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
-interface IJiraPage {
+interface IJiraPage extends IBaseView {
     
 }
 
@@ -42,7 +43,7 @@ class JiraPage extends BaseView<JiraViewModel, IJiraPage> {
     
     render () {        
         return master_page_template.call(this,
-                template.call(this, this.viewModel)
+                template.call(this, this.props.viewModel)
             );
     }
 }

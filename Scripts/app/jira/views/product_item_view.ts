@@ -18,10 +18,6 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
         super(opts);
     }
     
-    init (opts: any) {
-        super.init(opts);
-    }
-    
     render () {
         var data = this.props.viewModel.toJSON();
         

@@ -38,10 +38,6 @@ class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
         })
     }
     
-    init (opts: IProductsViewOptions): void {
-        super.init(opts);
-    }
-    
     componentWillMount () {
         $(this.props.viewModel).on('change:products', _.bind(this.setProducts, this));
     }

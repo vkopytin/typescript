@@ -38,10 +38,6 @@ class EpicsView extends BaseView<JiraViewModel, IEpicsView> {
         });
     }
     
-    init (opts: any) {
-        super.init(opts);
-    }
-    
     componentWillMount () {
         $(this.props.viewModel).on('change:epics', _.bind(this.setEpics, this));
     }

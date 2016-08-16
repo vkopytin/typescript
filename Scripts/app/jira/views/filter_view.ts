@@ -38,10 +38,6 @@ class FilterView extends BaseView<JiraViewModel, IFilterView> {
         });
     }
     
-    init (opts: any): void {
-        super.init(opts);
-    }
-    
     componentWillMount () {
         $(this.props.viewModel).on('change:statuses', _.bind(this.setStatuses, this));
     }

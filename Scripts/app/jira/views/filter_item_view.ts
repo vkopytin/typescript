@@ -27,10 +27,6 @@ class FilterItemView<TViewModel extends IFilterEntryViewModel> extends BaseView<
         this.state = this.props.viewModel.toJSON();
     }
     
-    init (opts: any) {
-        super.init(opts);
-    }
-    
     componentWillMount () {
         $(this.props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
     }

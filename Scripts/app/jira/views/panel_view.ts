@@ -19,10 +19,6 @@ class PanelView extends BaseView<JiraViewModel, IPanelView> {
         this.opts = opts;
     }
     
-    init (opts: any): void {
-        super.init(opts);
-    }
-    
     render () {
         return template.call(this);
     }

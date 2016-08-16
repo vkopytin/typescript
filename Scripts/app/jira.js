@@ -616,9 +616,6 @@ define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery
                 issues: this.props.viewModel.getIssues()
             }));
         };
-        EmailView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         EmailView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
         };
@@ -677,7 +674,6 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
             };
         }
         EmailPage.prototype.init = function (options) {
-            this.$el = options.el || $(document.body);
             _.extend(this.handlers, options.handlers || {});
             _super.prototype.init.call(this, options);
         };
@@ -904,8 +900,8 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
             }, function (h, e) { $(model).on(e, h); });
             _.defer(_.bind(function () {
                 _this.fetchStatuses();
-                _this.fetchIssues();
                 _this.fetchEpics();
+                _this.fetchIssues();
             }, this), 0);
         };
         JiraViewModel.prototype.finish = function () {
@@ -1007,9 +1003,6 @@ define("app/jira/views/issue_view", ["require", "exports", 'underscore', "app/ji
         function IssueView(opts) {
             _super.call(this, opts);
         }
-        IssueView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         IssueView.prototype.render = function () {
             var data = this.props.viewModel.toJSON();
             return template.call(this, _.extend(data, {
@@ -1106,9 +1099,6 @@ define("app/jira/views/product_item_view", ["require", "exports", "app/jira/base
         function ProductItemView(opts) {
             _super.call(this, opts);
         }
-        ProductItemView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         ProductItemView.prototype.render = function () {
             var data = this.props.viewModel.toJSON();
             return template.call(this, data);
@@ -1144,9 +1134,6 @@ define("app/jira/views/products_view", ["require", "exports", 'jquery', 'undersc
                 products: this.props.products(this.props.viewModel)
             });
         };
-        ProductsView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         ProductsView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:products', _.bind(this.setProducts, this));
         };
@@ -1180,9 +1167,6 @@ define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_v
             _super.call(this, opts);
             this.opts = opts;
         }
-        PanelView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         PanelView.prototype.render = function () {
             return template.call(this);
         };
@@ -1210,7 +1194,6 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
             };
         }
         FeedingPage.prototype.init = function (options) {
-            this.$el = options.el || $(document.body);
             _.extend(this.handlers, options.handlers || {});
             _super.prototype.init.call(this, options);
         };
@@ -1244,9 +1227,6 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
             _super.call(this, opts);
             this.state = this.props.viewModel.toJSON();
         }
-        FilterItemView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         FilterItemView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:selected', _.bind(this.onChangeSelected, this));
         };
@@ -1303,9 +1283,6 @@ define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquer
                 items: this.props.statuses(this.props.viewModel)
             });
         };
-        FilterView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         FilterView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:statuses', _.bind(this.setStatuses, this));
         };
@@ -1355,9 +1332,6 @@ define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery
                 items: this.props.epics(this.props.viewModel)
             });
         };
-        EpicsView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         EpicsView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:epics', _.bind(this.setEpics, this));
         };
@@ -1403,9 +1377,6 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
                 issues: this.props.issues(this.props.viewModel)
             });
         };
-        JiraView.prototype.init = function (opts) {
-            _super.prototype.init.call(this, opts);
-        };
         JiraView.prototype.componentWillMount = function () {
             $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
         };
@@ -1443,7 +1414,6 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
             };
         }
         JiraPage.prototype.init = function (options) {
-            this.$el = options.el || $(document.body);
             _.extend(this.handlers, options.handlers || {});
             _super.prototype.init.call(this, options);
         };

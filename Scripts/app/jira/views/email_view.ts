@@ -33,10 +33,6 @@ class EmailView extends BaseView<EmailViewModel, IEmailView> {
         }));
     }
 
-    init (opts: any) {
-        super.init(opts);
-    }
-    
     componentWillMount () {
         $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
     }

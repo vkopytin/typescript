@@ -42,10 +42,6 @@ class JiraView extends BaseView<JiraViewModel, IJiraView> {
         })
     }
     
-    init (opts: IJiraViewOptions): void {
-        super.init(opts);
-    }
-    
     componentWillMount () {
         $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
     }

@@ -26,7 +26,6 @@ class EmailPage extends BaseView<EmailViewModel, IEmailPage> {
         }
     }
     init (options: any): void {
-        this.$el = options.el || $(document.body);
         _.extend(this.handlers, options.handlers || {});
         
         super.init(options);

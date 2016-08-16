@@ -27,7 +27,6 @@ class FeedingPage extends BaseView<JiraViewModel, IFeedingPage> {
     }
     
     init (options: any): void {
-        this.$el = options.el || $(document.body);
         _.extend(this.handlers, options.handlers || {});
         
         super.init(options);

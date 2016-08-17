@@ -7,9 +7,9 @@ import React = require('react');
 import ReactDOM = require('react-dom');
 
 var components: { [key: string]: string[] } = {
-        'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/jira_view_model'],
-        'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_view_model'],
-        'feeding': ['app/jira/pages/feeding_page', 'app/jira/view_models/feeding_view_model']
+        'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/issues/jira_view_model'],
+        'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_report/email_view_model'],
+        'feeding': ['app/jira/pages/feeding_page', 'app/jira/view_models/products/feeding_view_model']
     },
     inst: Navigation;
 

@@ -1,13 +1,13 @@
-/// <reference path="../../../vendor.d.ts" />
-/// <reference path="../base/base_view.ts" />
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
 
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
-import FilterItemView = require('app/jira/views/filter_item_view');
-import JiraViewModel = require('app/jira/view_models/jira_view_model');
-import FilterEntryViewModel = require('app/jira/view_models/filter_entry_view_model');
-import template = require('app/jira/templates/filter_view_template');
+import FilterItemView = require('app/jira/views/issues/filter_item_view');
+import JiraViewModel = require('app/jira/view_models/issues/jira_view_model');
+import FilterEntryViewModel = require('app/jira/view_models/issues/filter_entry_view_model');
+import template = require('app/jira/templates/issues/filter_view_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 

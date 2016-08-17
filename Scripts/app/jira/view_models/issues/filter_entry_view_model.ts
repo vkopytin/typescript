@@ -1,6 +1,7 @@
-/// <reference path="../command.ts" />
-/// <reference path="../models/model.ts" />
-/// <reference path="../base/base_view_model.ts" />
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../command.ts" />
+/// <reference path="../../models/model.ts" />
+/// <reference path="../../base/base_view_model.ts" />
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseViewModel = require('app/jira/base/base_view_model');
@@ -8,11 +9,13 @@ import Command = require('app/jira/command');
 import Model = require('app/jira/models/model');
 
 interface IFilterEntryViewModel extends BaseViewModel {
-	getSelected(): boolean;
+	getSelected (): boolean;
 }
 
-class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel {
+class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewModel {
     resetItemDelegate: any
+    
+    opts: any
     
     SelectCommand: Command
     
@@ -28,26 +31,24 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
         
         this.triggerProperyChanged('change:selected');
         
-        model.toggleFilter('epicLink', this.getId(), value);
+        model.toggleFilter('status', this.getId(), value);
     }
+    
     init (opts: any): void {
         var model = Model.getCurrent();
         super.init(opts);
         
         this.SelectCommand = new Command({ execute: this.onChangeSelected, scope: this });
         
-        _.each({
-            'model.filterReset': this.resetItemDelegate = _.bind(this.resetItem, this)
-        }, function (h, e) { $(model).on(e, h); });
+        this.resetItemDelegate = _.bind(this.resetItem, this);
+        $(model).on('model.filterReset', this.resetItemDelegate);
     }
     finish (): void {
         var model = Model.getCurrent();
-        _.each({
-            'model.filterReset': this.resetItemDelegate
-        }, (h, e) => { $(model).off(e, h); });
-        
+        $(model).off('model.filterReset', this.resetItemDelegate);
         super.finish();
     }
+    
     getCommand (name: string): Command {
         switch (name) {
             case 'SelectCommand':
@@ -63,4 +64,4 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
         this.getSelected() && this.setSelected(false);
     }
 }
-export = FilterEpicViewModel;
+export = FilterEntryViewModel;

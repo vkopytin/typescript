@@ -1,12 +1,12 @@
-/// <reference path="../../../vendor.d.ts" />
-/// <reference path="page_view_model.ts" />
-/// <reference path="issue_entry_view_model.ts" />
-/// <reference path="../models/model.ts" />
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../page_view_model.ts" />
+/// <reference path="../issues/issue_entry_view_model.ts" />
+/// <reference path="../../models/model.ts" />
 import $ = require('jquery');
 import _ = require('underscore');
 //import BaseViewModel = require('app/jira/base/base_view_model');
 import BaseViewModel = require('app/jira/view_models/page_view_model');
-import IssueEntryViewModel = require('app/jira/view_models/issue_entry_view_model');
+import IssueEntryViewModel = require('app/jira/view_models/issues/issue_entry_view_model');
 import Model = require('app/jira/models/model');
 
 class EmailViewModel extends BaseViewModel {

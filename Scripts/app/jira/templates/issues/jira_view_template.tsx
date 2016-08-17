@@ -1,5 +1,5 @@
 import React = require('react');
-import IssueView = require('app/jira/views/issue_view');
+import IssueView = require('app/jira/views/issues/issue_view');
 
 var template = function () {
 	return (<table className={"table table-hover"}>

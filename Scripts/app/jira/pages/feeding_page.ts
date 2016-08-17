@@ -1,16 +1,17 @@
 /// <reference path="../base/base.ts" />
 /// <reference path="../base/base_view.ts" />
 /// <reference path="../utils.ts" />
-/// <reference path="../view_models/jira_view_model.ts" />
+/// <reference path="../view_models/products/feeding_view_model.ts" />
+
 import _ = require('underscore');
 import $ = require('jquery');
 import IBaseView = require('app/jira/base/i_base_view');
 import BaseView = require('app/jira/base/base_view');
 import Base = require('app/jira/base/base');
 import Utils = require('app/jira/utils');
-import template = require('app/jira/templates/feeding_page_template');
+import template = require('app/jira/templates/products/feeding_page_template');
 import master_page_template = require('app/jira/templates/master_page_template');
-import JiraViewModel = require('app/jira/view_models/feeding_view_model');
+import FeedingViewModel = require('app/jira/view_models/products/feeding_view_model');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
@@ -18,7 +19,7 @@ interface IFeedingPage extends IBaseView {
     
 }
 
-class FeedingPage extends BaseView<JiraViewModel, IFeedingPage> {
+class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
 
     handlers = {
         onDraw: function () {

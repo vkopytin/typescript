@@ -28,6 +28,8 @@ class AccountingModel extends ModelBase {
                     this.setProducts(items);
                 }
             });
+        }, () => {
+            fetchProductsXhr = null;
         });
     }
     

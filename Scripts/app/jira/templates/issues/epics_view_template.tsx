@@ -1,6 +1,6 @@
 import React = require('react');
-import EpicsEntryViewModel = require('app/jira/view_models/filter_epic_view_model');
-import FilterItemView = require('app/jira/views/filter_item_view');
+import EpicsEntryViewModel = require('app/jira/view_models/issues/filter_epic_view_model');
+import FilterItemView = require('app/jira/views/issues/filter_item_view');
 
 interface IFilterItemView<TViewModel extends EpicsEntryViewModel> {
     new(opts: any): FilterItemView<TViewModel>;

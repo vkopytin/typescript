@@ -1,6 +1,6 @@
 import React = require('react');
-import EmailView = require('app/jira/views/email_view');
-import EmailViewModel = require('app/jira/view_models/email_view_model');
+import EmailView = require('app/jira/views/email_report/email_view');
+import EmailViewModel = require('app/jira/view_models/email_report/email_view_model');
 
 var template = function (viewModel: any) {
 	return (

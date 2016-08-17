@@ -1,6 +1,6 @@
 import React = require('react');
-import FilterEntryViewModel = require('app/jira/view_models/filter_entry_view_model');
-import FilterItemView = require('app/jira/views/filter_item_view');
+import FilterEntryViewModel = require('app/jira/view_models/issues/filter_entry_view_model');
+import FilterItemView = require('app/jira/views/issues/filter_item_view');
 
 interface IFilterItemView<TViewModel extends FilterEntryViewModel> {
     new(opts: any): FilterItemView<TViewModel>;

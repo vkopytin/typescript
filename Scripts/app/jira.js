@@ -222,9 +222,9 @@ define("app/jira/base/base_view_model", ["require", "exports", 'jquery', "app/ji
 define("app/jira/navigation", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base", 'react', 'react-dom'], function (require, exports, $, _, Base, React, ReactDOM) {
     "use strict";
     var components = {
-        'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/jira_view_model'],
-        'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_view_model'],
-        'feeding': ['app/jira/pages/feeding_page', 'app/jira/view_models/feeding_view_model']
+        'jira-report': ['app/jira/pages/jira_page', 'app/jira/view_models/issues/jira_view_model'],
+        'deploy-email': ['app/jira/pages/email_page', 'app/jira/view_models/email_report/email_view_model'],
+        'feeding': ['app/jira/pages/feeding_page', 'app/jira/view_models/products/feeding_view_model']
     }, inst;
     var Navigation = (function (_super) {
         __extends(Navigation, _super);
@@ -376,6 +376,8 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
                         _this.setProducts(items);
                     }
                 });
+            }, function () {
+                fetchProductsXhr = null;
             });
         };
         AccountingModel.getCurrent = function () {
@@ -525,7 +527,7 @@ define("app/jira/view_models/page_view_model", ["require", "exports", "app/jira/
     }(BaseViewModel));
     return PageViewModel;
 });
-define("app/jira/view_models/issue_entry_view_model", ["require", "exports", "app/jira/base/base_view_model"], function (require, exports, BaseViewModel) {
+define("app/jira/view_models/issues/issue_entry_view_model", ["require", "exports", "app/jira/base/base_view_model"], function (require, exports, BaseViewModel) {
     "use strict";
     var IssueEntryViewModel = (function (_super) {
         __extends(IssueEntryViewModel, _super);
@@ -539,7 +541,7 @@ define("app/jira/view_models/issue_entry_view_model", ["require", "exports", "ap
     }(BaseViewModel));
     return IssueEntryViewModel;
 });
-define("app/jira/view_models/email_view_model", ["require", "exports", 'jquery', 'underscore', "app/jira/view_models/page_view_model", "app/jira/view_models/issue_entry_view_model", "app/jira/models/model"], function (require, exports, $, _, BaseViewModel, IssueEntryViewModel, Model) {
+define("app/jira/view_models/email_report/email_view_model", ["require", "exports", 'jquery', 'underscore', "app/jira/view_models/page_view_model", "app/jira/view_models/issues/issue_entry_view_model", "app/jira/models/model"], function (require, exports, $, _, BaseViewModel, IssueEntryViewModel, Model) {
     "use strict";
     var EmailViewModel = (function (_super) {
         __extends(EmailViewModel, _super);
@@ -591,14 +593,14 @@ define("app/jira/view_models/email_view_model", ["require", "exports", 'jquery',
     }(BaseViewModel));
     return EmailViewModel;
 });
-define("app/jira/templates/email_template", ["require", "exports", 'react'], function (require, exports, React) {
+define("app/jira/templates/email_report/email_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
         return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row pad-top-botm "}, React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, React.createElement("h1", {className: "page-head-line"}, "Tomorrow Deploy"), React.createElement("h1", {className: "page-subhead-line"}, "Tomorrow deploy"))), React.createElement("div", {className: "row"}, React.createElement("div", {style: { fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }, className: "email-contents col-lg-12 col-md-12 col-sm-12", dangerouslySetInnerHTML: this.getEmailHTML()})), React.createElement("div", {className: "row pad-top-botm"}, React.createElement("div", {className: "auto-email col-lg-12 col-md-12 col-sm-12"}, React.createElement("hr", null), React.createElement("a", {className: "btn btn-primary btn-lg", href: "mailto:qa@rebelmouse.com?subject=" + this.state.subject + "&body=" + this.getEmailText()}, "Create mail")))));
     };
     return template;
 });
-define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/email_template", 'hgn!app/jira/templates/email_template'], function (require, exports, _, $, BaseView, template, emailTemplate) {
+define("app/jira/views/email_report/email_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/email_report/email_template", 'hgn!app/jira/templates/email_report/email_template'], function (require, exports, _, $, BaseView, template, emailTemplate) {
     "use strict";
     var EmailView = (function (_super) {
         __extends(EmailView, _super);
@@ -646,7 +648,7 @@ define("app/jira/views/email_view", ["require", "exports", 'underscore', 'jquery
     }(BaseView));
     return EmailView;
 });
-define("app/jira/templates/email_page_template", ["require", "exports", 'react', "app/jira/views/email_view"], function (require, exports, React, EmailView) {
+define("app/jira/templates/email_report/email_page_template", ["require", "exports", 'react', "app/jira/views/email_report/email_view"], function (require, exports, React, EmailView) {
     "use strict";
     var template = function (viewModel) {
         return (React.createElement(EmailView, {viewModel: viewModel}));
@@ -661,7 +663,7 @@ define("app/jira/templates/master_page_template", ["require", "exports", 'react'
     };
     return template;
 });
-define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/email_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
+define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/email_report/email_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var EmailPage = (function (_super) {
         __extends(EmailPage, _super);
@@ -691,7 +693,76 @@ define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery
     }(BaseView));
     return EmailPage;
 });
-define("app/jira/view_models/filter_entry_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, Command, Model) {
+define("app/jira/view_models/products/product_entry_view_model", ["require", "exports", "app/jira/base/base_view_model"], function (require, exports, BaseViewModel) {
+    "use strict";
+    var ProductEntryViewModel = (function (_super) {
+        __extends(ProductEntryViewModel, _super);
+        function ProductEntryViewModel() {
+            _super.apply(this, arguments);
+        }
+        ProductEntryViewModel.prototype.getId = function () {
+            return this.opts.id;
+        };
+        return ProductEntryViewModel;
+    }(BaseViewModel));
+    return ProductEntryViewModel;
+});
+define("app/jira/view_models/products/feeding_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/products/product_entry_view_model", "app/jira/models/accounting_model"], function (require, exports, _, $, PageViewModel, ProductEntryViewModel, Model) {
+    "use strict";
+    var FeedingViewModel = (function (_super) {
+        __extends(FeedingViewModel, _super);
+        function FeedingViewModel() {
+            _super.apply(this, arguments);
+            this.products = [];
+        }
+        FeedingViewModel.prototype.getProducts = function () {
+            return this.products;
+        };
+        FeedingViewModel.prototype.setProducts = function (value) {
+            var products = this.products;
+            _.defer(function () {
+                _.each(products, function (viewModel) {
+                    viewModel.finish();
+                });
+            }, 0);
+            this.products = value;
+            this.triggerProperyChanged('change:products');
+        };
+        FeedingViewModel.prototype.init = function (opts) {
+            var _this = this;
+            var model = Model.getCurrent();
+            _super.prototype.init.call(this, opts);
+            _.each({
+                'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this)
+            }, function (h, e) { $(model).on(e, h); });
+            _.defer(_.bind(function () {
+                _this.fetchProducts();
+            }, this), 0);
+        };
+        FeedingViewModel.prototype.finish = function () {
+            var model = Model.getCurrent();
+            _.each({
+                'accounting_model.products': this.changeProductsDelegate
+            }, function (h, e) { $(model).off(e, h); });
+            $(this).off();
+            this.setProducts([]);
+            _super.prototype.finish.call(this);
+        };
+        FeedingViewModel.prototype.changeProducts = function () {
+            var model = Model.getCurrent(), issues = model.getProducts();
+            this.setProducts(_.map(issues, function (item) {
+                return new ProductEntryViewModel(item);
+            }, this));
+        };
+        FeedingViewModel.prototype.fetchProducts = function () {
+            var model = Model.getCurrent();
+            model.fetchProducts();
+        };
+        return FeedingViewModel;
+    }(PageViewModel));
+    return FeedingViewModel;
+});
+define("app/jira/view_models/issues/filter_entry_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, Command, Model) {
     "use strict";
     var FilterEntryViewModel = (function (_super) {
         __extends(FilterEntryViewModel, _super);
@@ -740,7 +811,7 @@ define("app/jira/view_models/filter_entry_view_model", ["require", "exports", 'u
     }(BaseViewModel));
     return FilterEntryViewModel;
 });
-define("app/jira/view_models/filter_epic_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, Command, Model) {
+define("app/jira/view_models/issues/filter_epic_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, Command, Model) {
     "use strict";
     var FilterEpicViewModel = (function (_super) {
         __extends(FilterEpicViewModel, _super);
@@ -792,7 +863,7 @@ define("app/jira/view_models/filter_epic_view_model", ["require", "exports", 'un
     }(BaseViewModel));
     return FilterEpicViewModel;
 });
-define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/filter_entry_view_model", "app/jira/view_models/filter_epic_view_model", "app/jira/view_models/issue_entry_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, FilterEntryViewModel, FilterEpicViewModel, IssueEntryViewModel, Command, Model) {
+define("app/jira/view_models/issues/jira_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/issues/filter_entry_view_model", "app/jira/view_models/issues/filter_epic_view_model", "app/jira/view_models/issues/issue_entry_view_model", "app/jira/command", "app/jira/models/model"], function (require, exports, _, $, BaseViewModel, FilterEntryViewModel, FilterEpicViewModel, IssueEntryViewModel, Command, Model) {
     "use strict";
     var triggerPropertyChange = function (target, key, descriptor) {
         return {
@@ -966,133 +1037,14 @@ define("app/jira/view_models/jira_view_model", ["require", "exports", 'underscor
     }(BaseViewModel));
     return JiraViewModel;
 });
-define("app/jira/templates/jira_issue_item_template", ["require", "exports", 'react'], function (require, exports, React) {
-    "use strict";
-    var template = function (data) {
-        return (React.createElement("tr", null, React.createElement("td", {style: { width: "140px" }}, React.createElement("img", {src: data.fields.priority.iconUrl, title: data.fields.priority.name, style: { width: "16px", height: "16px" }}), data.fields.priority.name), React.createElement("td", null, React.createElement("div", null, data.Key, ": ", data.fields.summary), React.createElement("div", null, data.fields.status.name)), React.createElement("td", null), React.createElement("td", {style: { width: "140px", textAlign: "center" }}, data.updated()), React.createElement("td", {style: { minWidth: "140px" }}, data.fields.assignee && data.fields.assignee.displayName)));
-    };
-    return template;
-});
-define("app/jira/views/issue_view", ["require", "exports", 'underscore', "app/jira/base/base_view", "app/jira/templates/jira_issue_item_template"], function (require, exports, _, BaseView, template) {
-    "use strict";
-    function toDate(ticks) {
-        //ticks are in nanotime; convert to microtime
-        var ticksToMicrotime = ticks / 10000;
-        //ticks are recorded from 1/1/1; get microtime difference from 1/1/1/ to 1/1/1970
-        var epochMicrotimeDiff = 2208988800000;
-        //new date is ticks, converted to microtime, minus difference from epoch microtime
-        var tickDate = new Date(ticksToMicrotime - epochMicrotimeDiff);
-        return tickDate;
-    }
-    function printDate(datetime, format) {
-        var format = format, dateStr = format.replace('YYYY', padStr(datetime.getFullYear()))
-            .replace('YY', ('' + datetime.getFullYear()).substr(2))
-            .replace('MM', padStr(1 + datetime.getMonth()))
-            .replace('M', '' + (1 + datetime.getMonth()))
-            .replace('DD', padStr(datetime.getDate()))
-            .replace('hh', padStr(datetime.getHours()))
-            .replace('mm', padStr(datetime.getMinutes()))
-            .replace('ss', padStr(datetime.getSeconds()));
-        return dateStr;
-    }
-    function padStr(i) {
-        return (i < 10) ? '0' + i : '' + i;
-    }
-    var IssueView = (function (_super) {
-        __extends(IssueView, _super);
-        function IssueView(opts) {
-            _super.call(this, opts);
-        }
-        IssueView.prototype.render = function () {
-            var data = this.props.viewModel.toJSON();
-            return template.call(this, _.extend(data, {
-                updated: function () {
-                    var date = new Date(data.fields.updated);
-                    return printDate(date, 'YYYY-MM-DD hh:mm:ss');
-                }
-            }));
-        };
-        return IssueView;
-    }(BaseView));
-    return IssueView;
-});
-define("app/jira/view_models/product_entry_view_model", ["require", "exports", "app/jira/base/base_view_model"], function (require, exports, BaseViewModel) {
-    "use strict";
-    var ProductEntryViewModel = (function (_super) {
-        __extends(ProductEntryViewModel, _super);
-        function ProductEntryViewModel() {
-            _super.apply(this, arguments);
-        }
-        ProductEntryViewModel.prototype.getId = function () {
-            return this.opts.id;
-        };
-        return ProductEntryViewModel;
-    }(BaseViewModel));
-    return ProductEntryViewModel;
-});
-define("app/jira/view_models/feeding_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/product_entry_view_model", "app/jira/models/accounting_model"], function (require, exports, _, $, PageViewModel, ProductEntryViewModel, Model) {
-    "use strict";
-    var FeedingViewModel = (function (_super) {
-        __extends(FeedingViewModel, _super);
-        function FeedingViewModel() {
-            _super.apply(this, arguments);
-            this.products = [];
-        }
-        FeedingViewModel.prototype.getProducts = function () {
-            return this.products;
-        };
-        FeedingViewModel.prototype.setProducts = function (value) {
-            var products = this.products;
-            _.defer(function () {
-                _.each(products, function (viewModel) {
-                    viewModel.finish();
-                });
-            }, 0);
-            this.products = value;
-            this.triggerProperyChanged('change:products');
-        };
-        FeedingViewModel.prototype.init = function (opts) {
-            var _this = this;
-            var model = Model.getCurrent();
-            _super.prototype.init.call(this, opts);
-            _.each({
-                'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this)
-            }, function (h, e) { $(model).on(e, h); });
-            _.defer(_.bind(function () {
-                _this.fetchProducts();
-            }, this), 0);
-        };
-        FeedingViewModel.prototype.finish = function () {
-            var model = Model.getCurrent();
-            _.each({
-                'accounting_model.products': this.changeProductsDelegate
-            }, function (h, e) { $(model).off(e, h); });
-            $(this).off();
-            this.setProducts([]);
-            _super.prototype.finish.call(this);
-        };
-        FeedingViewModel.prototype.changeProducts = function () {
-            var model = Model.getCurrent(), issues = model.getProducts();
-            this.setProducts(_.map(issues, function (item) {
-                return new ProductEntryViewModel(item);
-            }, this));
-        };
-        FeedingViewModel.prototype.fetchProducts = function () {
-            var model = Model.getCurrent();
-            model.fetchProducts();
-        };
-        return FeedingViewModel;
-    }(PageViewModel));
-    return FeedingViewModel;
-});
-define("app/jira/templates/product_item_template", ["require", "exports", 'react'], function (require, exports, React) {
+define("app/jira/templates/products/product_item_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function (data) {
         return (React.createElement("tr", null, React.createElement("td", {style: { width: "140px" }}, data.id), React.createElement("td", null, data.user), React.createElement("td", null, data.Description)));
     };
     return template;
 });
-define("app/jira/views/product_item_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/product_item_template"], function (require, exports, BaseView, template) {
+define("app/jira/views/products/product_item_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/products/product_item_template"], function (require, exports, BaseView, template) {
     "use strict";
     var ProductItemView = (function (_super) {
         __extends(ProductItemView, _super);
@@ -1107,19 +1059,18 @@ define("app/jira/views/product_item_view", ["require", "exports", "app/jira/base
     }(BaseView));
     return ProductItemView;
 });
-define("app/jira/templates/products_template", ["require", "exports", 'react', "app/jira/views/product_item_view"], function (require, exports, React, ProductItemView) {
+define("app/jira/templates/products/products_template", ["require", "exports", 'react', "app/jira/views/products/product_item_view"], function (require, exports, React, ProductItemView) {
     "use strict";
     var template = function () {
         return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Code"), React.createElement("th", null, "User"), React.createElement("th", null, "Product Description"))), React.createElement("tbody", null, this.state.products && this.state.products.map(function (entity) { return React.createElement(ProductItemView, {viewModel: entity, key: entity.getId()}); })))));
     };
     return template;
 });
-/// <reference path="../../../vendor.d.ts" />
-/// <reference path="../base/base_view.ts" />
-/// <reference path="../view_models/jira_view_model.ts" />
-/// <reference path="../view_models/issue_entry_view_model.ts" />
-/// <reference path="issue_view.ts" />
-define("app/jira/views/products_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products_template"], function (require, exports, $, _, BaseView, template) {
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
+/// <reference path="../../view_models/issues/jira_view_model.ts" />
+/// <reference path="../../view_models/issues/issue_entry_view_model.ts" />
+define("app/jira/views/products/products_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/products_template"], function (require, exports, $, _, BaseView, template) {
     "use strict";
     var ProductsView = (function (_super) {
         __extends(ProductsView, _super);
@@ -1174,14 +1125,18 @@ define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_v
     }(BaseView));
     return PanelView;
 });
-define("app/jira/templates/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products_view", "app/jira/views/panel_view"], function (require, exports, React, ProductsView, PanelView) {
+define("app/jira/templates/products/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products/products_view", "app/jira/views/panel_view"], function (require, exports, React, ProductsView, PanelView) {
     "use strict";
     var template = function (viewModel) {
         return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel, title: "Products"}, React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))));
     };
     return template;
 });
-define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/feeding_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
+/// <reference path="../base/base.ts" />
+/// <reference path="../base/base_view.ts" />
+/// <reference path="../utils.ts" />
+/// <reference path="../view_models/products/feeding_view_model.ts" />
+define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/products/feeding_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var FeedingPage = (function (_super) {
         __extends(FeedingPage, _super);
@@ -1211,7 +1166,57 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
     }(BaseView));
     return FeedingPage;
 });
-define("app/jira/templates/filter_item_view_template", ["require", "exports", 'react'], function (require, exports, React) {
+define("app/jira/templates/issues/jira_issue_item_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function (data) {
+        return (React.createElement("tr", null, React.createElement("td", {style: { width: "140px" }}, React.createElement("img", {src: data.fields.priority.iconUrl, title: data.fields.priority.name, style: { width: "16px", height: "16px" }}), data.fields.priority.name), React.createElement("td", null, React.createElement("div", null, data.Key, ": ", data.fields.summary), React.createElement("div", null, data.fields.status.name)), React.createElement("td", null), React.createElement("td", {style: { width: "140px", textAlign: "center" }}, data.updated()), React.createElement("td", {style: { minWidth: "140px" }}, data.fields.assignee && data.fields.assignee.displayName)));
+    };
+    return template;
+});
+define("app/jira/views/issues/issue_view", ["require", "exports", 'underscore', "app/jira/base/base_view", "app/jira/templates/issues/jira_issue_item_template"], function (require, exports, _, BaseView, template) {
+    "use strict";
+    function toDate(ticks) {
+        //ticks are in nanotime; convert to microtime
+        var ticksToMicrotime = ticks / 10000;
+        //ticks are recorded from 1/1/1; get microtime difference from 1/1/1/ to 1/1/1970
+        var epochMicrotimeDiff = 2208988800000;
+        //new date is ticks, converted to microtime, minus difference from epoch microtime
+        var tickDate = new Date(ticksToMicrotime - epochMicrotimeDiff);
+        return tickDate;
+    }
+    function printDate(datetime, format) {
+        var format = format, dateStr = format.replace('YYYY', padStr(datetime.getFullYear()))
+            .replace('YY', ('' + datetime.getFullYear()).substr(2))
+            .replace('MM', padStr(1 + datetime.getMonth()))
+            .replace('M', '' + (1 + datetime.getMonth()))
+            .replace('DD', padStr(datetime.getDate()))
+            .replace('hh', padStr(datetime.getHours()))
+            .replace('mm', padStr(datetime.getMinutes()))
+            .replace('ss', padStr(datetime.getSeconds()));
+        return dateStr;
+    }
+    function padStr(i) {
+        return (i < 10) ? '0' + i : '' + i;
+    }
+    var IssueView = (function (_super) {
+        __extends(IssueView, _super);
+        function IssueView(opts) {
+            _super.call(this, opts);
+        }
+        IssueView.prototype.render = function () {
+            var data = this.props.viewModel.toJSON();
+            return template.call(this, _.extend(data, {
+                updated: function () {
+                    var date = new Date(data.fields.updated);
+                    return printDate(date, 'YYYY-MM-DD hh:mm:ss');
+                }
+            }));
+        };
+        return IssueView;
+    }(BaseView));
+    return IssueView;
+});
+define("app/jira/templates/issues/filter_item_view_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
         var _this = this;
@@ -1219,7 +1224,7 @@ define("app/jira/templates/filter_item_view_template", ["require", "exports", 'r
     };
     return template;
 });
-define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/filter_item_view_template"], function (require, exports, _, $, BaseView, template) {
+define("app/jira/views/issues/filter_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/issues/filter_item_view_template"], function (require, exports, _, $, BaseView, template) {
     "use strict";
     var FilterItemView = (function (_super) {
         __extends(FilterItemView, _super);
@@ -1251,7 +1256,7 @@ define("app/jira/views/filter_item_view", ["require", "exports", 'underscore', '
     }(BaseView));
     return FilterItemView;
 });
-define("app/jira/templates/filter_view_template", ["require", "exports", 'react', "app/jira/views/filter_item_view"], function (require, exports, React, FilterItemView) {
+define("app/jira/templates/issues/filter_view_template", ["require", "exports", 'react', "app/jira/views/issues/filter_item_view"], function (require, exports, React, FilterItemView) {
     "use strict";
     var StatusFilterItemView = FilterItemView;
     var template = function () {
@@ -1261,9 +1266,9 @@ define("app/jira/templates/filter_view_template", ["require", "exports", 'react'
     };
     return template;
 });
-/// <reference path="../../../vendor.d.ts" />
-/// <reference path="../base/base_view.ts" />
-define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/filter_view_template"], function (require, exports, _, $, BaseView, template) {
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
+define("app/jira/views/issues/filter_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/issues/filter_view_template"], function (require, exports, _, $, BaseView, template) {
     "use strict";
     var FilterView = (function (_super) {
         __extends(FilterView, _super);
@@ -1300,7 +1305,7 @@ define("app/jira/views/filter_view", ["require", "exports", 'underscore', 'jquer
     }(BaseView));
     return FilterView;
 });
-define("app/jira/templates/epics_view_template", ["require", "exports", 'react', "app/jira/views/filter_item_view"], function (require, exports, React, FilterItemView) {
+define("app/jira/templates/issues/epics_view_template", ["require", "exports", 'react', "app/jira/views/issues/filter_item_view"], function (require, exports, React, FilterItemView) {
     "use strict";
     var EpicFilterItemView = FilterItemView;
     var template = function () {
@@ -1310,9 +1315,9 @@ define("app/jira/templates/epics_view_template", ["require", "exports", 'react',
     };
     return template;
 });
-/// <reference path="../../../vendor.d.ts" />
-/// <reference path="../base/base_view.ts" />
-define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/epics_view_template"], function (require, exports, _, $, BaseView, template) {
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
+define("app/jira/views/issues/epics_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/issues/epics_view_template"], function (require, exports, _, $, BaseView, template) {
     "use strict";
     var EpicsView = (function (_super) {
         __extends(EpicsView, _super);
@@ -1349,7 +1354,7 @@ define("app/jira/views/epics_view", ["require", "exports", 'underscore', 'jquery
     }(BaseView));
     return EpicsView;
 });
-define("app/jira/templates/jira_template", ["require", "exports", 'react'], function (require, exports, React) {
+define("app/jira/templates/issues/jira_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function (IssueView) {
         var _this = this;
@@ -1357,17 +1362,18 @@ define("app/jira/templates/jira_template", ["require", "exports", 'react'], func
     };
     return template;
 });
-/// <reference path="../../../vendor.d.ts" />
-/// <reference path="../base/base_view.ts" />
-/// <reference path="../view_models/jira_view_model.ts" />
-/// <reference path="../view_models/issue_entry_view_model.ts" />
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
+/// <reference path="../../view_models/issues/jira_view_model.ts" />
+/// <reference path="../../view_models/issues/issue_entry_view_model.ts" />
 /// <reference path="issue_view.ts" />
-define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issue_view", "app/jira/templates/jira_template"], function (require, exports, $, _, BaseView, IssueView, template) {
+define("app/jira/views/issues/jira_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/views/issues/issue_view", "app/jira/templates/issues/jira_template"], function (require, exports, $, _, BaseView, IssueView, template) {
     "use strict";
     var JiraView = (function (_super) {
         __extends(JiraView, _super);
         function JiraView(opts) {
             _super.call(this, opts);
+            this.setIssuesDelegate = _.bind(this.setIssues, this);
             this.state = {
                 issues: this.props.issues(this.props.viewModel)
             };
@@ -1378,14 +1384,14 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
             });
         };
         JiraView.prototype.componentWillMount = function () {
-            $(this.props.viewModel).on('change:issues', _.bind(this.setIssues, this));
+            $(this.props.viewModel).on('change:issues', this.setIssuesDelegate);
         };
         JiraView.prototype.componentWillUnmount = function () {
-            $(this.props.viewModel).off('change:issues');
+            $(this.props.viewModel).off('change:issues', this.setIssuesDelegate);
         };
         JiraView.prototype.componentWillReceiveProps = function (props) {
-            $(this.props.viewModel).off('change:issues');
-            $(props.viewModel).on('change:issues', _.bind(this.setIssues, this));
+            $(this.props.viewModel).off('change:issues', this.setIssuesDelegate);
+            $(props.viewModel).on('change:issues', this.setIssuesDelegate);
         };
         JiraView.prototype.render = function () {
             return template.call(this, IssueView);
@@ -1394,14 +1400,14 @@ define("app/jira/views/jira_view", ["require", "exports", 'jquery', 'underscore'
     }(BaseView));
     return JiraView;
 });
-define("app/jira/templates/jira_page_template", ["require", "exports", 'react', "app/jira/views/jira_view", "app/jira/views/filter_view", "app/jira/views/panel_view", "app/jira/views/epics_view"], function (require, exports, React, JiraView, FilterView, PanelView, EpicsView) {
+define("app/jira/templates/issues/jira_page_template", ["require", "exports", 'react', "app/jira/views/issues/jira_view", "app/jira/views/issues/filter_view", "app/jira/views/panel_view", "app/jira/views/issues/epics_view"], function (require, exports, React, JiraView, FilterView, PanelView, EpicsView) {
     "use strict";
     var template = function (viewModel) {
         return (React.createElement(JiraView, {viewModel: viewModel, issues: function (vm) { return vm.getIssues(); }}, React.createElement(FilterView, {ref: "filterStatuses", viewModel: viewModel, statuses: function (vm) { return vm.getStatuses(); }}), React.createElement(PanelView, {ref: "epicsPanel", viewModel: viewModel, title: "Filter by Epic"}, React.createElement(EpicsView, {ref: "filterEpics", viewModel: viewModel, epics: function (vm) { return vm.getEpics(); }}))));
     };
     return template;
 });
-define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/jira_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
+define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/issues/jira_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var JiraPage = (function (_super) {
         __extends(JiraPage, _super);
@@ -1431,7 +1437,7 @@ define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery'
     }(BaseView));
     return JiraPage;
 });
-define("app/jira/templates/jira_view_template", ["require", "exports", 'react', "app/jira/views/issue_view"], function (require, exports, React, IssueView) {
+define("app/jira/templates/issues/jira_view_template", ["require", "exports", 'react', "app/jira/views/issues/issue_view"], function (require, exports, React, IssueView) {
     "use strict";
     var template = function () {
         return (React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Priority"), React.createElement("th", null, React.createElement("div", null, "Key: Summary"), React.createElement("div", null, "Status")), React.createElement("th", null, "X"), React.createElement("th", null, "Updated"), React.createElement("th", null, "Assignee"))), React.createElement("tbody", {className: "issues-list"}, this.state.issues && this.state.issues.map(function (entity) { return React.createElement(IssueView, {viewModel: entity, key: entity.getId()}); }))));

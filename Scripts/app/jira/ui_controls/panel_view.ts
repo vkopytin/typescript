@@ -2,7 +2,7 @@
 
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
-import template = require('app/jira/templates/panel_template');
+import template = require('app/jira/ui_controls/panel_template');
 import BaseViewModel = require('app/jira/base/base_view_model');
 import IBaseView = require('app/jira/base/i_base_view');
 import React = require('react');

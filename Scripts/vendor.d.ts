@@ -50,7 +50,7 @@ declare module "hgn!app/jira/templates/issues/jira_template" {
   export = template;
 }
 
-declare module "hgn!app/jira/templates/panel_template" {
+declare module "hgn!app/jira/ui_controls/panel_template" {
   export = template;
 }
 

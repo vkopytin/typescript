@@ -648,7 +648,7 @@ define("app/jira/views/email_report/email_view", ["require", "exports", 'undersc
     }(BaseView));
     return EmailView;
 });
-define("app/jira/templates/email_report/email_page_template", ["require", "exports", 'react', "app/jira/views/email_report/email_view"], function (require, exports, React, EmailView) {
+define("app/jira/pages/email_page_template", ["require", "exports", 'react', "app/jira/views/email_report/email_view"], function (require, exports, React, EmailView) {
     "use strict";
     var template = function (viewModel) {
         return (React.createElement(EmailView, {viewModel: viewModel}));
@@ -663,7 +663,7 @@ define("app/jira/templates/master_page_template", ["require", "exports", 'react'
     };
     return template;
 });
-define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/email_report/email_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
+define("app/jira/pages/email_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/pages/email_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var EmailPage = (function (_super) {
         __extends(EmailPage, _super);
@@ -1102,7 +1102,7 @@ define("app/jira/views/products/products_view", ["require", "exports", 'jquery',
     }(BaseView));
     return ProductsView;
 });
-define("app/jira/templates/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
+define("app/jira/ui_controls/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
         return (React.createElement("div", {className: "epics-panel panel panel-default highlight"}, React.createElement("div", {className: "panel-heading"}, React.createElement("label", null, this.props.title)), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-epics"}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "filter-epics"}), this.props.children)))));
@@ -1110,7 +1110,7 @@ define("app/jira/templates/panel_template", ["require", "exports", 'react'], fun
     return template;
 });
 /// <reference path="../base/base_view.ts" />
-define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_view", "app/jira/templates/panel_template"], function (require, exports, BaseView, template) {
+define("app/jira/ui_controls/panel_view", ["require", "exports", "app/jira/base/base_view", "app/jira/ui_controls/panel_template"], function (require, exports, BaseView, template) {
     "use strict";
     var PanelView = (function (_super) {
         __extends(PanelView, _super);
@@ -1125,7 +1125,7 @@ define("app/jira/views/panel_view", ["require", "exports", "app/jira/base/base_v
     }(BaseView));
     return PanelView;
 });
-define("app/jira/templates/products/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products/products_view", "app/jira/views/panel_view"], function (require, exports, React, ProductsView, PanelView) {
+define("app/jira/pages/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products/products_view", "app/jira/ui_controls/panel_view"], function (require, exports, React, ProductsView, PanelView) {
     "use strict";
     var template = function (viewModel) {
         return (React.createElement("div", {id: "page-inner"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel, title: "Products"}, React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))));
@@ -1136,7 +1136,7 @@ define("app/jira/templates/products/feeding_page_template", ["require", "exports
 /// <reference path="../base/base_view.ts" />
 /// <reference path="../utils.ts" />
 /// <reference path="../view_models/products/feeding_view_model.ts" />
-define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/products/feeding_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
+define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/pages/feeding_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var FeedingPage = (function (_super) {
         __extends(FeedingPage, _super);
@@ -1400,14 +1400,14 @@ define("app/jira/views/issues/jira_view", ["require", "exports", 'jquery', 'unde
     }(BaseView));
     return JiraView;
 });
-define("app/jira/templates/issues/jira_page_template", ["require", "exports", 'react', "app/jira/views/issues/jira_view", "app/jira/views/issues/filter_view", "app/jira/views/panel_view", "app/jira/views/issues/epics_view"], function (require, exports, React, JiraView, FilterView, PanelView, EpicsView) {
+define("app/jira/pages/jira_page_template", ["require", "exports", 'react', "app/jira/views/issues/jira_view", "app/jira/views/issues/filter_view", "app/jira/ui_controls/panel_view", "app/jira/views/issues/epics_view"], function (require, exports, React, JiraView, FilterView, PanelView, EpicsView) {
     "use strict";
     var template = function (viewModel) {
         return (React.createElement(JiraView, {viewModel: viewModel, issues: function (vm) { return vm.getIssues(); }}, React.createElement(FilterView, {ref: "filterStatuses", viewModel: viewModel, statuses: function (vm) { return vm.getStatuses(); }}), React.createElement(PanelView, {ref: "epicsPanel", viewModel: viewModel, title: "Filter by Epic"}, React.createElement(EpicsView, {ref: "filterEpics", viewModel: viewModel, epics: function (vm) { return vm.getEpics(); }}))));
     };
     return template;
 });
-define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/templates/issues/jira_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
+define("app/jira/pages/jira_page", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/base/base", "app/jira/pages/jira_page_template", "app/jira/templates/master_page_template"], function (require, exports, _, $, BaseView, Base, template, master_page_template) {
     "use strict";
     var JiraPage = (function (_super) {
         __extends(JiraPage, _super);

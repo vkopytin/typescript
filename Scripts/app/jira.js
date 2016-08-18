@@ -1105,7 +1105,7 @@ define("app/jira/views/products/products_view", ["require", "exports", 'jquery',
 define("app/jira/ui_controls/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
-        return (React.createElement("div", {className: "epics-panel panel panel-default highlight"}, React.createElement("div", {className: "panel-heading"}, React.createElement("label", null, this.props.title)), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "filter-items-epics"}, React.createElement("div", {className: "form-group"}, React.createElement("div", {className: "filter-epics"}), this.props.children)))));
+        return (React.createElement("div", {className: "panel panel-default highlight"}, React.createElement("div", {className: "panel-heading"}, React.createElement("label", null, this.props.title)), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "form-group"}, this.props.children))));
     };
     return template;
 });

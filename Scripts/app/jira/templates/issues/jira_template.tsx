@@ -11,7 +11,6 @@ var template = function (IssueView: any) {
  
     <div className={"row"}>
         <div className={"jira-issues-list col-md-12"}>
-                    JIRA Issues
             <div className={"panel panel-default"}>
                 <div className={"panel-heading"}>
                     <a href={"javascript:(function(){HOST = '{{domain}}';var jsCode = document.createElement('script');jsCode.setAttribute('src', HOST + '/mvc/jira/bookmarklet?' + Math.random());jsCode.setAttribute('id','jira-worktool-bookmarklet');document.getElementsByTagName('head')[0].appendChild(jsCode);}());"}><button className={"btn btn-lg btn-info"}>Jira bookmarklet</button></a>
@@ -30,9 +29,15 @@ var template = function (IssueView: any) {
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <div className={"row"}>
+        <div className={"col-md-12"}>
             {this.props.children.find((item: any) => item.ref === "epicsPanel")}
         </div>
     </div>
+    
     <div className={"row"}>
         <div className={"table-responsive"}>
             <table className={"table table-hover"}>

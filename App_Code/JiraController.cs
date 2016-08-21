@@ -175,5 +175,21 @@ namespace hellomvc.Controllers
 
             return Json(item, JsonRequestBehavior.AllowGet);
         }
+        
+        [HttpGet]
+        public ActionResult Suppliers() {
+            var repo = Vko.Repository.General.Request<Vko.Entities.Supplier>();
+            var items = repo.List();
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpGet]
+        public ActionResult Categories() {
+            var repo = Vko.Repository.General.Request<Vko.Entities.Category>();
+            var items = repo.List();
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
     }
 }

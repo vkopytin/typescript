@@ -80,14 +80,14 @@ namespace Vko.Repository {
                 conn.Open();
                 using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
                 {
-                    command.Parameters.AddWithValue(":productName", product.ProductName);    
-                    command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);    
-                    command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);    
+                    command.Parameters.AddWithValue(":productName", product.ProductName);
+                    command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);
+                    command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
                     command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
-                    command.Parameters.AddWithValue(":supplierId", 1);    
-                    command.Parameters.AddWithValue(":categoryId", 1);    
-                    command.Parameters.AddWithValue(":unitsInStock", 0);    
-                    command.Parameters.AddWithValue(":reorderLevel", 0);    
+                    command.Parameters.AddWithValue(":supplierId", 1);
+                    command.Parameters.AddWithValue(":categoryId", 1);
+                    command.Parameters.AddWithValue(":unitsInStock", 0);
+                    command.Parameters.AddWithValue(":reorderLevel", 0);
                     command.Parameters.AddWithValue(":discontinued", 0);
     
                     int rows = command.ExecuteNonQuery();
@@ -121,10 +121,10 @@ namespace Vko.Repository {
                 conn.Open();
                 using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
                 {
-                    command.Parameters.AddWithValue(":productName", product.ProductName);    
-                    command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);    
-                    command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);    
-                    command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);    
+                    command.Parameters.AddWithValue(":productName", product.ProductName);
+                    command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);
+                    command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
+                    command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
                     command.Parameters.AddWithValue(":id", product.Id);
                     
                     var rows = command.ExecuteNonQuery();

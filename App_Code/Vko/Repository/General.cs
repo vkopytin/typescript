@@ -8,6 +8,14 @@ namespace Vko.Repository {
 				return (IRepository<T>)Activator.CreateInstance(typeof(ProductsRepository));
 			}
 			
+			if (HasGenericInterface(typeof(SuppliersRepository), typeof(IRepository<>), typeof(T))) {
+				return (IRepository<T>)Activator.CreateInstance(typeof(SuppliersRepository));
+			}
+			
+			if (HasGenericInterface(typeof(CategoriesRepository), typeof(IRepository<>), typeof(T))) {
+				return (IRepository<T>)Activator.CreateInstance(typeof(CategoriesRepository));
+			}
+			
 			throw new Exception(string.Format("There is no defined class that implements {0}", typeof(IRepository<T>).ToString()));
 		}
 		

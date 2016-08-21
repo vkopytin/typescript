@@ -45,7 +45,7 @@ namespace Vko.Repository {
             }
         }
         
-        public IEnumerable<Product> Find()
+        public IEnumerable<Product> List()
         {
             using (SQLiteConnection conn = new SQLiteConnection(Config.DefaultDB))
             {

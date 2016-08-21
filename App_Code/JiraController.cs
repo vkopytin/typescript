@@ -146,7 +146,7 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Products() {
             var repo = Vko.Repository.General.Request<Vko.Entities.Product>();
-            var items = repo.Find();
+            var items = repo.List();
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }

@@ -6,7 +6,7 @@ namespace Vko.Repository {
 	{
 		T GetById(int id);
 		
-		IEnumerable<T> Find();
+		IEnumerable<T> List();
 		IEnumerable<T> Find<Y>(Y args);
 		
 		T Update(T product);

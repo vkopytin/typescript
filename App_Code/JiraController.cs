@@ -144,11 +144,36 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Schedule() {
-            var repo = Vko.Repository.General.Request<Vko.Entities.Schedule>();
+        public ActionResult Products() {
+            var repo = Vko.Repository.General.Request<Vko.Entities.Product>();
             var items = repo.Find();
 
             return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpPost]
+        public ActionResult Products(Vko.Entities.Product product) {
+            var repo = Vko.Repository.General.Request<Vko.Entities.Product>();
+            var item = default(Vko.Entities.Product);
+            
+            try
+            {
+                item = repo.GetById(product.Id);
+            }
+            catch (InvalidOperationException ex)
+            {
+                
+            }
+            if (item == null)
+            {
+                item = repo.Create(product);
+            }
+            else
+            {
+                item = repo.Update(product);
+            }
+
+            return Json(item, JsonRequestBehavior.AllowGet);
         }
     }
 }

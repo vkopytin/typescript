@@ -8,7 +8,7 @@ import IBaseView = require('app/jira/base/i_base_view');
 import React = require('react');
 
 interface IPanelView extends React.Props<any> {
-    viewModel: BaseViewModel
+    viewModel?: BaseViewModel
     title: string
 }
 

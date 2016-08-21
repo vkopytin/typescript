@@ -34,7 +34,7 @@ class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
     setProducts () {
         this.setState({
             products: this.props.products(this.props.viewModel)
-        })
+        });
     }
     
     componentWillMount () {

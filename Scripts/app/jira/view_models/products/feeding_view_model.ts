@@ -13,8 +13,27 @@ import Utils = require('app/jira/utils');
         
 class FeedingViewModel extends PageViewModel {
     changeProductsDelegate: any
+    changeProductDelegate: any
     
+    SelectCommand: Command
+    
+    curentProduct: ProductEntryViewModel = new ProductEntryViewModel({
+        id: -1,
+        code: 'Dummy Code.',
+        user: 'Dummy User.',
+        Description: 'Dummy Description.'
+    })
+        
     products: ProductEntryViewModel[] = []
+    
+    getCurentProduct (): any {
+        return this.curentProduct;
+    }
+    
+    setCurentProduct (value: ProductEntryViewModel): any {
+        this.curentProduct = value;
+        this.triggerProperyChanged('change:CurentProduct');
+    }
     
     getProducts (): any {
         return this.products;
@@ -32,11 +51,14 @@ class FeedingViewModel extends PageViewModel {
     }
     
     init (opts: any): void {
-        var model = Model.getCurrent();
+        var model = Model.getCurent();
         super.init(opts);
         
+        this.SelectCommand = new Command({ execute: this.onChangeSelected, scope: this });
+        
         _.each({
-            'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this)
+            'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this),
+            'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this)
         }, (h, e) => { $(model).on(e, h); });
         
         _.defer(_.bind(() => {
@@ -45,9 +67,10 @@ class FeedingViewModel extends PageViewModel {
     }
     
     finish () : void {
-        var model = Model.getCurrent();
+        var model = Model.getCurent();
         _.each({
-            'accounting_model.products': this.changeProductsDelegate
+            'accounting_model.products': this.changeProductsDelegate,
+            'accounting_model.product': this.changeProductDelegate
         }, (h, e) => { $(model).off(e, h); });
         
         $(this).off();
@@ -57,8 +80,22 @@ class FeedingViewModel extends PageViewModel {
         super.finish();
     }
     
+    getCommand (name: string): Command {
+        switch (name) {
+            case 'SelectCommand':
+                return this.SelectCommand;
+            default:
+                return super.getCommand(name);
+        }
+    }
+    
+    onChangeSelected (commandName: string, productId: any): any {
+        var product = _.find(this.products, (entity) => entity.getId() === productId);
+        product && this.setCurentProduct(product);
+    }
+    
     changeProducts (): void {
-        var model = Model.getCurrent(),
+        var model = Model.getCurent(),
             issues = model.getProducts();
             
         this.setProducts(_.map(issues, (item) => {
@@ -66,9 +103,21 @@ class FeedingViewModel extends PageViewModel {
         }, this));
     }
     
+    changeProduct (): void {
+        var model = Model.getCurent();
+        var product = this.getCurentProduct();
+        product.setData(model.getProduct());
+        this.setCurentProduct(product);
+    }
+    
     fetchProducts (): void {
-        var model = Model.getCurrent();
+        var model = Model.getCurent();
         model.fetchProducts();
+    }
+    
+    saveCurentProduct (): void {
+        var model = Model.getCurent();
+        model.saveProduct(this.curentProduct.toJSON());
     }
 }
 

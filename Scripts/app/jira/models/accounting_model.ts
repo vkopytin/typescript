@@ -4,10 +4,12 @@ import $ = require('jquery');
 import ModelBase = require('app/jira/base/model_base');
 
 var fetchProductsXhr: JQueryPromise<any> = null,
+    saveProductXhr: JQueryPromise<any> = null,
     inst: AccountingModel;
     
 class AccountingModel extends ModelBase {
     products: any[] = []
+    product: any = {}
 
     getProducts () {
         return this.products;
@@ -18,22 +20,48 @@ class AccountingModel extends ModelBase {
         this.triggerProperyChanged('accounting_model.products');
     }
     
+    getProduct () {
+        return this.product;
+    }
+    
+    setProduct (product: any): void {
+        this.product = product;
+        this.triggerProperyChanged('accounting_model.product');
+    }
+    
     fetchProducts (): void {
         fetchProductsXhr = $.when(fetchProductsXhr).then(() => {
             return $.ajax({
-                url: '/jira/schedule',
+                url: '/jira/products',
                 type: 'GET',
                 data: {},
                 success: (items, success, xhr) => {
                     this.setProducts(items);
                 }
             });
-        }, () => {
+        });
+        fetchProductsXhr.fail(() => {
             fetchProductsXhr = null;
         });
     }
     
-	static getCurrent (): AccountingModel {
+    saveProduct (product: any): any {
+        saveProductXhr = $.when(saveProductXhr).then(() => {
+            return $.ajax({
+                url: '/jira/products/' + product.Id,
+                type: 'POST',
+                data: product,
+                success: (item, success, xhr) => {
+                    this.setProduct(item);
+                }
+            });
+        });
+        saveProductXhr.fail(() => {
+            saveProductXhr = null;
+        });
+    }
+    
+	static getCurent (): AccountingModel {
         if (inst) {
             return inst;
         }

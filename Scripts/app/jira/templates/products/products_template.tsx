@@ -7,13 +7,19 @@ var template = function () {
             <table className={"table table-striped table-bordered table-hover"}>
                 <thead>
                     <tr>
-                        <th>Code</th>
-                        <th>User</th>
                         <th>Product Description</th>
+                        <th>Unit Price</th>
+                        <th>Quantity per Unit</th>
                     </tr>
                 </thead>
                 <tbody>
-	        {this.state.products && this.state.products.map((entity: any) => <ProductItemView viewModel={entity} key={entity.getId()}/>)}
+	               {this.state.products && this.state.products.map((entity: any) => 
+                        <ProductItemView
+                         viewModel={entity}
+                         key={entity.getId()}
+                         onSelect={() => this.runCommand('SelectCommand', entity.getId())}
+                         />
+                   )}
                 </tbody>
             </table>
         </div>

@@ -1,14 +1,14 @@
 import React = require('react');
 
 var template = function (data: any) {
-	return (<tr>
-		<td style={{width: "140px"}}>
-			{data.id}
-		</td>
+	return (<tr onClick={(e) => this.onClick(e)}>
 		<td>
-			{data.user}
+			{data.getProductName()}
 		</td>
-		<td>{data.Description}</td>
+		<td style={{width: "140px"}}>
+			{data.getUnitPrice()}
+		</td>
+		<td style={{width: "140px"}}>{data.getQuantityPerUnit()}</td>
 	</tr>);
 };
 

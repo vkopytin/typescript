@@ -366,7 +366,7 @@ define("app/jira/base/model_base", ["require", "exports", 'jquery', "app/jira/ba
 });
 define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app/jira/base/model_base"], function (require, exports, $, ModelBase) {
     "use strict";
-    var fetchProductsXhr = null, saveProductXhr = null, fetchCategoriesXhr = null, inst;
+    var fetchProductsXhr = null, saveProductXhr = null, fetchCategoriesXhr = null, fetchSupppliersXhr = null, inst;
     var AccountingModel = (function (_super) {
         __extends(AccountingModel, _super);
         function AccountingModel() {
@@ -374,6 +374,7 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
             this.products = [];
             this.product = {};
             this.categories = [];
+            this.suppliers = [];
         }
         AccountingModel.prototype.getProducts = function () {
             return this.products;
@@ -388,6 +389,13 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
         AccountingModel.prototype.setCategories = function (value) {
             this.categories = value;
             this.triggerProperyChanged('accounting_model.categories');
+        };
+        AccountingModel.prototype.getSuppliers = function () {
+            return this.suppliers;
+        };
+        AccountingModel.prototype.setSuppliers = function (value) {
+            this.suppliers = value;
+            this.triggerProperyChanged('accounting_model.suppliers');
         };
         AccountingModel.prototype.getProduct = function () {
             return this.product;
@@ -426,6 +434,22 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
             });
             fetchCategoriesXhr.fail(function () {
                 fetchCategoriesXhr = null;
+            });
+        };
+        AccountingModel.prototype.fetchSuppliers = function () {
+            var _this = this;
+            fetchSupppliersXhr = $.when(fetchSupppliersXhr).then(function () {
+                return $.ajax({
+                    url: '/jira/suppliers',
+                    type: 'GET',
+                    data: {},
+                    success: function (items, success, xhr) {
+                        _this.setSuppliers(items);
+                    }
+                });
+            });
+            fetchSupppliersXhr.fail(function () {
+                fetchSupppliersXhr = null;
             });
         };
         AccountingModel.prototype.saveProduct = function (product) {
@@ -817,7 +841,36 @@ define("app/jira/view_models/products/category_entry_view_model", ["require", "e
     }(BaseViewModel));
     return CategoryEntryViewModel;
 });
-define("app/jira/view_models/products/feeding_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/products/product_entry_view_model", "app/jira/view_models/products/category_entry_view_model", "app/jira/command", "app/jira/models/accounting_model"], function (require, exports, _, $, PageViewModel, ProductEntryViewModel, CategoryEntryViewModel, Command, Model) {
+define("app/jira/view_models/products/supplier_entry_view_model", ["require", "exports", 'underscore', "app/jira/base/base_view_model"], function (require, exports, _, BaseViewModel) {
+    "use strict";
+    var SupplierEntryView = (function (_super) {
+        __extends(SupplierEntryView, _super);
+        function SupplierEntryView() {
+            _super.apply(this, arguments);
+        }
+        SupplierEntryView.prototype.getId = function () {
+            return this.opts.Id;
+        };
+        SupplierEntryView.prototype.init = function (opts) {
+            this.defaults = {
+                Id: -1,
+                CompanyName: '',
+                Address: ''
+            };
+            _super.prototype.init.call(this, opts);
+        };
+        SupplierEntryView.prototype.setData = function (data) {
+            var _this = this;
+            _.each(data, function (value, key) {
+                var setter = _this['set' + key];
+                setter && setter.call(_this, value);
+            });
+        };
+        return SupplierEntryView;
+    }(BaseViewModel));
+    return SupplierEntryView;
+});
+define("app/jira/view_models/products/feeding_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/products/product_entry_view_model", "app/jira/view_models/products/category_entry_view_model", "app/jira/view_models/products/supplier_entry_view_model", "app/jira/command", "app/jira/models/accounting_model"], function (require, exports, _, $, PageViewModel, ProductEntryViewModel, CategoryEntryViewModel, SupplierEntryViewModel, Command, Model) {
     "use strict";
     var FeedingViewModel = (function (_super) {
         __extends(FeedingViewModel, _super);
@@ -831,6 +884,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             });
             this.products = [];
             this.categories = [];
+            this.suppliers = [];
         }
         FeedingViewModel.prototype.getCurentProduct = function () {
             return this.curentProduct;
@@ -843,9 +897,9 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             return this.products;
         };
         FeedingViewModel.prototype.setProducts = function (value) {
-            var products = this.products;
+            var entries = this.products;
             _.defer(function () {
-                _.each(products, function (viewModel) {
+                _.each(entries, function (viewModel) {
                     viewModel.finish();
                 });
             }, 0);
@@ -856,14 +910,27 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             return this.categories;
         };
         FeedingViewModel.prototype.setCategories = function (value) {
-            var categories = this.categories;
+            var entries = this.categories;
             _.defer(function () {
-                _.each(categories, function (viewModel) {
+                _.each(entries, function (viewModel) {
                     viewModel.finish();
                 });
             }, 0);
             this.categories = value;
             this.triggerProperyChanged('change:categories');
+        };
+        FeedingViewModel.prototype.getSuppliers = function () {
+            return this.suppliers;
+        };
+        FeedingViewModel.prototype.setSuppliers = function (value) {
+            var entries = this.suppliers;
+            _.defer(function () {
+                _.each(entries, function (viewModel) {
+                    viewModel.finish();
+                });
+            }, 0);
+            this.suppliers = value;
+            this.triggerProperyChanged('change:suppliers');
         };
         FeedingViewModel.prototype.init = function (opts) {
             var _this = this;
@@ -873,11 +940,13 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             _.each({
                 'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this),
                 'accounting_model.categories': this.changeCategoriesDelegate = _.bind(this.changeCategories, this),
+                'accounting_model.suppliers': this.changeSuppliersDelegate = _.bind(this.changeSuppliers, this),
                 'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this)
             }, function (h, e) { $(model).on(e, h); });
             _.defer(_.bind(function () {
                 _this.fetchProducts();
                 _this.fetchCategories();
+                _this.fetchSuppliers();
             }, this), 0);
         };
         FeedingViewModel.prototype.finish = function () {
@@ -885,11 +954,13 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             _.each({
                 'accounting_model.products': this.changeProductsDelegate,
                 'accounting_model.categories': this.changeCategoriesDelegate,
+                'accounting_model.suppliers': this.changeSuppliersDelegate,
                 'accounting_model.product': this.changeProductDelegate
             }, function (h, e) { $(model).off(e, h); });
             $(this).off();
             this.setProducts([]);
             this.setCategories([]);
+            this.setSuppliers([]);
             _super.prototype.finish.call(this);
         };
         FeedingViewModel.prototype.getCommand = function (name) {
@@ -916,6 +987,12 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                 return new CategoryEntryViewModel(item);
             }, this));
         };
+        FeedingViewModel.prototype.changeSuppliers = function () {
+            var model = Model.getCurent(), items = model.getSuppliers();
+            this.setSuppliers(_.map(items, function (item) {
+                return new SupplierEntryViewModel(item);
+            }, this));
+        };
         FeedingViewModel.prototype.changeProduct = function () {
             var model = Model.getCurent();
             var product = this.getCurentProduct();
@@ -929,6 +1006,10 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
         FeedingViewModel.prototype.fetchCategories = function () {
             var model = Model.getCurent();
             model.fetchCategories();
+        };
+        FeedingViewModel.prototype.fetchSuppliers = function () {
+            var model = Model.getCurent();
+            model.fetchSuppliers();
         };
         FeedingViewModel.prototype.saveCurentProduct = function () {
             var model = Model.getCurent();
@@ -1405,6 +1486,99 @@ define("app/jira/views/products/categories_view", ["require", "exports", 'jquery
     }(BaseView));
     return CategoriesView;
 });
+define("app/jira/templates/products/supplier_item_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function (data) {
+        var _this = this;
+        return (React.createElement("tr", {onClick: function (e) { return _this.onClick(e); }}, React.createElement("td", null, data.getCompanyName()), React.createElement("td", null, data.getAddress())));
+    };
+    return template;
+});
+define("app/jira/views/products/supplier_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/products/supplier_item_template"], function (require, exports, _, $, BaseView, template) {
+    "use strict";
+    var SupplierItemView = (function (_super) {
+        __extends(SupplierItemView, _super);
+        function SupplierItemView(opts) {
+            _super.call(this, opts);
+            this.state = this.props.viewModel;
+        }
+        SupplierItemView.prototype.setProduct = function () {
+            this.setState(this.props.viewModel);
+        };
+        SupplierItemView.prototype.componentWillMount = function () {
+            var _this = this;
+            _.each('change:CompanyName change:Address'.split(' '), function (en) {
+                $(_this.props.viewModel).on(en, _.bind(_this.setProduct, _this));
+            });
+        };
+        SupplierItemView.prototype.componentWillUnmount = function () {
+            var _this = this;
+            _.each('change:CompanyName change:Address'.split(' '), function (en) {
+                $(_this.props.viewModel).off(en);
+            });
+        };
+        SupplierItemView.prototype.componentWillReceiveProps = function (props) {
+            var _this = this;
+            _.each('change:CompanyName change:Address'.split(' '), function (en) {
+                $(_this.props.viewModel).off(en);
+                $(props.viewModel).on(en, _.bind(_this.setProduct, _this));
+            });
+        };
+        SupplierItemView.prototype.onClick = function (evnt) {
+            evnt.preventDefault();
+            this.props.onSelect && this.props.onSelect();
+        };
+        SupplierItemView.prototype.render = function () {
+            return template.call(this, this.props.viewModel);
+        };
+        return SupplierItemView;
+    }(BaseView));
+    return SupplierItemView;
+});
+define("app/jira/templates/products/suppliers_template", ["require", "exports", 'react', "app/jira/views/products/supplier_item_view"], function (require, exports, React, SupplierItemView) {
+    "use strict";
+    var template = function () {
+        var _this = this;
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Company Name"), React.createElement("th", null, "Address"))), React.createElement("tbody", null, this.state.suppliers && this.state.suppliers.map(function (entity) {
+            return React.createElement(SupplierItemView, {viewModel: entity, key: entity.getId(), onSelect: function () { return _this.runCommand('SelectCommand', entity.getId()); }});
+        })))));
+    };
+    return template;
+});
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
+define("app/jira/views/products/suppliers_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/suppliers_template"], function (require, exports, $, _, BaseView, template) {
+    "use strict";
+    var SuppliersView = (function (_super) {
+        __extends(SuppliersView, _super);
+        function SuppliersView(opts) {
+            _super.call(this, opts);
+            this.state = {
+                suppliers: this.props.viewModel.getSuppliers()
+            };
+        }
+        SuppliersView.prototype.setSuppliers = function () {
+            this.setState({
+                suppliers: this.props.viewModel.getSuppliers()
+            });
+        };
+        SuppliersView.prototype.componentWillMount = function () {
+            $(this.props.viewModel).on('change:suppliers', _.bind(this.setSuppliers, this));
+        };
+        SuppliersView.prototype.componentWillUnmount = function () {
+            $(this.props.viewModel).off('change:suppliers');
+        };
+        SuppliersView.prototype.componentWillReceiveProps = function (props) {
+            $(this.props.viewModel).off('change:suppliers');
+            $(props.viewModel).on('change:suppliers', _.bind(this.setSuppliers, this));
+        };
+        SuppliersView.prototype.render = function () {
+            return template.call(this);
+        };
+        return SuppliersView;
+    }(BaseView));
+    return SuppliersView;
+});
 define("app/jira/ui_controls/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
@@ -1542,10 +1716,10 @@ define("app/jira/ui_controls/tabs_view", ["require", "exports", "app/jira/base/b
     }(BaseView));
     return TabsView;
 });
-define("app/jira/pages/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products/products_view", "app/jira/views/products/categories_view", "app/jira/views/products/create_product_view", "app/jira/ui_controls/panel_view", "app/jira/ui_controls/tabs_view"], function (require, exports, React, ProductsView, CategoriesView, CreateProductView, PanelView, TabsView) {
+define("app/jira/pages/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products/products_view", "app/jira/views/products/categories_view", "app/jira/views/products/suppliers_view", "app/jira/views/products/create_product_view", "app/jira/ui_controls/panel_view", "app/jira/ui_controls/tabs_view"], function (require, exports, React, ProductsView, CategoriesView, SuppliersView, CreateProductView, PanelView, TabsView) {
     "use strict";
     var template = function (viewModel) {
-        return (React.createElement(TabsView, {active: 0}, React.createElement("div", {id: "page-inner", title: "Home"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CreateProductView, {viewModel: viewModel}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel, title: "Products"}, React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))), React.createElement("div", {id: "page-inner", title: "Categories"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CategoriesView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Suppliers"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h4", null, "Messages Tab"), React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")))), React.createElement("div", {id: "page-inner", title: "Orders"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h4", null, "Settings Tab"), React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."))))));
+        return (React.createElement(TabsView, {active: 0}, React.createElement("div", {id: "page-inner", title: "Home"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CreateProductView, {viewModel: viewModel}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel, title: "Products"}, React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))), React.createElement("div", {id: "page-inner", title: "Categories"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CategoriesView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Suppliers"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(SuppliersView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Orders"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h4", null, "Settings Tab"), React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."))))));
     };
     return template;
 });

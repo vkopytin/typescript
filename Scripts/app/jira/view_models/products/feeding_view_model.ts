@@ -8,6 +8,7 @@ import $ = require('jquery');
 import PageViewModel = require('app/jira/view_models/page_view_model');
 import ProductEntryViewModel = require('app/jira/view_models/products/product_entry_view_model');
 import CategoryEntryViewModel = require('app/jira/view_models/products/category_entry_view_model');
+import SupplierEntryViewModel = require('app/jira/view_models/products/supplier_entry_view_model');
 import Command = require('app/jira/command');
 import Model = require('app/jira/models/accounting_model');
 import Utils = require('app/jira/utils');
@@ -15,6 +16,7 @@ import Utils = require('app/jira/utils');
 class FeedingViewModel extends PageViewModel {
     changeProductsDelegate: any
     changeCategoriesDelegate: any
+    changeSuppliersDelegate: any
     changeProductDelegate: any
     
     SelectCommand: Command
@@ -28,6 +30,7 @@ class FeedingViewModel extends PageViewModel {
         
     products: ProductEntryViewModel[] = []
     categories: CategoryEntryViewModel[] = []
+    suppliers: SupplierEntryViewModel[] = []
     
     getCurentProduct (): any {
         return this.curentProduct;
@@ -43,9 +46,9 @@ class FeedingViewModel extends PageViewModel {
     }
     
     setProducts (value: ProductEntryViewModel[]) : void {
-        var products = this.products;
+        var entries = this.products;
         _.defer(() => {
-            _.each(products, (viewModel) => {
+            _.each(entries, (viewModel) => {
                 viewModel.finish();
             });
         }, 0);
@@ -58,9 +61,9 @@ class FeedingViewModel extends PageViewModel {
     }
     
     setCategories (value: CategoryEntryViewModel[]) : void {
-        var categories = this.categories;
+        var entries = this.categories;
         _.defer(() => {
-            _.each(categories, (viewModel) => {
+            _.each(entries, (viewModel) => {
                 viewModel.finish();
             });
         }, 0);
@@ -68,6 +71,21 @@ class FeedingViewModel extends PageViewModel {
         this.triggerProperyChanged('change:categories');
     }
     
+    getSuppliers (): any {
+        return this.suppliers;
+    }
+    
+    setSuppliers (value: SupplierEntryViewModel[]) : void {
+        var entries = this.suppliers;
+        _.defer(() => {
+            _.each(entries, (viewModel) => {
+                viewModel.finish();
+            });
+        }, 0);
+        this.suppliers = value;
+        this.triggerProperyChanged('change:suppliers');
+    }
+
     init (opts: any): void {
         var model = Model.getCurent();
         super.init(opts);
@@ -77,12 +95,14 @@ class FeedingViewModel extends PageViewModel {
         _.each({
             'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this),
             'accounting_model.categories': this.changeCategoriesDelegate = _.bind(this.changeCategories, this),
+            'accounting_model.suppliers': this.changeSuppliersDelegate = _.bind(this.changeSuppliers, this),
             'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this)
         }, (h, e) => { $(model).on(e, h); });
         
         _.defer(_.bind(() => {
             this.fetchProducts();
             this.fetchCategories();
+            this.fetchSuppliers();
         }, this), 0);
     }
     
@@ -91,6 +111,7 @@ class FeedingViewModel extends PageViewModel {
         _.each({
             'accounting_model.products': this.changeProductsDelegate,
             'accounting_model.categories': this.changeCategoriesDelegate,
+            'accounting_model.suppliers': this.changeSuppliersDelegate,
             'accounting_model.product': this.changeProductDelegate
         }, (h, e) => { $(model).off(e, h); });
         
@@ -98,6 +119,7 @@ class FeedingViewModel extends PageViewModel {
         
         this.setProducts([]);
         this.setCategories([]);
+        this.setSuppliers([]);
         
         super.finish();
     }
@@ -133,6 +155,15 @@ class FeedingViewModel extends PageViewModel {
             return new CategoryEntryViewModel(item);
         }, this));
     }
+
+    changeSuppliers (): void {
+        var model = Model.getCurent(),
+            items = model.getSuppliers();
+            
+        this.setSuppliers(_.map(items, (item) => {
+            return new SupplierEntryViewModel(item);
+        }, this));
+    }
     
     changeProduct (): void {
         var model = Model.getCurent();
@@ -149,6 +180,11 @@ class FeedingViewModel extends PageViewModel {
     fetchCategories (): void {
         var model = Model.getCurent();
         model.fetchCategories();
+    }
+
+    fetchSuppliers (): void {
+        var model = Model.getCurent();
+        model.fetchSuppliers();
     }
     
     saveCurentProduct (): void {

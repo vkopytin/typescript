@@ -7,12 +7,14 @@ import _ = require('underscore');
 import $ = require('jquery');
 import PageViewModel = require('app/jira/view_models/page_view_model');
 import ProductEntryViewModel = require('app/jira/view_models/products/product_entry_view_model');
+import CategoryEntryViewModel = require('app/jira/view_models/products/category_entry_view_model');
 import Command = require('app/jira/command');
 import Model = require('app/jira/models/accounting_model');
 import Utils = require('app/jira/utils');
         
 class FeedingViewModel extends PageViewModel {
     changeProductsDelegate: any
+    changeCategoriesDelegate: any
     changeProductDelegate: any
     
     SelectCommand: Command
@@ -25,6 +27,7 @@ class FeedingViewModel extends PageViewModel {
     })
         
     products: ProductEntryViewModel[] = []
+    categories: CategoryEntryViewModel[] = []
     
     getCurentProduct (): any {
         return this.curentProduct;
@@ -50,6 +53,21 @@ class FeedingViewModel extends PageViewModel {
         this.triggerProperyChanged('change:products');
     }
     
+    getCategories (): any {
+        return this.categories;
+    }
+    
+    setCategories (value: CategoryEntryViewModel[]) : void {
+        var categories = this.categories;
+        _.defer(() => {
+            _.each(categories, (viewModel) => {
+                viewModel.finish();
+            });
+        }, 0);
+        this.categories = value;
+        this.triggerProperyChanged('change:categories');
+    }
+    
     init (opts: any): void {
         var model = Model.getCurent();
         super.init(opts);
@@ -58,11 +76,13 @@ class FeedingViewModel extends PageViewModel {
         
         _.each({
             'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this),
+            'accounting_model.categories': this.changeCategoriesDelegate = _.bind(this.changeCategories, this),
             'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this)
         }, (h, e) => { $(model).on(e, h); });
         
         _.defer(_.bind(() => {
             this.fetchProducts();
+            this.fetchCategories();
         }, this), 0);
     }
     
@@ -70,12 +90,14 @@ class FeedingViewModel extends PageViewModel {
         var model = Model.getCurent();
         _.each({
             'accounting_model.products': this.changeProductsDelegate,
+            'accounting_model.categories': this.changeCategoriesDelegate,
             'accounting_model.product': this.changeProductDelegate
         }, (h, e) => { $(model).off(e, h); });
         
         $(this).off();
         
         this.setProducts([]);
+        this.setCategories([]);
         
         super.finish();
     }
@@ -96,10 +118,19 @@ class FeedingViewModel extends PageViewModel {
     
     changeProducts (): void {
         var model = Model.getCurent(),
-            issues = model.getProducts();
+            items = model.getProducts();
             
-        this.setProducts(_.map(issues, (item) => {
+        this.setProducts(_.map(items, (item) => {
             return new ProductEntryViewModel(item);
+        }, this));
+    }
+
+    changeCategories (): void {
+        var model = Model.getCurent(),
+            items = model.getCategories();
+            
+        this.setCategories(_.map(items, (item) => {
+            return new CategoryEntryViewModel(item);
         }, this));
     }
     
@@ -113,6 +144,11 @@ class FeedingViewModel extends PageViewModel {
     fetchProducts (): void {
         var model = Model.getCurent();
         model.fetchProducts();
+    }
+    
+    fetchCategories (): void {
+        var model = Model.getCurent();
+        model.fetchCategories();
     }
     
     saveCurentProduct (): void {

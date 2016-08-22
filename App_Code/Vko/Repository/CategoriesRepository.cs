@@ -12,8 +12,8 @@ using hellomvc;
 using Vko.Entities;
 
 
-namespace Vko.Repository {
-    
+namespace Vko.Repository
+{
     class CategoriesRepository : IRepository<Category>
     {
         public CategoriesRepository()

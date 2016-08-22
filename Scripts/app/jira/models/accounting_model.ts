@@ -5,11 +5,13 @@ import ModelBase = require('app/jira/base/model_base');
 
 var fetchProductsXhr: JQueryPromise<any> = null,
     saveProductXhr: JQueryPromise<any> = null,
+    fetchCategoriesXhr: JQueryPromise<any> = null,
     inst: AccountingModel;
     
 class AccountingModel extends ModelBase {
     products: any[] = []
     product: any = {}
+    categories: any[] = []
 
     getProducts () {
         return this.products;
@@ -20,6 +22,15 @@ class AccountingModel extends ModelBase {
         this.triggerProperyChanged('accounting_model.products');
     }
     
+    getCategories () {
+        return this.categories;
+    }
+    
+    setCategories (value: any[]): void {
+        this.categories = value;
+        this.triggerProperyChanged('accounting_model.categories');
+    }
+
     getProduct () {
         return this.product;
     }
@@ -42,6 +53,22 @@ class AccountingModel extends ModelBase {
         });
         fetchProductsXhr.fail(() => {
             fetchProductsXhr = null;
+        });
+    }
+    
+    fetchCategories (): void {
+        fetchCategoriesXhr = $.when(fetchCategoriesXhr).then(() => {
+            return $.ajax({
+                url: '/jira/categories',
+                type: 'GET',
+                data: {},
+                success: (items, success, xhr) => {
+                    this.setCategories(items);
+                }
+            });
+        });
+        fetchCategoriesXhr.fail(() => {
+            fetchCategoriesXhr = null;
         });
     }
     

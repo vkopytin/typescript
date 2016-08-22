@@ -38,7 +38,9 @@ namespace Vko.Repository {
                             ProductName = Convert.ToString(reader["ProductName"]),
                             UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
                             UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
-                            QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"])
+                            QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
+                            CategoryId = Convert.ToInt32(reader["categoryId"]),
+                            SupplierId = Convert.ToInt32(reader["supplierId"])
                         };
                     }
                 }
@@ -62,7 +64,9 @@ namespace Vko.Repository {
                                 ProductName = Convert.ToString(reader["ProductName"]),
                                 UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
                                 UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
-                                QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"])
+                                QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
+                                CategoryId = Convert.ToInt32(reader["categoryId"]),
+                                SupplierId = Convert.ToInt32(reader["supplierId"])
                             };
                         }
                     }
@@ -84,8 +88,8 @@ namespace Vko.Repository {
                     command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);
                     command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
                     command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
-                    command.Parameters.AddWithValue(":supplierId", 1);
-                    command.Parameters.AddWithValue(":categoryId", 1);
+                    command.Parameters.AddWithValue(":supplierId", product.CategoryId);
+                    command.Parameters.AddWithValue(":categoryId", product.SupplierId);
                     command.Parameters.AddWithValue(":unitsInStock", 0);
                     command.Parameters.AddWithValue(":reorderLevel", 0);
                     command.Parameters.AddWithValue(":discontinued", 0);
@@ -125,6 +129,8 @@ namespace Vko.Repository {
                     command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);
                     command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
                     command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
+                    command.Parameters.AddWithValue(":supplierId", product.CategoryId);
+                    command.Parameters.AddWithValue(":categoryId", product.SupplierId);
                     command.Parameters.AddWithValue(":id", product.Id);
                     
                     var rows = command.ExecuteNonQuery();

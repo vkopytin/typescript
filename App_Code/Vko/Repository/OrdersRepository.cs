@@ -14,15 +14,15 @@ using Vko.Entities;
 
 namespace Vko.Repository
 {
-    class CategoriesRepository : IRepository<Category>
+    class OrdersRepository : IRepository<Order>
     {
-        public CategoriesRepository()
+        public OrdersRepository()
         {
         }
         
-        public Category GetById(object id)
+        public Order GetById(object id)
         {
-            string strSql = "SELECT * FROM Category WHERE Id = :id";
+            string strSql = "SELECT * FROM Order WHERE Id = :id";
             using (SQLiteConnection conn = new SQLiteConnection(Config.DefaultDB))
             {
                 conn.Open();
@@ -33,32 +33,34 @@ namespace Vko.Repository
                     {
                         reader.Read();
                         
-                        return new Category {
+                        return new Order {
                             Id = Convert.ToInt32(reader["Id"]),
-                            CategoryName = Convert.ToString(reader["CategoryName"]),
-                            Description = Convert.ToString(reader["Description"])
+                            CustomerId = Convert.ToString(reader["CustomerId"]),
+                            EmployeeId = Convert.ToInt32(reader["EmployeeId"]),
+                            OrderDate = Convert.ToDateTime(reader["OrderDate"])
                         };
                     }
                 }
             }
         }
         
-        public IEnumerable<Category> List()
+        public IEnumerable<Order> List()
         {
             using (SQLiteConnection conn = new SQLiteConnection(Config.DefaultDB))
             {
                 conn.Open();
-                string strSql = "SELECT * FROM Category ORDER BY Id";
+                string strSql = "SELECT * FROM [Order] ORDER BY Id";
                 using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
                 {
                     using(SQLiteDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            yield return new Category {
+                            yield return new Order {
                                 Id = Convert.ToInt32(reader["Id"]),
-                                CategoryName = Convert.ToString(reader["CategoryName"]),
-                                Description = Convert.ToString(reader["Description"])
+                                CustomerId = Convert.ToString(reader["CustomerId"]),
+                                EmployeeId = Convert.ToInt32(reader["EmployeeId"]),
+                                OrderDate = Convert.ToDateTime(reader["OrderDate"])
                             };
                         }
                     }
@@ -66,18 +68,19 @@ namespace Vko.Repository
             }
         }
         
-        public Category Create(Category category)
+        public Order Create(Order category)
         {
             using (SQLiteConnection conn = new SQLiteConnection(Config.DefaultDB))
             {
                 var strSql = @"INSERT INTO
-                        Category (CategoryName, Description)
-                        VALUES (:categoryName,:description)";
+                        Order (CustomerId, EmployeeId, OrderDate)
+                        VALUES (:customerId,:employeeId,:orderDate)";
                 conn.Open();
                 using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
                 {
-                    command.Parameters.AddWithValue(":categoryName", category.CategoryName);    
-                    command.Parameters.AddWithValue(":description", category.Description);
+                    command.Parameters.AddWithValue(":customerId", category.CustomerId);    
+                    command.Parameters.AddWithValue(":employeeId", category.EmployeeId);
+                    command.Parameters.AddWithValue(":orderDate", category.OrderDate);
     
                     int rows = command.ExecuteNonQuery();
                     if (rows > 0)
@@ -95,12 +98,13 @@ namespace Vko.Repository
             }
         }
         
-        public Category Update(Category category)
+        public Order Update(Order category)
         {
-            string strSql = @"UPDATE Category
+            string strSql = @"UPDATE Order
                 SET
-                 CategoryName=:categoryName,
-                 Description=:description
+                 CustomerId=:customerId,
+                 EmployeeId=:employeeId,
+                 OrderDate=:orderDate
                 WHERE Id = :id";
 
             using (SQLiteConnection conn = new SQLiteConnection(Config.DefaultDB))
@@ -108,8 +112,9 @@ namespace Vko.Repository
                 conn.Open();
                 using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
                 {
-                    command.Parameters.AddWithValue(":categoryName", category.CategoryName);
-                    command.Parameters.AddWithValue(":description", category.Description);
+                    command.Parameters.AddWithValue(":customerId", category.CustomerId);
+                    command.Parameters.AddWithValue(":employeeId", category.EmployeeId);
+                    command.Parameters.AddWithValue(":orderDate", category.OrderDate);
                     command.Parameters.AddWithValue(":id", category.Id);
                     
                     var rows = command.ExecuteNonQuery();
@@ -119,8 +124,8 @@ namespace Vko.Repository
             return GetById(category.Id);
         }
         
-	    public IEnumerable<Category> Find<T>(T args) {
-            return new List<Category>();
+	    public IEnumerable<Order> Find<T>(T args) {
+            return new List<Order>();
 	    }
 	}
 }

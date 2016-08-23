@@ -20,7 +20,7 @@ namespace Vko.Repository {
         {
         }
         
-        public Product GetById(int id)
+        public Product GetById(object id)
         {
             string strSql = "SELECT * FROM Product WHERE Id = :id";
             using (SQLiteConnection conn = new SQLiteConnection(Config.DefaultDB))

@@ -1,7 +1,15 @@
 using System;
 
-namespace Vko.Repository {
-	class General {
+
+namespace Vko.Repository
+{
+	class General
+	{
+		public General()
+		{
+			
+		}
+		
 		public static IRepository<T> Request<T>()
 		{
 			if (HasGenericInterface(typeof(ProductsRepository), typeof(IRepository<>), typeof(T))) {
@@ -14,6 +22,14 @@ namespace Vko.Repository {
 			
 			if (HasGenericInterface(typeof(CategoriesRepository), typeof(IRepository<>), typeof(T))) {
 				return (IRepository<T>)Activator.CreateInstance(typeof(CategoriesRepository));
+			}
+			
+			if (HasGenericInterface(typeof(OrdersRepository), typeof(IRepository<>), typeof(T))) {
+				return (IRepository<T>)Activator.CreateInstance(typeof(OrdersRepository));
+			}
+			
+			if (HasGenericInterface(typeof(OrderDetailsRepository), typeof(IRepository<>), typeof(T))) {
+				return (IRepository<T>)Activator.CreateInstance(typeof(OrderDetailsRepository));
 			}
 			
 			throw new Exception(string.Format("There is no defined class that implements {0}", typeof(IRepository<T>).ToString()));

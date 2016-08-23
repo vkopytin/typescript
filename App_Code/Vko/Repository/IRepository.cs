@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Vko.Repository {
 	public interface IRepository<T>
 	{
-		T GetById(int id);
+		T GetById(object id);
 		
 		IEnumerable<T> List();
 		IEnumerable<T> Find<Y>(Y args);

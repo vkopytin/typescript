@@ -144,9 +144,9 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Products() {
+        public ActionResult Products(int from=0, int limit=0) {
             var products = new Vko.Services.ProductsService();
-            var items = products.List();
+            var items = products.ListProducts();
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
@@ -177,7 +177,7 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Suppliers() {
+        public ActionResult Suppliers(int from=0, int limit=0) {
             var repo = Vko.Repository.General.Request<Vko.Entities.Supplier>();
             var items = repo.List();
 
@@ -185,11 +185,27 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Categories() {
+        public ActionResult Categories(int from=0, int limit=0) {
             var repo = Vko.Repository.General.Request<Vko.Entities.Category>();
             var items = repo.List();
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpGet]
+        public ActionResult Orders(int from=0, int limit=0) {
+            var products = new Vko.Services.ProductsService();
+            var items = products.ListOrders();
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpGet]
+        public ActionResult OrdersDetails(int from=0, int limit=0) {
+            var products = new Vko.Services.ProductsService();
+            var items = products.ListOrderDetails();
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }        
     }
 }

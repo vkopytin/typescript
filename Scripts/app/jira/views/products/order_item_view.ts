@@ -1,17 +1,17 @@
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
-import ProductEntryViewModel = require('app/jira/view_models/products/category_entry_view_model');
-import template = require('app/jira/templates/products/category_item_template');
+import ProductEntryViewModel = require('app/jira/view_models/products/order_entry_view_model');
+import template = require('app/jira/templates/products/order_item_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
-interface IProductItemView {
+interface IOrderItemView {
     viewModel: ProductEntryViewModel
     onSelect?: Function
 }
 
-class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView> {
+class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
 
     constructor(opts: any) {
         super(opts);
@@ -19,26 +19,26 @@ class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView>
         this.state = this.props.viewModel;
     }
     
-    setCategory () {
+    setOrder () {
         this.setState(this.props.viewModel);
     }
     
     componentWillMount () {
-        _.each('change:CategoryName change:Description'.split(' '), (en) => {
-            $(this.props.viewModel).on(en, _.bind(this.setCategory, this));
+        _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
+            $(this.props.viewModel).on(en, _.bind(this.setOrder, this));
         });
     }
     
     componentWillUnmount () {
-        _.each('change:CategoryName change:Description'.split(' '), (en) => {
+        _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
             $(this.props.viewModel).off(en);
         });
     }
     
-    componentWillReceiveProps (props: IProductItemView) {
-        _.each('change:CategoryName change:Description'.split(' '), (en) => {
+    componentWillReceiveProps (props: IOrderItemView) {
+        _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
             $(this.props.viewModel).off(en);
-            $(props.viewModel).on(en, _.bind(this.setCategory, this));
+            $(props.viewModel).on(en, _.bind(this.setOrder, this));
         });
     }
     
@@ -53,4 +53,4 @@ class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView>
     }
 }
 
-export = CategoryItemView;
+export = OrderItemView;

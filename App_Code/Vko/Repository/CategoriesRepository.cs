@@ -23,8 +23,7 @@ namespace Vko.Repository
         
         public Category GetById(object id)
         {
-            string strSql = "SELECT * FROM Category WHERE Id = :id";
-
+            string strSql = "SELECT * FROM [Category] WHERE Id = :id";
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
                 command.Parameters.AddWithValue(":id", id);

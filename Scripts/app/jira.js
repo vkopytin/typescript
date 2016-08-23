@@ -366,7 +366,7 @@ define("app/jira/base/model_base", ["require", "exports", 'jquery', "app/jira/ba
 });
 define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app/jira/base/model_base"], function (require, exports, $, ModelBase) {
     "use strict";
-    var fetchProductsXhr = null, saveProductXhr = null, fetchCategoriesXhr = null, fetchSupppliersXhr = null, inst;
+    var fetchProductsXhr = null, saveProductXhr = null, fetchCategoriesXhr = null, fetchSupppliersXhr = null, fetchOrdersXhr = null, inst;
     var AccountingModel = (function (_super) {
         __extends(AccountingModel, _super);
         function AccountingModel() {
@@ -375,6 +375,7 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
             this.product = {};
             this.categories = [];
             this.suppliers = [];
+            this.orders = [];
         }
         AccountingModel.prototype.getProducts = function () {
             return this.products;
@@ -396,6 +397,13 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
         AccountingModel.prototype.setSuppliers = function (value) {
             this.suppliers = value;
             this.triggerProperyChanged('accounting_model.suppliers');
+        };
+        AccountingModel.prototype.getOrders = function () {
+            return this.orders;
+        };
+        AccountingModel.prototype.setOrders = function (value) {
+            this.orders = value;
+            this.triggerProperyChanged('accounting_model.orders');
         };
         AccountingModel.prototype.getProduct = function () {
             return this.product;
@@ -450,6 +458,22 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
             });
             fetchSupppliersXhr.fail(function () {
                 fetchSupppliersXhr = null;
+            });
+        };
+        AccountingModel.prototype.fetchOrders = function () {
+            var _this = this;
+            fetchOrdersXhr = $.when(fetchOrdersXhr).then(function () {
+                return $.ajax({
+                    url: '/jira/orders',
+                    type: 'GET',
+                    data: {},
+                    success: function (items, success, xhr) {
+                        _this.setOrders(items);
+                    }
+                });
+            });
+            fetchOrdersXhr.fail(function () {
+                fetchOrdersXhr = null;
             });
         };
         AccountingModel.prototype.saveProduct = function (product) {
@@ -870,7 +894,36 @@ define("app/jira/view_models/products/supplier_entry_view_model", ["require", "e
     }(BaseViewModel));
     return SupplierEntryView;
 });
-define("app/jira/view_models/products/feeding_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/products/product_entry_view_model", "app/jira/view_models/products/category_entry_view_model", "app/jira/view_models/products/supplier_entry_view_model", "app/jira/command", "app/jira/models/accounting_model"], function (require, exports, _, $, PageViewModel, ProductEntryViewModel, CategoryEntryViewModel, SupplierEntryViewModel, Command, Model) {
+define("app/jira/view_models/products/order_entry_view_model", ["require", "exports", 'underscore', "app/jira/base/base_view_model"], function (require, exports, _, BaseViewModel) {
+    "use strict";
+    var OrderEntryViewModel = (function (_super) {
+        __extends(OrderEntryViewModel, _super);
+        function OrderEntryViewModel() {
+            _super.apply(this, arguments);
+        }
+        OrderEntryViewModel.prototype.getId = function () {
+            return this.opts.Id;
+        };
+        OrderEntryViewModel.prototype.init = function (opts) {
+            this.defaults = {
+                Id: -1,
+                OrderDate: '',
+                OrderDetail: []
+            };
+            _super.prototype.init.call(this, opts);
+        };
+        OrderEntryViewModel.prototype.setData = function (data) {
+            var _this = this;
+            _.each(data, function (value, key) {
+                var setter = _this['set' + key];
+                setter && setter.call(_this, value);
+            });
+        };
+        return OrderEntryViewModel;
+    }(BaseViewModel));
+    return OrderEntryViewModel;
+});
+define("app/jira/view_models/products/feeding_view_model", ["require", "exports", 'underscore', 'jquery', "app/jira/view_models/page_view_model", "app/jira/view_models/products/product_entry_view_model", "app/jira/view_models/products/category_entry_view_model", "app/jira/view_models/products/supplier_entry_view_model", "app/jira/view_models/products/order_entry_view_model", "app/jira/command", "app/jira/models/accounting_model"], function (require, exports, _, $, PageViewModel, ProductEntryViewModel, CategoryEntryViewModel, SupplierEntryViewModel, OrderEntryViewModel, Command, Model) {
     "use strict";
     var FeedingViewModel = (function (_super) {
         __extends(FeedingViewModel, _super);
@@ -885,6 +938,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             this.products = [];
             this.categories = [];
             this.suppliers = [];
+            this.orders = [];
         }
         FeedingViewModel.prototype.getCurentProduct = function () {
             return this.curentProduct;
@@ -932,6 +986,19 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             this.suppliers = value;
             this.triggerProperyChanged('change:suppliers');
         };
+        FeedingViewModel.prototype.getOrders = function () {
+            return this.orders;
+        };
+        FeedingViewModel.prototype.setOrders = function (value) {
+            var entries = this.orders;
+            _.defer(function () {
+                _.each(entries, function (viewModel) {
+                    viewModel.finish();
+                });
+            }, 0);
+            this.orders = value;
+            this.triggerProperyChanged('change:orders');
+        };
         FeedingViewModel.prototype.init = function (opts) {
             var _this = this;
             var model = Model.getCurent();
@@ -941,12 +1008,14 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                 'accounting_model.products': this.changeProductsDelegate = _.bind(this.changeProducts, this),
                 'accounting_model.categories': this.changeCategoriesDelegate = _.bind(this.changeCategories, this),
                 'accounting_model.suppliers': this.changeSuppliersDelegate = _.bind(this.changeSuppliers, this),
+                'accounting_model.orders': this.changeOrdersDelegate = _.bind(this.changeOrders, this),
                 'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this)
             }, function (h, e) { $(model).on(e, h); });
             _.defer(_.bind(function () {
                 _this.fetchProducts();
                 _this.fetchCategories();
                 _this.fetchSuppliers();
+                _this.fetchOrders();
             }, this), 0);
         };
         FeedingViewModel.prototype.finish = function () {
@@ -955,12 +1024,14 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                 'accounting_model.products': this.changeProductsDelegate,
                 'accounting_model.categories': this.changeCategoriesDelegate,
                 'accounting_model.suppliers': this.changeSuppliersDelegate,
+                'accounting_model.orders': this.changeOrdersDelegate,
                 'accounting_model.product': this.changeProductDelegate
             }, function (h, e) { $(model).off(e, h); });
             $(this).off();
             this.setProducts([]);
             this.setCategories([]);
             this.setSuppliers([]);
+            this.setOrders([]);
             _super.prototype.finish.call(this);
         };
         FeedingViewModel.prototype.getCommand = function (name) {
@@ -993,6 +1064,12 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                 return new SupplierEntryViewModel(item);
             }, this));
         };
+        FeedingViewModel.prototype.changeOrders = function () {
+            var model = Model.getCurent(), items = model.getOrders();
+            this.setOrders(_.map(items, function (item) {
+                return new OrderEntryViewModel(item);
+            }, this));
+        };
         FeedingViewModel.prototype.changeProduct = function () {
             var model = Model.getCurent();
             var product = this.getCurentProduct();
@@ -1010,6 +1087,10 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
         FeedingViewModel.prototype.fetchSuppliers = function () {
             var model = Model.getCurent();
             model.fetchSuppliers();
+        };
+        FeedingViewModel.prototype.fetchOrders = function () {
+            var model = Model.getCurent();
+            model.fetchOrders();
         };
         FeedingViewModel.prototype.saveCurentProduct = function () {
             var model = Model.getCurent();
@@ -1409,13 +1490,13 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
             _super.call(this, opts);
             this.state = this.props.viewModel;
         }
-        CategoryItemView.prototype.setProduct = function () {
+        CategoryItemView.prototype.setCategory = function () {
             this.setState(this.props.viewModel);
         };
         CategoryItemView.prototype.componentWillMount = function () {
             var _this = this;
             _.each('change:CategoryName change:Description'.split(' '), function (en) {
-                $(_this.props.viewModel).on(en, _.bind(_this.setProduct, _this));
+                $(_this.props.viewModel).on(en, _.bind(_this.setCategory, _this));
             });
         };
         CategoryItemView.prototype.componentWillUnmount = function () {
@@ -1428,7 +1509,7 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
             var _this = this;
             _.each('change:CategoryName change:Description'.split(' '), function (en) {
                 $(_this.props.viewModel).off(en);
-                $(props.viewModel).on(en, _.bind(_this.setProduct, _this));
+                $(props.viewModel).on(en, _.bind(_this.setCategory, _this));
             });
         };
         CategoryItemView.prototype.onClick = function (evnt) {
@@ -1579,6 +1660,99 @@ define("app/jira/views/products/suppliers_view", ["require", "exports", 'jquery'
     }(BaseView));
     return SuppliersView;
 });
+define("app/jira/templates/products/order_item_template", ["require", "exports", 'react'], function (require, exports, React) {
+    "use strict";
+    var template = function (data) {
+        var _this = this;
+        return (React.createElement("tr", {onClick: function (e) { return _this.onClick(e); }}, React.createElement("td", null, data.getId()), React.createElement("td", null, data.getOrderDate())));
+    };
+    return template;
+});
+define("app/jira/views/products/order_item_view", ["require", "exports", 'underscore', 'jquery', "app/jira/base/base_view", "app/jira/templates/products/order_item_template"], function (require, exports, _, $, BaseView, template) {
+    "use strict";
+    var OrderItemView = (function (_super) {
+        __extends(OrderItemView, _super);
+        function OrderItemView(opts) {
+            _super.call(this, opts);
+            this.state = this.props.viewModel;
+        }
+        OrderItemView.prototype.setOrder = function () {
+            this.setState(this.props.viewModel);
+        };
+        OrderItemView.prototype.componentWillMount = function () {
+            var _this = this;
+            _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
+                $(_this.props.viewModel).on(en, _.bind(_this.setOrder, _this));
+            });
+        };
+        OrderItemView.prototype.componentWillUnmount = function () {
+            var _this = this;
+            _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
+                $(_this.props.viewModel).off(en);
+            });
+        };
+        OrderItemView.prototype.componentWillReceiveProps = function (props) {
+            var _this = this;
+            _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
+                $(_this.props.viewModel).off(en);
+                $(props.viewModel).on(en, _.bind(_this.setOrder, _this));
+            });
+        };
+        OrderItemView.prototype.onClick = function (evnt) {
+            evnt.preventDefault();
+            this.props.onSelect && this.props.onSelect();
+        };
+        OrderItemView.prototype.render = function () {
+            return template.call(this, this.props.viewModel);
+        };
+        return OrderItemView;
+    }(BaseView));
+    return OrderItemView;
+});
+define("app/jira/templates/products/orders_template", ["require", "exports", 'react', "app/jira/views/products/order_item_view"], function (require, exports, React, OrderItemView) {
+    "use strict";
+    var template = function () {
+        var _this = this;
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Order Id"), React.createElement("th", null, "Order Date"))), React.createElement("tbody", null, this.state.orders && this.state.orders.map(function (entity) {
+            return React.createElement(OrderItemView, {viewModel: entity, key: entity.getId(), onSelect: function () { return _this.runCommand('SelectCommand', entity.getId()); }});
+        })))));
+    };
+    return template;
+});
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
+define("app/jira/views/products/orders_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/orders_template"], function (require, exports, $, _, BaseView, template) {
+    "use strict";
+    var OrdersView = (function (_super) {
+        __extends(OrdersView, _super);
+        function OrdersView(opts) {
+            _super.call(this, opts);
+            this.state = {
+                orders: this.props.viewModel.getOrders()
+            };
+        }
+        OrdersView.prototype.setOrders = function () {
+            this.setState({
+                orders: this.props.viewModel.getOrders()
+            });
+        };
+        OrdersView.prototype.componentWillMount = function () {
+            $(this.props.viewModel).on('change:orders', _.bind(this.setOrders, this));
+        };
+        OrdersView.prototype.componentWillUnmount = function () {
+            $(this.props.viewModel).off('change:orders');
+        };
+        OrdersView.prototype.componentWillReceiveProps = function (props) {
+            $(this.props.viewModel).off('change:orders');
+            $(props.viewModel).on('change:orders', _.bind(this.setOrders, this));
+        };
+        OrdersView.prototype.render = function () {
+            return template.call(this);
+        };
+        return OrdersView;
+    }(BaseView));
+    return OrdersView;
+});
 define("app/jira/ui_controls/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = function () {
@@ -1716,10 +1890,10 @@ define("app/jira/ui_controls/tabs_view", ["require", "exports", "app/jira/base/b
     }(BaseView));
     return TabsView;
 });
-define("app/jira/pages/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products/products_view", "app/jira/views/products/categories_view", "app/jira/views/products/suppliers_view", "app/jira/views/products/create_product_view", "app/jira/ui_controls/panel_view", "app/jira/ui_controls/tabs_view"], function (require, exports, React, ProductsView, CategoriesView, SuppliersView, CreateProductView, PanelView, TabsView) {
+define("app/jira/pages/feeding_page_template", ["require", "exports", 'react', "app/jira/views/products/products_view", "app/jira/views/products/categories_view", "app/jira/views/products/suppliers_view", "app/jira/views/products/orders_view", "app/jira/views/products/create_product_view", "app/jira/ui_controls/panel_view", "app/jira/ui_controls/tabs_view"], function (require, exports, React, ProductsView, CategoriesView, SuppliersView, OrdersView, CreateProductView, PanelView, TabsView) {
     "use strict";
     var template = function (viewModel) {
-        return (React.createElement(TabsView, {active: 0}, React.createElement("div", {id: "page-inner", title: "Home"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CreateProductView, {viewModel: viewModel}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel, title: "Products"}, React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))), React.createElement("div", {id: "page-inner", title: "Categories"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CategoriesView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Suppliers"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(SuppliersView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Orders"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement("h4", null, "Settings Tab"), React.createElement("p", null, "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."))))));
+        return (React.createElement(TabsView, {active: 0}, React.createElement("div", {id: "page-inner", title: "Home"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CreateProductView, {viewModel: viewModel}))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel, title: "Products"}, React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))), React.createElement("div", {id: "page-inner", title: "Categories"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CategoriesView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Suppliers"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(SuppliersView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Orders"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(OrdersView, {viewModel: viewModel}))))));
     };
     return template;
 });

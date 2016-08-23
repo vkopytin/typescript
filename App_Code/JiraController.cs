@@ -187,7 +187,7 @@ namespace hellomvc.Controllers
                 var suppliers = repo.Request<Vko.Entities.Supplier>();
                 var items = suppliers.List();
     
-                return Json(items, JsonRequestBehavior.AllowGet);
+                return Json(items.ToList(), JsonRequestBehavior.AllowGet);
             }
         }
         
@@ -199,7 +199,7 @@ namespace hellomvc.Controllers
                 var categories = repo.Request<Vko.Entities.Category>();
                 var items = categories.List();
     
-                return Json(items, JsonRequestBehavior.AllowGet);
+                return Json(items.ToList(), JsonRequestBehavior.AllowGet);
             }
         }
 

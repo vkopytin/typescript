@@ -13,7 +13,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				return ListProducts(repo);
+				return ListProducts(repo).ToList();
 			}
 		}
 		
@@ -21,7 +21,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				return ListOrderDetails(repo);
+				return ListOrderDetails(repo).ToList();
 			}
 		}
 		
@@ -47,9 +47,7 @@ namespace Vko.Services
 		private IEnumerable<Product> ListProducts(General repo)
 		{
             var products = repo.Request<Vko.Entities.Product>();
-			var p = products.Find(new {
-				Id = new { __in = new int[] {1,2,3,4,5} }
-			});
+
 			var categories = repo.Request<Vko.Entities.Category>().List().ToList();
 			var suppliers = repo.Request<Vko.Entities.Supplier>().List().ToList();
 			

@@ -31,7 +31,8 @@ namespace hellomvc.Controllers
         }
 
         [HttpGet]
-        public ActionResult Assemblies() {
+        public ActionResult Assemblies()
+        {
             return Json(AppDomain.CurrentDomain.GetAssemblies().Select((a) => {
                 var name = a.GetName();
                 var fullName = name.FullName;
@@ -59,13 +60,14 @@ namespace hellomvc.Controllers
             }).ToList(), JsonRequestBehavior.AllowGet);
         }
 
-        static string URL = Config.JiraConfig["url"];
-        static string jUserID = Config.JiraConfig["user"];
-        static string jPassword = Config.JiraConfig["password"];
+        static string URL = Vko.Config.JiraConfig["url"];
+        static string jUserID = Vko.Config.JiraConfig["user"];
+        static string jPassword = Vko.Config.JiraConfig["password"];
 
         [HttpGet]
         [AsyncTimeout(8000)]
-        public Task<ActionResult> Issues(string status="", string epicLink="") {
+        public Task<ActionResult> Issues(string status="", string epicLink="")
+        {
             return Task.Factory.StartNew(() => {
             var jiraManager = new JiraManager();
             var jiraClient = new JiraClient(URL, jUserID, jPassword);

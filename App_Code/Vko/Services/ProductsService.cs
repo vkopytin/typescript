@@ -9,14 +9,49 @@ namespace Vko.Services
 {
 	public class ProductsService
 	{
-		public IEnumerable<Product> ListProducts()
+		public IEnumerable<Product> ListProducts(int from=0, int limit=0)
 		{
-            var products = General.Request<Vko.Entities.Product>();
+			using (var repo = new General())
+			{
+				return ListProducts(repo);
+			}
+		}
+		
+		public IEnumerable<OrderDetail> ListOrderDetails()
+		{
+			using (var repo = new General())
+			{
+				return ListOrderDetails(repo);
+			}
+		}
+		
+		public IEnumerable<Order> ListOrders(int from, int limit)
+		{
+			using (var repo = new General())
+			{
+	            var orders = repo.Request<Vko.Entities.Order>();
+				var details = ListOrderDetails(repo).ToList();
+				
+				foreach (var entity in orders.List())
+				{
+					yield return new Order
+					{
+		                Id = entity.Id,
+		                OrderDate = entity.OrderDate.ToJSLong(),
+						OrderDetail = details.Where(x => x.OrderId == entity.Id).ToList()
+					};
+				}
+			}
+		}
+
+		private IEnumerable<Product> ListProducts(General repo)
+		{
+            var products = repo.Request<Vko.Entities.Product>();
 			var p = products.Find(new {
 				Id = new { __in = new int[] {1,2,3,4,5} }
 			});
-			var categories = General.Request<Vko.Entities.Category>().List().ToList();
-			var suppliers = General.Request<Vko.Entities.Supplier>().List().ToList();
+			var categories = repo.Request<Vko.Entities.Category>().List().ToList();
+			var suppliers = repo.Request<Vko.Entities.Supplier>().List().ToList();
 			
 			foreach (var entity in products.List())
 			{
@@ -34,26 +69,10 @@ namespace Vko.Services
 			}
 		}
 		
-		public IEnumerable<Order> ListOrders()
+		private IEnumerable<OrderDetail> ListOrderDetails(General repo)
 		{
-            var orders = General.Request<Vko.Entities.Order>();
-			var details = ListOrderDetails().ToList();
-			
-			foreach (var entity in orders.List())
-			{
-				yield return new Order
-				{
-	                Id = entity.Id,
-	                OrderDate = entity.OrderDate.ToJSLong(),
-					OrderDetail = details.Where(x => x.OrderId == entity.Id).ToList()
-				};
-			}
-		}
-		
-		public IEnumerable<OrderDetail> ListOrderDetails()
-		{
-			var details = General.Request<Vko.Entities.OrderDetail>();
-            var products = ListProducts().ToList();
+			var details = repo.Request<Vko.Entities.OrderDetail>();
+            var products = ListProducts(repo).ToList();
 
 			foreach (var entity in details.List())
 			{

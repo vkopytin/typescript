@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Specialized;
 using System.Collections.Generic;
-using hellomvc;
 
-namespace Rebelmouse.jira.Repository {
-    class IssuesRepository : IRepository<Issue> {
-        private readonly JiraClient jiraClient = new JiraClient(Config.JiraConfig["url"],
-             Config.JiraConfig["user"],
-             Config.JiraConfig["password"]
+
+namespace Rebelmouse.jira.Repository
+{
+    class IssuesRepository : IRepository<Issue>
+    {
+        private readonly JiraClient jiraClient = new JiraClient(Vko.Config.JiraConfig["url"],
+             Vko.Config.JiraConfig["user"],
+             Vko.Config.JiraConfig["password"]
              );
         
         public IssuesRepository() {

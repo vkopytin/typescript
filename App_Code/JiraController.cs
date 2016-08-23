@@ -15,9 +15,9 @@ namespace hellomvc.Controllers
 {
     public class JiraController : Controller
     {
-        static string URL = Config.JiraConfig["url"];
-        static string jUserID = Config.JiraConfig["user"];
-        static string jPassword = Config.JiraConfig["password"];
+        static string URL = Vko.Config.JiraConfig["url"];
+        static string jUserID = Vko.Config.JiraConfig["user"];
+        static string jPassword = Vko.Config.JiraConfig["password"];
 
         public ActionResult Index ()
         {
@@ -146,56 +146,67 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Products(int from=0, int limit=0) {
             var products = new Vko.Services.ProductsService();
-            var items = products.ListProducts();
+            var items = products.ListProducts(from, limit);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
         
         [HttpPost]
-        public ActionResult Products(Vko.Entities.Product product) {
-            var repo = Vko.Repository.General.Request<Vko.Entities.Product>();
-            var item = default(Vko.Entities.Product);
-            
-            try
+        public ActionResult Products(Vko.Entities.Product product)
+        {
+            using (var repo = new Vko.Repository.General())
             {
-                item = repo.GetById(product.Id);
-            }
-            catch (InvalidOperationException ex)
-            {
+                var products = repo.Request<Vko.Entities.Product>();
+                var item = default(Vko.Entities.Product);
                 
+                try
+                {
+                    item = products.GetById(product.Id);
+                }
+                catch (InvalidOperationException ex)
+                {
+                    
+                }
+                if (item == null)
+                {
+                    item = products.Create(product);
+                }
+                else
+                {
+                    item = products.Update(product);
+                }
+    
+                return Json(item, JsonRequestBehavior.AllowGet);
             }
-            if (item == null)
-            {
-                item = repo.Create(product);
-            }
-            else
-            {
-                item = repo.Update(product);
-            }
-
-            return Json(item, JsonRequestBehavior.AllowGet);
         }
         
         [HttpGet]
         public ActionResult Suppliers(int from=0, int limit=0) {
-            var repo = Vko.Repository.General.Request<Vko.Entities.Supplier>();
-            var items = repo.List();
-
-            return Json(items, JsonRequestBehavior.AllowGet);
+            using (var repo = new Vko.Repository.General())
+            {
+                var suppliers = repo.Request<Vko.Entities.Supplier>();
+                var items = suppliers.List();
+    
+                return Json(items, JsonRequestBehavior.AllowGet);
+            }
         }
         
         [HttpGet]
-        public ActionResult Categories(int from=0, int limit=0) {
-            var repo = Vko.Repository.General.Request<Vko.Entities.Category>();
-            var items = repo.List();
-
-            return Json(items, JsonRequestBehavior.AllowGet);
+        public ActionResult Categories(int from=0, int limit=0)
+        {
+            using (var repo = new Vko.Repository.General())
+            {
+                var categories = repo.Request<Vko.Entities.Category>();
+                var items = categories.List();
+    
+                return Json(items, JsonRequestBehavior.AllowGet);
+            }
         }
 
         [HttpGet]
         public ActionResult Orders(int from=0, int limit=0) {
             var products = new Vko.Services.ProductsService();
-            var items = products.ListOrders();
+            var items = products.ListOrders(from, limit);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }

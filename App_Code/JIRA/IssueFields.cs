@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace Rebelmouse.jira {
-    public class IssueFields {
+namespace Rebelmouse.jira
+{
+    public class IssueFields
+    {
         
         public IssueFields()
         {

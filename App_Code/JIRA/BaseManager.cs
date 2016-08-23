@@ -4,41 +4,59 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace Rebelmouse.jira {
-    public class Statement {
-        public override string ToString() {
+namespace Rebelmouse.jira
+{
+    public class Statement
+    {
+        public override string ToString()
+        {
             return "";
         }
     }
-    public class ValueStatement: Statement {
+    
+    public class ValueStatement: Statement
+    {
         object value;
-        public ValueStatement(object value) {
+        public ValueStatement(object value)
+        {
             this.value = value;
         }
-        public override string ToString() {
+        public override string ToString()
+        {
             return System.Convert.ToString(this.value);
         }
     }
-    public class NameStatement: Statement {
+    
+    public class NameStatement: Statement
+    {
         string name;
-        public NameStatement(string name) {
+        public NameStatement(string name)
+        {
             this.name = name;
         }
-        public override string ToString() {
+        
+        public override string ToString()
+        {
             return System.Convert.ToString(this.name);
         }
     }
-    public class EqStatement: Statement {
+    
+    public class EqStatement: Statement
+    {
         Statement left;
         Statement right;
-        public EqStatement(Statement left, Statement right) {
+        public EqStatement(Statement left, Statement right)
+        {
             this.left = left;
             this.right = right;
         }
-        public override string ToString() {
+        
+        public override string ToString()
+        {
             return left.ToString() + "=" + right.ToString();
         }
     }
+    
     public class AndStatement: Statement {
         List<Statement> statements;
         public AndStatement(Statement[] statements) {
@@ -57,7 +75,9 @@ namespace Rebelmouse.jira {
             return string.Join(" OR ", statements.Select(x => x.ToString()));
         }
     }
-    public class InStatement: Statement {
+    
+    public class InStatement: Statement
+    {
         List<Statement> statements;
         NameStatement name;
         public InStatement(ValueStatement[] statements) {
@@ -72,7 +92,9 @@ namespace Rebelmouse.jira {
             return this.name.ToString() + " IN (" + string.Join(", ", statements.Select(x => x.ToString())) + ")";
         }
     }
-    public class OrderByStatement: Statement {
+    
+    public class OrderByStatement: Statement
+    {
         Statement name;
         Statement order;
         public OrderByStatement(Statement name, Statement order) {
@@ -83,7 +105,9 @@ namespace Rebelmouse.jira {
             return " ORDER BY " + name.ToString() + " " + order.ToString();
         }
     }
-    public class ExpressionStatement: Statement {
+    
+    public class ExpressionStatement: Statement
+    {
         List<Statement> statements;
         public ExpressionStatement(Statement[] statements) {
             this.statements = new List<Statement>(statements);
@@ -92,7 +116,9 @@ namespace Rebelmouse.jira {
             return string.Join(" ", statements.Select(x => x.ToString()));
         }
     }
-	public class BaseManager {
+    
+	public class BaseManager
+    {
         public static ValueStatement Val(object val) {
             return new ValueStatement(val);
         }

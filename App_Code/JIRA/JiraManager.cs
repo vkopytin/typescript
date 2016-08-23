@@ -2,8 +2,10 @@ using System.Collections.Generic;
 using Rebelmouse.jira.Repository;
 using System.Linq;
 
-namespace Rebelmouse.jira {
-	public class JiraManager : BaseManager {
+namespace Rebelmouse.jira
+{
+	public class JiraManager : BaseManager
+    {
 	    private readonly IRepository<Issue> issuesRepo = Repository.General.Request<Issue>();
 		
 		public IEnumerable<Issue> Issues {

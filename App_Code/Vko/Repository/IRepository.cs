@@ -1,7 +1,8 @@
 using System.Collections.Specialized;
 using System.Collections.Generic;
 
-namespace Vko.Repository {
+namespace Vko.Repository
+{
 	public interface IRepository<T>
 	{
 		T GetById(object id);

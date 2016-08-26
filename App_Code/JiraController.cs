@@ -144,11 +144,17 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Products(int from=0, int limit=0) {
+        public ActionResult Products(int from=0, int count=10, string search=null)
+        {
             var products = new Vko.Services.ProductsService();
-            var items = products.ListProducts(from, limit);
+            if (string.IsNullOrEmpty(search)) {
+                var items = products.ListProductsPaged(from, count);
 
-            return Json(items, JsonRequestBehavior.AllowGet);
+                return Json(items, JsonRequestBehavior.AllowGet);
+            }
+            var result = products.FindProductsPaged(search);
+
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
         
         [HttpPost]
@@ -181,40 +187,41 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Suppliers(int from=0, int limit=0) {
+        public ActionResult Suppliers(int from=0, int count=10)
+        {
             using (var repo = new Vko.Repository.General())
             {
                 var suppliers = repo.Request<Vko.Entities.Supplier>();
-                var items = suppliers.List();
+                var items = suppliers.List(from, count);
     
                 return Json(items.ToList(), JsonRequestBehavior.AllowGet);
             }
         }
         
         [HttpGet]
-        public ActionResult Categories(int from=0, int limit=0)
+        public ActionResult Categories(int from=0, int count=10)
         {
             using (var repo = new Vko.Repository.General())
             {
                 var categories = repo.Request<Vko.Entities.Category>();
-                var items = categories.List();
+                var items = categories.List(from, count);
     
                 return Json(items.ToList(), JsonRequestBehavior.AllowGet);
             }
         }
 
         [HttpGet]
-        public ActionResult Orders(int from=0, int limit=0) {
+        public ActionResult Orders(int from=0, int count=10) {
             var products = new Vko.Services.ProductsService();
-            var items = products.ListOrders(from, limit);
+            var items = products.ListOrders(from, count);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
         
         [HttpGet]
-        public ActionResult OrdersDetails(int from=0, int limit=0) {
+        public ActionResult OrderDetails(int from=0, int count=10) {
             var products = new Vko.Services.ProductsService();
-            var items = products.ListOrderDetails();
+            var items = products.ListOrderDetails(from, count);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }        

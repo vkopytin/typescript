@@ -16,7 +16,8 @@ import React = require('react');
 import ReactDOM = require('react-dom');
 
 interface IFeedingPage extends IBaseView {
-    
+    viewModel: FeedingViewModel
+    productsTotal: number
 }
 
 class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
@@ -27,6 +28,22 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
         }
     }
     
+    setProductsTotal (value: number): void {
+        this.setState({
+            productsTotal: this.props.viewModel.getProductsTotal()
+        });
+    }
+    
+    constructor(opts: any) {
+        super(opts);
+        
+        this.state = {
+            productsTotal: this.props.viewModel.getProductsTotal()
+        };
+        
+        this.searchProductsInternal = _.debounce(this.searchProductsInternal, 500);
+    }
+    
     init (options: any): void {
         _.extend(this.handlers, options.handlers || {});
         
@@ -34,6 +51,19 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     }
     finish (): void {
         Base.prototype.finish.apply(this, arguments);
+    }
+
+    componentWillMount () {
+        $(this.props.viewModel).on('change:products', _.bind(this.setProductsTotal, this));
+    }
+    
+    componentWillUnmount () {
+        $(this.props.viewModel).off('change:products');
+    }
+    
+    componentWillReceiveProps (props: IFeedingPage) {
+        $(this.props.viewModel).off('change:products');
+        $(props.viewModel).on('change:products', _.bind(this.setProductsTotal, this));
     }
     
     onNavigateTo (): any {
@@ -45,6 +75,22 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
         return master_page_template.call(this,
                 template.call(this, this.props.viewModel)
             );
+    }
+    
+    fetchProducts (evnt: any, from: number, count: number): void {
+        evnt.preventDefault();
+        this.props.viewModel.fetchProducts(from, count);
+    }
+    
+    searchProducts (evnt: any): void {
+        var subject = $(evnt.target).val();
+        evnt.preventDefault();
+        
+        this.searchProductsInternal(subject);
+    }
+    
+    searchProductsInternal (subject: any): void {
+        this.props.viewModel.searchProducts(subject);
     }
 }
 export = FeedingPage;

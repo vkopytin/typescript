@@ -7,9 +7,12 @@ var template = function () {
             <table className={"table table-striped table-bordered table-hover"}>
                 <thead>
                     <tr>
+                        <th></th>
                         <th>Product Description</th>
                         <th>Unit Price</th>
                         <th>Quantity per Unit</th>
+                        <th>Supplier</th>
+                        <th>Category</th>
                     </tr>
                 </thead>
                 <tbody>

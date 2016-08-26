@@ -1,6 +1,7 @@
 /// <reference path="../../base/base_view_model.ts" />
 import _ = require('underscore');
 import BaseViewModel = require('app/jira/base/base_view_model');
+import Model = require('app/jira/models/accounting_model');
     
 class ProductEntryViewModel extends BaseViewModel {
 
@@ -25,6 +26,12 @@ class ProductEntryViewModel extends BaseViewModel {
            
            setter && setter.call(this, value); 
         });
+    }
+    
+    addToCart(productId: any, price: number) {
+        var model = Model.getCurent();
+        
+        model.addToCart(productId, price);
     }
 }
 export = ProductEntryViewModel;

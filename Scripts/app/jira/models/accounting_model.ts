@@ -5,6 +5,7 @@ import ModelBase = require('app/jira/base/model_base');
 
 var fetchProductsXhr: JQueryPromise<any> = null,
     saveProductXhr: JQueryPromise<any> = null,
+    saveOrderXhr: JQueryPromise<any> = null,
     fetchCategoriesXhr: JQueryPromise<any> = null,
     fetchSupppliersXhr: JQueryPromise<any> = null,
     fetchOrdersXhr: JQueryPromise<any> = null,
@@ -12,6 +13,7 @@ var fetchProductsXhr: JQueryPromise<any> = null,
     
 class AccountingModel extends ModelBase {
     products: any[] = []
+    productsTotal: number = 0
     product: any = {}
     categories: any[] = []
     suppliers: any[] = []
@@ -19,6 +21,10 @@ class AccountingModel extends ModelBase {
 
     getProducts () {
         return this.products;
+    }
+    
+    getProductsTotal() {
+        return this.productsTotal;
     }
     
     setProducts (value: any[]): void {
@@ -62,14 +68,15 @@ class AccountingModel extends ModelBase {
         this.triggerProperyChanged('accounting_model.product');
     }
     
-    fetchProducts (): void {
+    fetchProducts (from: number=0, count: number=10): void {
         fetchProductsXhr = $.when(fetchProductsXhr).then(() => {
             return $.ajax({
                 url: '/jira/products',
                 type: 'GET',
-                data: {},
-                success: (items, success, xhr) => {
-                    this.setProducts(items);
+                data: {from: from, count: count},
+                success: (result, success, xhr) => {
+                    this.productsTotal = result.Total;
+                    this.setProducts(result.Items);
                 }
             });
         });
@@ -78,12 +85,12 @@ class AccountingModel extends ModelBase {
         });
     }
     
-    fetchCategories (): void {
+    fetchCategories (from: number=0, count: number=10): void {
         fetchCategoriesXhr = $.when(fetchCategoriesXhr).then(() => {
             return $.ajax({
                 url: '/jira/categories',
                 type: 'GET',
-                data: {},
+                data: {from: from, count: count},
                 success: (items, success, xhr) => {
                     this.setCategories(items);
                 }
@@ -94,12 +101,12 @@ class AccountingModel extends ModelBase {
         });
     }
 
-    fetchSuppliers (): void {
+    fetchSuppliers (from: number=0, count: number=10): void {
         fetchSupppliersXhr = $.when(fetchSupppliersXhr).then(() => {
             return $.ajax({
                 url: '/jira/suppliers',
                 type: 'GET',
-                data: {},
+                data: {from: from, count: count},
                 success: (items, success, xhr) => {
                     this.setSuppliers(items);
                 }
@@ -110,12 +117,12 @@ class AccountingModel extends ModelBase {
         });
     }
     
-    fetchOrders (): void {
+    fetchOrders (from: number=0, count: number=10): void {
         fetchOrdersXhr = $.when(fetchOrdersXhr).then(() => {
             return $.ajax({
                 url: '/jira/orders',
                 type: 'GET',
-                data: {},
+                data: {from: from, count: count},
                 success: (items, success, xhr) => {
                     this.setOrders(items);
                 }
@@ -139,6 +146,39 @@ class AccountingModel extends ModelBase {
         });
         saveProductXhr.fail(() => {
             saveProductXhr = null;
+        });
+    }
+    
+    searchProducts (subject: string): void {
+        fetchOrdersXhr = $.when(fetchOrdersXhr).then(() => {
+            return $.ajax({
+                url: '/jira/products',
+                type: 'GET',
+                data: {search: subject},
+                success: (result, success, xhr) => {
+                    this.productsTotal = result.Total;
+                    this.setProducts(result.Items);
+                }
+            });
+        });
+        fetchOrdersXhr.fail(() => {
+            fetchOrdersXhr = null;
+        });
+    }
+    
+    addToCart (productId: any, price: number) {
+        saveOrderXhr = $.when(saveOrderXhr).then(() => {
+            return $.ajax({
+                url: '/jira/orders/',
+                type: 'POST',
+                data: { productId: productId, price: price },
+                success: (item, success, xhr) => {
+                    this.setProduct(item);
+                }
+            });
+        });
+        saveOrderXhr.fail(() => {
+            saveOrderXhr = null;
         });
     }
     

@@ -31,6 +31,7 @@ class FeedingViewModel extends PageViewModel {
     })
         
     products: ProductEntryViewModel[] = []
+    productsTotal: number = 0
     categories: CategoryEntryViewModel[] = []
     suppliers: SupplierEntryViewModel[] = []
     orders: OrderEntryViewModel[] = []
@@ -57,6 +58,14 @@ class FeedingViewModel extends PageViewModel {
         }, 0);
         this.products = value;
         this.triggerProperyChanged('change:products');
+    }
+    
+    getProductsTotal () {
+        return this.productsTotal;
+    }
+    
+    setProductsTotal (value: number): void {
+        this.productsTotal = value;
     }
     
     getCategories (): any {
@@ -102,6 +111,10 @@ class FeedingViewModel extends PageViewModel {
         }, 0);
         this.orders = value;
         this.triggerProperyChanged('change:orders');
+    }
+    
+    getCart (): any {
+        return {};
     }
 
     init (opts: any): void {
@@ -162,8 +175,10 @@ class FeedingViewModel extends PageViewModel {
     
     changeProducts (): void {
         var model = Model.getCurent(),
-            items = model.getProducts();
+            items = model.getProducts(),
+            total = model.getProductsTotal();
             
+        this.setProductsTotal(total);
         this.setProducts(_.map(items, (item) => {
             return new ProductEntryViewModel(item);
         }, this));
@@ -203,29 +218,34 @@ class FeedingViewModel extends PageViewModel {
         this.setCurentProduct(product);
     }
     
-    fetchProducts (): void {
+    fetchProducts (from=0, count=10): void {
         var model = Model.getCurent();
-        model.fetchProducts();
+        model.fetchProducts(from, count);
     }
     
     fetchCategories (): void {
         var model = Model.getCurent();
-        model.fetchCategories();
+        model.fetchCategories(0, 100);
     }
 
     fetchSuppliers (): void {
         var model = Model.getCurent();
-        model.fetchSuppliers();
+        model.fetchSuppliers(0, 100);
     }
     
     fetchOrders (): void {
         var model = Model.getCurent();
-        model.fetchOrders();
+        model.fetchOrders(0, 10);
     }
 
     saveCurentProduct (): void {
         var model = Model.getCurent();
         model.saveProduct(this.curentProduct.toJSON());
+    }
+    
+    searchProducts (subject: string): void {
+        var model = Model.getCurent();
+        model.searchProducts(subject);
     }
 }
 

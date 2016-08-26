@@ -43,11 +43,13 @@ namespace Vko.Repository
             }
         }
         
-        public IEnumerable<Order> List()
+        public IEnumerable<Order> List(int from=0, int count=10)
         {
-            string strSql = "SELECT * FROM [Order] ORDER BY Id";
+            string strSql = "SELECT * FROM [Order] ORDER BY OrderDate DESC LIMIT :count OFFSET :from";
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
+                command.Parameters.AddWithValue(":count", count);
+                command.Parameters.AddWithValue(":from", from);
                 using(SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -113,7 +115,30 @@ namespace Vko.Repository
         }
         
 	    public IEnumerable<Order> Find<T>(T args) {
-            return this.List();
+            var step = 100;
+            var count = this.GetCount();
+            var mod = count % step;
+            var max = count - mod;
+            foreach (var from in Enumerable.Range(0, max / step))
+            {
+                foreach (var item in this.List(from * step, step))
+                {
+                    yield return item;
+                }
+            }
+            foreach (var item in this.List(max, mod))
+            {
+                yield return item;
+            }
 	    }
+        
+        public int GetCount()
+        {
+            using (SQLiteCommand command = new SQLiteCommand("SELECT COUNT(*) FROM [Order]", conn))
+            {
+                int count = Convert.ToInt32(command.ExecuteScalar());
+                return count;
+            }
+        }
 	}
 }

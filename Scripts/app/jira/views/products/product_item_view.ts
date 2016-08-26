@@ -55,6 +55,14 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
         
         return template.call(this, this.props.viewModel);
     }
+    
+    addToCart(evnt: any) {
+        var vm: any = this.props.viewModel;
+        this.props.viewModel.addToCart(
+            vm.getId(),
+            vm.getUnitPrice()
+        );
+    }
 }
 
 export = ProductItemView;

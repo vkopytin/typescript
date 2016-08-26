@@ -7,11 +7,13 @@ namespace Vko.Repository
 	{
 		T GetById(object id);
 		
-		IEnumerable<T> List();
+		IEnumerable<T> List(int from, int count);
 		IEnumerable<T> Find<Y>(Y args);
 		
 		T Update(T product);
 		
 		T Create(T product);
+		
+		int GetCount();
 	}
 }

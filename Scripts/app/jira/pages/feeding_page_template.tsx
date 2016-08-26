@@ -1,8 +1,10 @@
+import _ = require('underscore');
 import React = require('react');
 import ProductsView = require('app/jira/views/products/products_view');
 import CategoriesView = require('app/jira/views/products/categories_view');
 import SuppliersView = require('app/jira/views/products/suppliers_view');
 import OrdersView = require('app/jira/views/products/orders_view');
+import CartView = require('app/jira/views/products/cart_view');
 import CreateProductView = require('app/jira/views/products/create_product_view');
 import PanelView = require('app/jira/ui_controls/panel_view');
 import TabsView = require('app/jira/ui_controls/tabs_view');
@@ -14,13 +16,38 @@ var template = function (viewModel: any) {
 		<TabsView active={0}>
 			<div id={"page-inner"} title={"Home"}>
 	            <div className={"row"}>
-					<div className="col-md-12">
-						<CreateProductView viewModel={viewModel}/>
+					<div className="col-md-8">
+						<PanelView title="Create Product">
+							<CreateProductView viewModel={viewModel}/>
+						</PanelView>
+					</div>
+					<div className="col-md-4">
+						<PanelView title="Cart">
+							<CartView viewModel={viewModel}/>
+						</PanelView>
 					</div>
 				</div>
 	            <div className={"row"}>
+					<div className="col-md-12">
+						<ul className={"pagination"}>
+						 <li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&laquo;</a></li>
+						{_.map(_.range(0, this.state.productsTotal, 10), (index: number) => 
+							 <li key={index}><a href="#" onClick={(e) => this.fetchProducts(e, index, 10)}>{index}</a></li>
+						)}
+						<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&raquo;</a></li>
+						</ul>
+					</div>
 	                <div className="col-md-12">
-						<PanelView ref="productsPanel" viewModel={viewModel} title={"Products"}>
+						<PanelView ref="productsPanel" viewModel={viewModel}>
+							<PanelView.Header>
+								<label className="col-md-2">Products</label>
+								<div className="input-group col-md-10">
+			        	       		<input type="text" onInput={(e) => this.searchProducts(e)} className="form-control" placeholder="Enter search phrase" />
+		    	                   	<span className="input-group-btn">
+		        	                  	<button className="btn btn-success" type="button">Find</button>
+				    	            </span>
+								</div>
+							</PanelView.Header>
 							<ProductsView viewModel={viewModel} products={(vm: FeedingViewModel) => vm.getProducts()}/>
 						</PanelView>
 	                </div>

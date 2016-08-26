@@ -16,11 +16,16 @@ class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
     constructor(opts: any) {
         super(opts);
         
-        this.state = this.props.viewModel;
+        this.state = {
+            order: this.props.viewModel,
+            isSelected: false
+        };
     }
     
     setOrder () {
-        this.setState(this.props.viewModel);
+        this.setState(_.extend(this.state, {
+            order: this.props.viewModel
+            }));
     }
     
     componentWillMount () {
@@ -42,14 +47,21 @@ class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
         });
     }
     
+    isSelected (): any {
+        return this.state.isSelected;
+    }
+    
     onClick (evnt: any): any {
         evnt.preventDefault();
+        this.setState(_.extend(this.state, {
+            isSelected: !this.state.isSelected
+            }));
         this.props.onSelect && this.props.onSelect();
     }
     
     render () {
         
-        return template.call(this, this.props.viewModel);
+        return template.call(this, this.state);
     }
 }
 

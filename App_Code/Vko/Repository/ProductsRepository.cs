@@ -46,11 +46,13 @@ namespace Vko.Repository
             }
         }
         
-        public IEnumerable<Product> List()
+        public IEnumerable<Product> List(int from=0, int count=10)
         {
-            string strSql = "SELECT * FROM Product ORDER BY Id";
+            string strSql = "SELECT * FROM Product ORDER BY Id LIMIT :count OFFSET :from";
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
+                command.Parameters.AddWithValue(":count", count);
+                command.Parameters.AddWithValue(":from", from);
                 using(SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
@@ -128,9 +130,77 @@ namespace Vko.Repository
             
             return GetById(product.Id);
         }
-        
-	    public IEnumerable<Product> Find<T>(T args) {
-            return this.List();
+
+            static string strSqlSearch = @"Id IN 
+( SELECT DISTINCT Id FROM (
+    SELECT p.Id, 1 AS seed FROM Product p WHERE p.ProductName = :searchExact
+    UNION
+    SELECT p.Id, 0.99 AS seed FROM Product p WHERE p.ProductName LIKE :search
+    UNION
+    SELECT p.Id, 0.98 AS seeed FROM Product p WHERE p.UnitPrice = :searchExact
+    UNION
+    SELECT p.Id, 0.97 AS seeed FROM Product p WHERE p.QuantityPerUnit LIKE :search
+    UNION
+    SELECT p.Id, 0.95 AS seeed FROM Product p WHERE cast(p.UnitPrice as text) LIKE :search
+    UNION
+    SELECT p.Id, 0.82 AS seeed FROM Product p, Supplier s
+    WHERE p.SupplierId = s.Id AND s.CompanyName LIKE :search
+    UNION
+    SELECT p.Id, 0.81 AS seeed FROM Product p, Supplier s
+    WHERE p.SupplierId = s.Id AND s.ContactName LIKE :search
+    UNION
+    SELECT p.Id, 0.80 AS seeed FROM Product p, Supplier s
+    WHERE p.SupplierId = s.Id AND s.Address LIKE :search
+    UNION
+    SELECT p.Id, 0.71 AS seeed FROM Product p, Category c
+    WHERE p.CategoryId = c.Id AND c.CategoryName LIKE :search
+    UNION
+    SELECT p.Id, 0.70 AS seeed FROM Product p, Category c
+    WHERE p.CategoryId = c.Id AND c.Description LIKE :search
+    ) ORDER BY seed DESC
+)";
+
+        public IEnumerable<Product> Find<T>(T args)
+        {
+            Type t = typeof(T);
+            var fields = t.GetProperties().ToArray();
+            var tupleWhere = WhereStatements.FromArgs(args);
+            string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
+            string strSql = "SELECT * FROM Product WHERE " + sqlWhere;
+            //throw new Exception(strSql);
+            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+            {
+                var queryParams = tupleWhere.Item2;
+                foreach(var kvp in queryParams)
+                {
+                    command.Parameters.AddWithValue(kvp.Key, kvp.Value);
+                }
+                
+                using(SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return new Product {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            ProductName = Convert.ToString(reader["ProductName"]),
+                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
+                            UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
+                            QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
+                            CategoryId = Convert.ToInt32(reader["categoryId"]),
+                            SupplierId = Convert.ToInt32(reader["supplierId"])
+                        };
+                    }
+                }
+            }
 	    }
+        
+        public int GetCount()
+        {
+            using (SQLiteCommand command = new SQLiteCommand("SELECT COUNT(*) FROM Product", conn))
+            {
+                int count = Convert.ToInt32(command.ExecuteScalar());
+                return count;
+            }
+        }
 	}
 }

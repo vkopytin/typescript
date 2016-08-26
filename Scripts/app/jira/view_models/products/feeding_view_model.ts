@@ -10,16 +10,18 @@ import ProductEntryViewModel = require('app/jira/view_models/products/product_en
 import CategoryEntryViewModel = require('app/jira/view_models/products/category_entry_view_model');
 import SupplierEntryViewModel = require('app/jira/view_models/products/supplier_entry_view_model');
 import OrderEntryViewModel = require('app/jira/view_models/products/order_entry_view_model');
+import CartEntryViewModel = require('app/jira/view_models/products/cart_entry_view_model');
 import Command = require('app/jira/command');
 import Model = require('app/jira/models/accounting_model');
 import Utils = require('app/jira/utils');
-        
+
 class FeedingViewModel extends PageViewModel {
     changeProductsDelegate: any
     changeCategoriesDelegate: any
     changeSuppliersDelegate: any
     changeOrdersDelegate: any
     changeProductDelegate: any
+    changeCartsDelegate: any
     
     SelectCommand: Command
     
@@ -35,6 +37,7 @@ class FeedingViewModel extends PageViewModel {
     categories: CategoryEntryViewModel[] = []
     suppliers: SupplierEntryViewModel[] = []
     orders: OrderEntryViewModel[] = []
+    carts: CartEntryViewModel[] = []
     
     getCurentProduct (): any {
         return this.curentProduct;
@@ -113,8 +116,23 @@ class FeedingViewModel extends PageViewModel {
         this.triggerProperyChanged('change:orders');
     }
     
+    getCarts (): any {
+        return this.carts;
+    }
+    
+    setCarts (value: CartEntryViewModel[]) : void {
+        var entries = this.carts;
+        _.defer(() => {
+            _.each(entries, (viewModel) => {
+                viewModel.finish();
+            });
+        }, 0);
+        this.carts = value;
+        this.triggerProperyChanged('change:carts');
+    }
+    
     getCart (): any {
-        return {};
+        return _.first(this.carts);
     }
 
     init (opts: any): void {
@@ -128,7 +146,8 @@ class FeedingViewModel extends PageViewModel {
             'accounting_model.categories': this.changeCategoriesDelegate = _.bind(this.changeCategories, this),
             'accounting_model.suppliers': this.changeSuppliersDelegate = _.bind(this.changeSuppliers, this),
             'accounting_model.orders': this.changeOrdersDelegate = _.bind(this.changeOrders, this),
-            'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this)
+            'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this),
+            'accounting_model.carts': this.changeCartsDelegate = _.bind(this.changeCarts, this)
         }, (h, e) => { $(model).on(e, h); });
         
         _.defer(_.bind(() => {
@@ -136,6 +155,7 @@ class FeedingViewModel extends PageViewModel {
             this.fetchCategories();
             this.fetchSuppliers();
             this.fetchOrders();
+            this.fetchCarts();
         }, this), 0);
     }
     
@@ -146,7 +166,8 @@ class FeedingViewModel extends PageViewModel {
             'accounting_model.categories': this.changeCategoriesDelegate,
             'accounting_model.suppliers': this.changeSuppliersDelegate,
             'accounting_model.orders': this.changeOrdersDelegate,
-            'accounting_model.product': this.changeProductDelegate
+            'accounting_model.product': this.changeProductDelegate,
+            'accounting_model.carts': this.changeCartsDelegate
         }, (h, e) => { $(model).off(e, h); });
         
         $(this).off();
@@ -155,6 +176,7 @@ class FeedingViewModel extends PageViewModel {
         this.setCategories([]);
         this.setSuppliers([]);
         this.setOrders([]);
+        this.setCarts([]);
         
         super.finish();
     }
@@ -218,6 +240,20 @@ class FeedingViewModel extends PageViewModel {
         this.setCurentProduct(product);
     }
     
+    changeCarts (): void {
+        var model = Model.getCurent(),
+            items = model.getCarts();
+            
+        this.setCarts(_.map(items, (item) => {
+            return new CartEntryViewModel(item);
+        }, this));
+    }
+    
+    createCart (): void {
+        var model = Model.getCurent();
+        model.createCart();
+    }
+    
     fetchProducts (from=0, count=10): void {
         var model = Model.getCurent();
         model.fetchProducts(from, count);
@@ -247,6 +283,12 @@ class FeedingViewModel extends PageViewModel {
         var model = Model.getCurent();
         model.searchProducts(subject);
     }
+
+    fetchCarts (from=0, count=10): void {
+        var model = Model.getCurent();
+        model.fetchCarts(from, count);
+    }
+
 }
 
 export = FeedingViewModel;

@@ -15,6 +15,7 @@ interface ICreateProductView extends React.Props<any> {
 }
 
 class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
+    setProductDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -22,6 +23,8 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         this.state = {
             product: this.props.viewModel.getCurentProduct()
         };
+        
+        this.setProductDelegate = _.bind(this.setProduct, this);
     }
     
     setProduct () {
@@ -30,17 +33,25 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         });
     }
     
+    attachEvents (viewModel: any): void {
+        $(viewModel).on('change:CurentProduct', this.setProductDelegate);
+    }
+    
+    deatachEvents (viewModel: any): void {
+        $(viewModel).off('change:CurentProduct', this.setProductDelegate);
+    }
+    
     componentWillMount () {
-        $(this.props.viewModel).on('change:CurentProduct', _.bind(this.setProduct, this));
+        this.attachEvents(this.props.viewModel);
     }
     
     componentWillUnmount () {
-        $(this.props.viewModel).off('change:CurentProduct');
+        this.deatachEvents(this.props.viewModel);
     }
     
     componentWillReceiveProps (props: ICreateProductView) {
-        $(this.props.viewModel).off('change:CurentProduct');
-        $(props.viewModel).on('change:CurentProduct', _.bind(this.setProduct, this));
+        this.deatachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
     }
     
     updateProductName (evnt: any) {

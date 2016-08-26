@@ -5,10 +5,11 @@ import ModelBase = require('app/jira/base/model_base');
 
 var fetchProductsXhr: JQueryPromise<any> = null,
     saveProductXhr: JQueryPromise<any> = null,
-    saveOrderXhr: JQueryPromise<any> = null,
+    saveCartXhr: JQueryPromise<any> = null,
     fetchCategoriesXhr: JQueryPromise<any> = null,
     fetchSupppliersXhr: JQueryPromise<any> = null,
     fetchOrdersXhr: JQueryPromise<any> = null,
+    fetchCartsXhr: JQueryPromise<any> = null,
     inst: AccountingModel;
     
 class AccountingModel extends ModelBase {
@@ -18,6 +19,7 @@ class AccountingModel extends ModelBase {
     categories: any[] = []
     suppliers: any[] = []
     orders: any[] = []
+    carts: any[] = []
 
     getProducts () {
         return this.products;
@@ -66,6 +68,15 @@ class AccountingModel extends ModelBase {
     setProduct (product: any): void {
         this.product = product;
         this.triggerProperyChanged('accounting_model.product');
+    }
+    
+    getCarts () {
+        return this.carts;
+    }
+    
+    setCarts (value: any): void {
+        this.carts = value;
+        this.triggerProperyChanged('accounting_model.carts');
     }
     
     fetchProducts (from: number=0, count: number=10): void {
@@ -166,20 +177,68 @@ class AccountingModel extends ModelBase {
         });
     }
     
-    addToCart (productId: any, price: number) {
-        saveOrderXhr = $.when(saveOrderXhr).then(() => {
+    fetchCarts (from: number=0, count: number=10): void {
+        fetchCartsXhr = $.when(fetchCartsXhr).then(() => {
             return $.ajax({
-                url: '/jira/orders/',
-                type: 'POST',
-                data: { productId: productId, price: price },
-                success: (item, success, xhr) => {
-                    this.setProduct(item);
+                url: '/jira/carts',
+                type: 'GET',
+                data: {from: from, count: count},
+                success: (result, success, xhr) => {
+                    this.setCarts(result.Items);
                 }
             });
         });
-        saveOrderXhr.fail(() => {
-            saveOrderXhr = null;
+        fetchCartsXhr.fail(() => {
+            fetchCartsXhr = null;
         });
+    }
+    
+    addToCart (productId: any, price: number) {
+        saveCartXhr = $.when(saveCartXhr).then(() => {
+            return $.ajax({
+                url: '/jira/addtocart/',
+                type: 'POST',
+                data: { productId: productId, price: price },
+                success: (item, success, xhr) => {
+                    this.fetchCarts();
+                }
+            });
+        });
+        saveCartXhr.fail(() => {
+            saveCartXhr = null;
+        });
+    }
+    
+    removeFromCart (productId: any) {
+        saveCartXhr = $.when(saveCartXhr).then(() => {
+            return $.ajax({
+                url: '/jira/removefromcart/',
+                type: 'POST',
+                data: { productId: productId },
+                success: (item, success, xhr) => {
+                    this.fetchCarts();
+                }
+            });
+        });
+        saveCartXhr.fail(() => {
+            saveCartXhr = null;
+        }); 
+    }
+
+    createCart () {
+        saveCartXhr = $.when(saveCartXhr).then(() => {
+            return $.ajax({
+                url: '/jira/carts/',
+                type: 'POST',
+                data: { CartDate: +new Date() },
+                success: (item, success, xhr) => {
+                    this.fetchCarts();
+                }
+            });
+        });
+        saveCartXhr.fail(() => {
+            saveCartXhr = null;
+        }); 
     }
     
 	static getCurent (): AccountingModel {

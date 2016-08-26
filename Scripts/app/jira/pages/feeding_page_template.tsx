@@ -16,13 +16,19 @@ var template = function (viewModel: any) {
 		<TabsView active={0}>
 			<div id={"page-inner"} title={"Home"}>
 	            <div className={"row"}>
-					<div className="col-md-8">
+					<div className="col-md-6">
 						<PanelView title="Create Product">
 							<CreateProductView viewModel={viewModel}/>
 						</PanelView>
 					</div>
-					<div className="col-md-4">
+					<div className="col-md-6">
 						<PanelView title="Cart">
+							<PanelView.Header>
+							<button className="btn btn-danger" onClick={(e) => this.createCart(e)}>new Cart</button>
+							<div className="pull-right btn btn-info">Cart: {this.state.cartName}
+								<span className="badge">{this.state.cartDate}</span>
+							</div>
+							</PanelView.Header>
 							<CartView viewModel={viewModel}/>
 						</PanelView>
 					</div>

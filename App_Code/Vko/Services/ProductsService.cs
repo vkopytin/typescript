@@ -9,6 +9,19 @@ namespace Vko.Services
 {
 	public class ProductsService
 	{
+		public PagedResult<Cart> ListCarts(int from=0, int count=0)
+		{
+			using (var repo = new General())
+			{
+				var items = ListCarts(repo, from, count).ToList();
+				return new PagedResult<Cart>()
+				{
+					Total = TotalCarts(repo),
+					Items = items
+				};
+			}
+		}
+		
 		public IEnumerable<Product> ListProducts(int from=0, int count=10)
 		{
 			using (var repo = new General())
@@ -75,9 +88,144 @@ namespace Vko.Services
 			}
 		}
 		
+		public Cart AddToCart(int productId, decimal price)
+		{
+			using (var repo = new General())
+			{
+				var product = repo.Request<Vko.Entities.Product>().GetById(productId);
+				var orderDetailsRepo = repo.Request<Vko.Entities.OrderDetail>();
+				if (product == null) {
+					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
+				}
+				
+				var carts = ListCarts(repo, 0, 1);
+				foreach (Cart cart in carts)
+				{
+					var details = orderDetailsRepo.Find(new {
+						__and = new {
+							OrderId = cart.Id,
+							ProductId = product.Id
+						}
+					}).ToList();
+					if (details.Count == 0) {
+						var newDetail = orderDetailsRepo.Create(new Vko.Entities.OrderDetail () {
+							Id = cart.Id + "/" + product.Id,
+							OrderId = cart.Id,
+							ProductId = product.Id,
+							Quantity = 1,
+							UnitPrice = product.UnitPrice,
+							Discount = 0
+						});
+					}
+					else
+					{
+						var existingDetail = orderDetailsRepo.Update(new Vko.Entities.OrderDetail () {
+							Id = details[0].Id,
+							OrderId = cart.Id,
+							ProductId = product.Id,
+							Quantity = details[0].Quantity + 1,
+							UnitPrice = product.UnitPrice,
+							Discount = 0
+						});
+					}
+				}
+				
+				return ListCarts(repo, 0, 1).FirstOrDefault();
+			}
+		}
+		
+		public Cart RemoveFromCart(int productId)
+		{
+			using (var repo = new General())
+			{
+				var product = repo.Request<Vko.Entities.Product>().GetById(productId);
+				var orderDetailsRepo = repo.Request<Vko.Entities.OrderDetail>();
+				if (product == null) {
+					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
+				}
+				
+				var carts = ListCarts(repo, 0, 1);
+				foreach (Cart cart in carts)
+				{
+					var details = orderDetailsRepo.Find(new {
+						__and = new {
+							OrderId = cart.Id,
+							ProductId = product.Id
+						}
+					}).ToList();
+					
+					if (details.Count > 0)
+					{
+						if (details[0].Quantity < 2)
+						{
+							orderDetailsRepo.RemoveById(details[0].Id);
+						}
+						else
+						{
+							var existingDetail = orderDetailsRepo.Update(new Vko.Entities.OrderDetail () {
+								Id = details[0].Id,
+								OrderId = cart.Id,
+								ProductId = product.Id,
+								Quantity = details[0].Quantity - 1,
+								UnitPrice = product.UnitPrice,
+								Discount = 0
+							});
+						}
+					}
+				}
+				
+				return ListCarts(repo, 0, 1).FirstOrDefault();
+			}
+		}
+		
+		public Cart CreateCart(DateTime cartDate)
+		{
+			using (var repo = new General())
+			{
+				var order = repo.Request<Vko.Entities.Order>().Create(new Vko.Entities.Order () {
+					CustomerId = "ALFKI",
+					EmployeeId = 1,
+					OrderDate = DateTime.Now
+				});
+				
+				return new Cart () {
+	                Id = order.Id,
+	                CartDate = order.OrderDate.ToJSLong(),
+					CartDetail = new List<CartDetail>()
+				};
+			}
+		}
+		
 		private int TotalProducts(General repo)
 		{
 			return repo.Request<Vko.Entities.Product>().GetCount();
+		}
+		
+		private IEnumerable<Cart> ListCarts(General repo, int from, int count)
+		{
+            var orders = repo.Request<Vko.Entities.Order>().List(from, count);
+			var details = FindCartDetails(repo, new {
+				OrderId = new {
+					__in = orders.Select(x => x.Id).Distinct().ToArray()
+				}
+			}).ToList();
+			
+			foreach (var entity in orders)
+			{
+				yield return new Cart
+				{
+	                Id = entity.Id,
+	                CartDate = entity.OrderDate.ToJSLong(),
+					CartDetail = details
+						.Where(x => x.OrderId == entity.Id)
+						.ToList()
+				};
+			}
+		}
+		
+		private int TotalCarts(General repo)
+		{
+			return repo.Request<Vko.Entities.Order>().GetCount();
 		}
 
 		private IEnumerable<Product> ListProducts(General repo, int from=0, int count=10)
@@ -174,6 +322,30 @@ namespace Vko.Services
 			foreach (var entity in details)
 			{
 				yield return new OrderDetail
+				{
+	                Id = entity.Id,
+					OrderId = entity.OrderId,
+					UnitPrice = entity.UnitPrice,
+					Quantity = entity.Quantity,
+					Discount = entity.Discount,
+					Order = null, // TBD
+					Product = products.FirstOrDefault(x => x.Id == entity.ProductId),
+				};
+			}
+		}
+		
+		private IEnumerable<CartDetail> FindCartDetails<T>(General repo, T args)
+		{
+			var details = repo.Request<Vko.Entities.OrderDetail>().Find(args).ToList();
+            var products = FindProducts(repo, new {
+				Id = new {
+					__in = details.Select(x => x.ProductId).Distinct().ToArray()
+				}
+			}).ToList();
+
+			foreach (var entity in details)
+			{
+				yield return new CartDetail
 				{
 	                Id = entity.Id,
 					OrderId = entity.OrderId,

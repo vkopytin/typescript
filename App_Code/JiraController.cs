@@ -224,6 +224,38 @@ namespace hellomvc.Controllers
             var items = products.ListOrderDetails(from, count);
 
             return Json(items, JsonRequestBehavior.AllowGet);
-        }        
+        }
+        
+        [HttpGet]
+        public ActionResult Carts(int from=0, int count=10) {
+            var products = new Vko.Services.ProductsService();
+            var items = products.ListCarts(from, count);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpPost]
+        public ActionResult Carts(int cartDate=0) {
+            var products = new Vko.Services.ProductsService();
+            var items = products.CreateCart(DateTime.Now);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult AddToCart(int productId, decimal price) {
+            var products = new Vko.Services.ProductsService();
+            var items = products.AddToCart(productId, price);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpPost]
+        public ActionResult RemoveFromCart(int productId) {
+            var products = new Vko.Services.ProductsService();
+            var items = products.RemoveFromCart(productId);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
     }
 }

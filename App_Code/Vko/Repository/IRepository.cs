@@ -15,5 +15,7 @@ namespace Vko.Repository
 		T Create(T product);
 		
 		int GetCount();
+		
+		int RemoveById(object id);
 	}
 }

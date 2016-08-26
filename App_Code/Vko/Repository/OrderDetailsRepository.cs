@@ -31,18 +31,20 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":id", id);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    reader.Read();
-                    
-                    return new OrderDetail {
-                        Id = Convert.ToString(reader["Id"]),
-                        OrderId = Convert.ToInt32(reader["OrderId"]),
-                        ProductId = Convert.ToInt32(reader["ProductId"]),
-                        UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
-                        Quantity = Convert.ToInt32(reader["Quantity"]),
-                        Discount = Convert.ToDouble(reader["Discount"])
-                    };
+                    while (reader.Read())
+                    {
+                        return new OrderDetail {
+                            Id = Convert.ToString(reader["Id"]),
+                            OrderId = Convert.ToInt32(reader["OrderId"]),
+                            ProductId = Convert.ToInt32(reader["ProductId"]),
+                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
+                            Quantity = Convert.ToInt32(reader["Quantity"]),
+                            Discount = Convert.ToDouble(reader["Discount"])
+                        };
+                    }
                 }
             }
+            return null;
         }
         
         public IEnumerable<OrderDetail> List(int from=0, int count=10)
@@ -69,20 +71,21 @@ namespace Vko.Repository
             }
         }
         
-        public OrderDetail Create(OrderDetail category)
+        public OrderDetail Create(OrderDetail orderDetail)
         {
 
                 var strSql = @"INSERT INTO
-                        OrderDetail (OrderId, ProductId, UnitPrice, Quantity, Discount)
-                        VALUES (:customerId,:employeeId,:orderDate,:quantity,:discount)";
+                        OrderDetail (Id, OrderId, ProductId, UnitPrice, Quantity, Discount)
+                        VALUES (:id, :orderId,:productId,:unitPrice,:quantity,:discount)";
 
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
-                command.Parameters.AddWithValue(":customerId", category.OrderId);    
-                command.Parameters.AddWithValue(":employeeId", category.ProductId);
-                command.Parameters.AddWithValue(":orderDate", category.UnitPrice);
-                command.Parameters.AddWithValue(":quantity", category.Quantity);
-                command.Parameters.AddWithValue(":discount", category.Discount);
+                command.Parameters.AddWithValue(":id", orderDetail.Id);    
+                command.Parameters.AddWithValue(":orderId", orderDetail.OrderId);    
+                command.Parameters.AddWithValue(":productId", orderDetail.ProductId);
+                command.Parameters.AddWithValue(":unitPrice", orderDetail.UnitPrice);
+                command.Parameters.AddWithValue(":quantity", orderDetail.Quantity);
+                command.Parameters.AddWithValue(":discount", orderDetail.Discount);
 
                 int rows = command.ExecuteNonQuery();
                 if (rows > 0)
@@ -95,52 +98,74 @@ namespace Vko.Repository
                     }
                 }
                 
-                return category;
+                return orderDetail;
             }
         }
         
-        public OrderDetail Update(OrderDetail category)
+        public OrderDetail Update(OrderDetail orderDetail)
         {
             string strSql = @"UPDATE OrderDetail
                 SET
-                 OrderId=:customerId,
-                 ProductId=:employeeId,
-                 UnitPrice=:orderDate,
+                 OrderId=:orderId,
+                 ProductId=:productId,
+                 UnitPrice=:unitPrice,
                  Quantity=:quantity,
                  Discount=:discount
                 WHERE Id = :id";
 
-
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
-                command.Parameters.AddWithValue(":customerId", category.OrderId);
-                command.Parameters.AddWithValue(":employeeId", category.ProductId);
-                command.Parameters.AddWithValue(":orderDate", category.UnitPrice);
-                command.Parameters.AddWithValue(":quantity", category.Quantity);
-                command.Parameters.AddWithValue(":discount", category.Discount);
-                command.Parameters.AddWithValue(":id", category.Id);
+                command.Parameters.AddWithValue(":orderId", orderDetail.OrderId);
+                command.Parameters.AddWithValue(":productId", orderDetail.ProductId);
+                command.Parameters.AddWithValue(":unitPrice", orderDetail.UnitPrice);
+                command.Parameters.AddWithValue(":quantity", orderDetail.Quantity);
+                command.Parameters.AddWithValue(":discount", orderDetail.Discount);
+                command.Parameters.AddWithValue(":id", orderDetail.Id);
                 
                 var rows = command.ExecuteNonQuery();
             }
             
-            return GetById(category.Id);
+            return GetById(orderDetail.Id);
         }
         
-	    public IEnumerable<OrderDetail> Find<T>(T args) {
-            var step = 100;
-            var count = this.GetCount();
-            var mod = count % step;
-            var max = count - mod;
-            foreach (var from in Enumerable.Range(0, max / step))
+            static string strSqlSearch = @"Id IN 
+( SELECT DISTINCT Id FROM (
+    SELECT od.Id, 0.98 AS seeed FROM OrderDetail od WHERE od.UnitPrice = :searchExact
+    UNION
+    SELECT od.Id, 0.97 AS seeed FROM OrderDetail od WHERE od.Quantity LIKE :search
+    UNION
+    SELECT od.Id, 0.95 AS seeed FROM OrderDetail od WHERE cast(od.UnitPrice as text) LIKE :search
+    ) ORDER BY seed DESC
+)";
+
+        public IEnumerable<OrderDetail> Find<T>(T args)
+        {
+            var tupleWhere = WhereStatements.FromArgs(args);
+            string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
+            string strSql = "SELECT * FROM OrderDetail WHERE " + sqlWhere;
+            //throw new Exception(strSql);
+            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
-                foreach (var item in this.List(from * step, step))
+                var queryParams = tupleWhere.Item2;
+                foreach(var kvp in queryParams)
                 {
-                    yield return item;
+                    command.Parameters.AddWithValue(kvp.Key, kvp.Value);
                 }
-            }
-            foreach (var item in this.List(max, mod))
-            {
-                yield return item;
+                
+                using(SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return new OrderDetail {
+                            Id = Convert.ToString(reader["Id"]),
+                            OrderId = Convert.ToInt32(reader["OrderId"]),
+                            ProductId = Convert.ToInt32(reader["ProductId"]),
+                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
+                            Quantity = Convert.ToInt32(reader["Quantity"]),
+                            Discount = Convert.ToDouble(reader["Discount"])
+                        };
+                    }
+                }
             }
 	    }
         
@@ -150,6 +175,20 @@ namespace Vko.Repository
             {
                 int count = Convert.ToInt32(command.ExecuteScalar());
                 return count;
+            }
+        }
+        
+        public int RemoveById(object Id)
+        {
+            string strSql = @"DELETE FROM OrderDetail WHERE Id = :id";
+
+            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+            {
+                command.Parameters.AddWithValue(":id", Id);
+                
+                var rows = command.ExecuteNonQuery();
+                
+                return rows;
             }
         }
 	}

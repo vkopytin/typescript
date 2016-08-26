@@ -9,5 +9,6 @@ namespace Vko.Entities
         public string CustomerId { get; set; }
         public int EmployeeId { get; set; }
         public DateTime OrderDate { get; set; }
+        public decimal Freight { get; set; }
     }
 }

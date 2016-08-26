@@ -162,8 +162,6 @@ namespace Vko.Repository
 
         public IEnumerable<Product> Find<T>(T args)
         {
-            Type t = typeof(T);
-            var fields = t.GetProperties().ToArray();
             var tupleWhere = WhereStatements.FromArgs(args);
             string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
             string strSql = "SELECT * FROM Product WHERE " + sqlWhere;
@@ -201,6 +199,11 @@ namespace Vko.Repository
                 int count = Convert.ToInt32(command.ExecuteScalar());
                 return count;
             }
+        }
+        
+        public int RemoveById(object Id)
+        {
+            return 0;
         }
 	}
 }

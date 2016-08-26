@@ -24,7 +24,7 @@ namespace Vko.Repository
         
         public Order GetById(object id)
         {
-            string strSql = "SELECT * FROM Order WHERE Id = :id";
+            string strSql = "SELECT * FROM [Order] WHERE Id = :id";
 
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
@@ -65,17 +65,18 @@ namespace Vko.Repository
             }
         }
         
-        public Order Create(Order category)
+        public Order Create(Order order)
         {
                 var strSql = @"INSERT INTO
-                        Order (CustomerId, EmployeeId, OrderDate)
-                        VALUES (:customerId,:employeeId,:orderDate)";
+                        [Order] (CustomerId, EmployeeId, OrderDate, Freight)
+                        VALUES (:customerId,:employeeId,:orderDate,:freight)";
 
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
-                command.Parameters.AddWithValue(":customerId", category.CustomerId);    
-                command.Parameters.AddWithValue(":employeeId", category.EmployeeId);
-                command.Parameters.AddWithValue(":orderDate", category.OrderDate);
+                command.Parameters.AddWithValue(":customerId", order.CustomerId);    
+                command.Parameters.AddWithValue(":employeeId", order.EmployeeId);
+                command.Parameters.AddWithValue(":orderDate", order.OrderDate);
+                command.Parameters.AddWithValue(":freight", order.Freight);    
 
                 int rows = command.ExecuteNonQuery();
                 if (rows > 0)
@@ -88,13 +89,13 @@ namespace Vko.Repository
                     }
                 }
                 
-                return category;
+                return order;
             }
         }
         
-        public Order Update(Order category)
+        public Order Update(Order order)
         {
-            string strSql = @"UPDATE Order
+            string strSql = @"UPDATE [Order]
                 SET
                  CustomerId=:customerId,
                  EmployeeId=:employeeId,
@@ -103,15 +104,15 @@ namespace Vko.Repository
 
             using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
-                command.Parameters.AddWithValue(":customerId", category.CustomerId);
-                command.Parameters.AddWithValue(":employeeId", category.EmployeeId);
-                command.Parameters.AddWithValue(":orderDate", category.OrderDate);
-                command.Parameters.AddWithValue(":id", category.Id);
+                command.Parameters.AddWithValue(":customerId", order.CustomerId);
+                command.Parameters.AddWithValue(":employeeId", order.EmployeeId);
+                command.Parameters.AddWithValue(":orderDate", order.OrderDate);
+                command.Parameters.AddWithValue(":id", order.Id);
                 
                 var rows = command.ExecuteNonQuery();
             }
             
-            return GetById(category.Id);
+            return GetById(order.Id);
         }
         
 	    public IEnumerable<Order> Find<T>(T args) {
@@ -139,6 +140,11 @@ namespace Vko.Repository
                 int count = Convert.ToInt32(command.ExecuteScalar());
                 return count;
             }
+        }
+        
+        public int RemoveById(object Id)
+        {
+            return 0;
         }
 	}
 }

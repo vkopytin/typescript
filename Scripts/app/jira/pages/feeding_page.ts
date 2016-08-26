@@ -21,6 +21,8 @@ interface IFeedingPage extends IBaseView {
 }
 
 class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
+    setProductsTotalDelegate: any
+    updateCartDelegate: any
 
     handlers = {
         onDraw: function () {
@@ -29,19 +31,33 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     }
     
     setProductsTotal (value: number): void {
-        this.setState({
+        this.setState(_.extend(this.state, {
             productsTotal: this.props.viewModel.getProductsTotal()
-        });
+        }));
+    }
+    
+    updateCart (): void {
+        var cart = this.props.viewModel.getCart();
+        cart && this.setState(_.extend(this.state, {
+            cartDate: new Date(cart.getCartDate()).toLocaleString(),
+            cartName: cart.getId()
+        }));
     }
     
     constructor(opts: any) {
         super(opts);
         
+        var cart = this.props.viewModel.getCart();
+
         this.state = {
+            cartDate: cart && new Date(cart.getCartDate()).toLocaleString(),
+            cartName: cart && cart.getId(),
             productsTotal: this.props.viewModel.getProductsTotal()
         };
         
         this.searchProductsInternal = _.debounce(this.searchProductsInternal, 500);
+        this.setProductsTotalDelegate = _.bind(this.setProductsTotal, this);
+        this.updateCartDelegate = _.bind(this.updateCart, this);
     }
     
     init (options: any): void {
@@ -52,18 +68,28 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     finish (): void {
         Base.prototype.finish.apply(this, arguments);
     }
+    
+    attachEvents (viewModel: any) {
+        $(this.props.viewModel).on('change:products', this.setProductsTotalDelegate);
+        $(this.props.viewModel).on('change:carts', this.updateCartDelegate);
+    }
+    
+    deattachEvents (viewModel: any) {
+        $(this.props.viewModel).off('change:products', this.setProductsTotalDelegate);
+        $(this.props.viewModel).off('change:carts', this.updateCartDelegate);
+    }
 
     componentWillMount () {
-        $(this.props.viewModel).on('change:products', _.bind(this.setProductsTotal, this));
+        this.attachEvents(this.props.viewModel);
     }
     
     componentWillUnmount () {
-        $(this.props.viewModel).off('change:products');
+        this.deattachEvents(this.props.viewModel);
     }
     
     componentWillReceiveProps (props: IFeedingPage) {
-        $(this.props.viewModel).off('change:products');
-        $(props.viewModel).on('change:products', _.bind(this.setProductsTotal, this));
+        this.deattachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
     }
     
     onNavigateTo (): any {
@@ -91,6 +117,10 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     
     searchProductsInternal (subject: any): void {
         this.props.viewModel.searchProducts(subject);
+    }
+    
+    createCart (evnt: any): void {
+        this.props.viewModel.createCart();
     }
 }
 export = FeedingPage;

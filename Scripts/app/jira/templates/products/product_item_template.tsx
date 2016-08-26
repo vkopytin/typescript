@@ -1,7 +1,7 @@
 import React = require('react');
 
 var template = function (data: any) {
-	return (<tr onClick={(e) => this.onClick(e)}>
+	return (<tr>
 		<td>
 			<button className="btn btn-sm btn-link"
 			 onClick={(e) => this.addToCart(e)}
@@ -11,7 +11,11 @@ var template = function (data: any) {
 			</button>
 		</td>
 		<td>
-			{data.getProductName()}
+			<a href="#"
+			  onClick={(e) => this.onClick(e)}
+			  >
+			  	<button className="btn btn-sm btn-link">{data.getProductName()}</button>
+			</a>
 		</td>
 		<td style={{width: "140px"}}>
 			{data.getUnitPrice()}

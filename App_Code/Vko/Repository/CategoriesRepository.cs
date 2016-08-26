@@ -133,5 +133,10 @@ namespace Vko.Repository
                 return count;
             }
         }
+        
+        public int RemoveById(object Id)
+        {
+            return 0;
+        }
 	}
 }

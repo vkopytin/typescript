@@ -8,9 +8,9 @@ var template = function () {
                 <thead>
                     <tr>
                         <th></th>
-                        <th>Product Description</th>
-                        <th>Unit Price</th>
-                        <th>Quantity per Unit</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
                         <th>Supplier</th>
                         <th>Category</th>
                     </tr>

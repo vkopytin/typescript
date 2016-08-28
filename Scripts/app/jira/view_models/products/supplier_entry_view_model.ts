@@ -1,7 +1,9 @@
 /// <reference path="../../base/base_view_model.ts" />
 import _ = require('underscore');
 import BaseViewModel = require('app/jira/base/base_view_model');
-    
+import Model = require('app/jira/models/accounting_model');
+
+
 class SupplierEntryView extends BaseViewModel {
 
     getId () {
@@ -23,6 +25,11 @@ class SupplierEntryView extends BaseViewModel {
            
            setter && setter.call(this, value); 
         });
+    }
+    
+    saveSupplier () {
+        var model = Model.getCurent();
+        model.saveSupplier(this.toJSON());
     }
 }
 export = SupplierEntryView;

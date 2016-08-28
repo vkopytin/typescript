@@ -34,20 +34,19 @@ var template = function (viewModel: any) {
 					</div>
 				</div>
 	            <div className={"row"}>
-					<div className="col-md-12">
-						<ul className={"pagination"}>
-						 <li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&laquo;</a></li>
-						{_.map(_.range(0, this.state.productsTotal, 10), (index: number) => 
-							 <li key={index}><a href="#" onClick={(e) => this.fetchProducts(e, index, 10)}>{index}</a></li>
-						)}
-						<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&raquo;</a></li>
-						</ul>
-					</div>
 	                <div className="col-md-12">
 						<PanelView ref="productsPanel" viewModel={viewModel}>
 							<PanelView.Header>
-								<label className="col-md-2">Products</label>
-								<div className="input-group col-md-10">
+								<div className="col-md-7">
+									<ul className={"pagination"}>
+									 <li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&laquo;</a></li>
+									{_.map(_.range(0, this.state.productsTotal, 10), (index: number) => 
+										 <li key={index}><a href="#" onClick={(e) => this.fetchProducts(e, index, 10)}>{index}</a></li>
+									)}
+									<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&raquo;</a></li>
+									</ul>
+								</div>
+								<div className="input-group col-md-5">
 			        	       		<input type="text" onInput={(e) => this.searchProducts(e)} className="form-control" placeholder="Enter search phrase" />
 		    	                   	<span className="input-group-btn">
 		        	                  	<button className="btn btn-success" type="button">Find</button>

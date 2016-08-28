@@ -21,18 +21,22 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         super(opts);
         
         this.state = {
-            product: this.props.viewModel.getCurentProduct()
+            product: this.props.viewModel.getCurentProduct(),
+            categories: this.props.viewModel.getCategories(),
+            suppliers: this.props.viewModel.getSuppliers()
         };
         
         this.setProductDelegate = _.bind(this.setProduct, this);
     }
     
     setProduct () {
-        this.setState({
-            product: this.props.viewModel.getCurentProduct()
-        });
+        this.setState(_.extend(this.state, {
+            product: this.props.viewModel.getCurentProduct(),
+            categories: this.props.viewModel.getCategories(),
+            suppliers: this.props.viewModel.getSuppliers()
+        }));
     }
-    
+
     attachEvents (viewModel: any): void {
         $(viewModel).on('change:CurentProduct', this.setProductDelegate);
     }
@@ -80,6 +84,26 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         this.setState({
             product: this.state.product.setUnitsOnOrder(evnt.target.value)
         })
+    }
+    
+    updateCategory (evnt: any) {
+        evnt.preventDefault();
+        var category = _.find(this.state.categories, (item: any) => item.getId() == evnt.target.value);
+        if (category) {
+            this.setState({
+                product: this.state.product.setCategory(category.toJSON())
+            });
+        }
+    }
+    
+    updateSupplier (evnt: any) {
+        evnt.preventDefault();
+        var supplier = _.find(this.state.suppliers, (item: any) => item.getId() == evnt.target.value);
+        if (supplier) {
+            this.setState({
+                product: this.state.product.setSupplier(supplier.toJSON())
+            });
+        }
     }
     
     saveProduct (evnt: any) {

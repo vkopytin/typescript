@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Vko.Entities
+namespace Vko.Services.Entities
 {
     public class Supplier
     {

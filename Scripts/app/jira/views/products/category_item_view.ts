@@ -16,11 +16,15 @@ class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView>
     constructor(opts: any) {
         super(opts);
         
-        this.state = this.props.viewModel;
+        this.state = {
+            category: this.props.viewModel
+        };
     }
     
     setCategory () {
-        this.setState(this.props.viewModel);
+        this.setState({
+            category: this.props.viewModel
+        });
     }
     
     componentWillMount () {
@@ -47,6 +51,30 @@ class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView>
         this.props.onSelect && this.props.onSelect();
     }
     
+    updateCategoryName (evnt: any) {
+        evnt.preventDefault();
+        var val = $(evnt.target).text();
+        
+        this.setState({
+            category: this.state.category.setCategoryName(val)
+        });
+    }
+    
+    updateDescription (evnt: any) {
+        evnt.preventDefault();
+        var val = $(evnt.target).text();
+        
+        this.setState({
+            category: this.state.category.setDescription(val)
+        });
+    }
+    
+    saveCategory (evnt: any) {
+        evnt.preventDefault();
+        
+        this.props.viewModel.saveCategory();
+    }
+
     render () {
         
         return template.call(this, this.props.viewModel);

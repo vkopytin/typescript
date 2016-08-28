@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Vko.Entities;
+using Vko.Repository.Entities;
 
 
 namespace Vko.Repository
@@ -31,19 +31,21 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":id", id);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    reader.Read();
-                    
-                    return new Product {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        ProductName = Convert.ToString(reader["ProductName"]),
-                        UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
-                        UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
-                        QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
-                        CategoryId = Convert.ToInt32(reader["categoryId"]),
-                        SupplierId = Convert.ToInt32(reader["supplierId"])
-                    };
+                    while (reader.Read())
+                    {
+                        return new Product {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            ProductName = Convert.ToString(reader["ProductName"]),
+                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
+                            UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
+                            QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
+                            CategoryId = Convert.ToInt32(reader["categoryId"]),
+                            SupplierId = Convert.ToInt32(reader["supplierId"])
+                        };
+                    }
                 }
             }
+            return default(Product);
         }
         
         public IEnumerable<Product> List(int from=0, int count=10)
@@ -84,7 +86,7 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
                 command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
                 command.Parameters.AddWithValue(":supplierId", product.CategoryId);
-                command.Parameters.AddWithValue(":categoryId", product.SupplierId);
+                command.Parameters.AddWithValue(":categoryId", product.CategoryId);
                 command.Parameters.AddWithValue(":unitsInStock", 0);
                 command.Parameters.AddWithValue(":reorderLevel", 0);
                 command.Parameters.AddWithValue(":discontinued", 0);
@@ -111,7 +113,9 @@ namespace Vko.Repository
                  ProductName=:productName,
                  UnitPrice=:unitPrice,
                  UnitsOnOrder=:unitsOnOrder,
-                 QuantityPerUnit=:quantityPerUnit
+                 QuantityPerUnit=:quantityPerUnit,
+                 SupplierID=:supplierId,
+                 CategoryId=:categoryId
                 WHERE Id = :id";
 
 
@@ -121,8 +125,8 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);
                 command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
                 command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
-                command.Parameters.AddWithValue(":supplierId", product.CategoryId);
-                command.Parameters.AddWithValue(":categoryId", product.SupplierId);
+                command.Parameters.AddWithValue(":supplierId", product.SupplierId);
+                command.Parameters.AddWithValue(":categoryId", product.CategoryId);
                 command.Parameters.AddWithValue(":id", product.Id);
                 
                 var rows = command.ExecuteNonQuery();

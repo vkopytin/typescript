@@ -26,10 +26,9 @@ class FeedingViewModel extends PageViewModel {
     SelectCommand: Command
     
     curentProduct: ProductEntryViewModel = new ProductEntryViewModel({
-        id: -1,
-        code: 'Dummy Code.',
-        user: 'Dummy User.',
-        Description: 'Dummy Description.'
+        Id: 0,
+        Category: { Id: 1},
+        Supplier: { Id: 1}
     })
         
     products: ProductEntryViewModel[] = []

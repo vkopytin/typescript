@@ -21,8 +21,8 @@ var template = function (data: any) {
 			{data.getUnitPrice()}
 		</td>
 		<td style={{width: "140px"}}>{data.getQuantityPerUnit()}</td>
-		<td>{data.getCategory().CategoryName}</td>
-		<td>{data.getSupplier().CompanyName}</td>
+		<td>{data.getCategory() && data.getCategory().CategoryName}</td>
+		<td>{data.getSupplier() && data.getSupplier().CompanyName}</td>
 	</tr>);
 };
 

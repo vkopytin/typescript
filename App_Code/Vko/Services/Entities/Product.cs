@@ -11,7 +11,7 @@ namespace Vko.Services.Entities
         public int UnitsOnOrder { get; set; }
         public string QuantityPerUnit { get; set; }
 		
-		public Vko.Entities.Category Category { get; set; }
-		public Vko.Entities.Supplier Supplier { get; set; }
+		public Vko.Repository.Entities.Category Category { get; set; }
+		public Vko.Repository.Entities.Supplier Supplier { get; set; }
 	}
 }

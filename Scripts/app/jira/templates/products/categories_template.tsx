@@ -9,6 +9,7 @@ var template = function () {
                     <tr>
                         <th>Categoriy Name</th>
                         <th>Category Description</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>

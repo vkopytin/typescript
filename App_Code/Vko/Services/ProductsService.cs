@@ -42,7 +42,25 @@ namespace Vko.Services
 				};
 			}
 		}
+		
+		public IEnumerable<Product> FindProducts<T>(T args)
+		{
+			using (var repo = new General())
+			{
+				var items = FindProducts(repo, args).ToList();
+				return items;
+			}
+		}
 
+		public IEnumerable<Supplier> FindSuppliers<T>(T args)
+		{
+			using (var repo = new General())
+			{
+				var items = FindSuppliers(repo, args).ToList();
+				return items;
+			}
+		}
+		
 		public PagedResult<Product> ListProductsPaged(int from=0, int count=10)
 		{
 			using (var repo = new General())
@@ -54,7 +72,109 @@ namespace Vko.Services
 				};
 			}
 		}
+		
+		public Product CreateProduct(Product product)
+		{
+			using (var repo = new General())
+			{
+				var productsRepo = repo.Request<Vko.Repository.Entities.Product>();
+				var existingProduct = productsRepo.GetById(product.Id);
+				if (existingProduct != null)
+				{
+					throw new Exception(string.Format("Product with same Id: '{0}' already exists", product.Id));
+				}
+				var newProd = productsRepo.Create(new Vko.Repository.Entities.Product() {
+					Id = product.Id,
+                    ProductName = product.ProductName,
+                    UnitPrice = product.UnitPrice,
+                    UnitsOnOrder = product.UnitsOnOrder,
+                    QuantityPerUnit = product.QuantityPerUnit,
+                    CategoryId = product.Category.Id,
+                    SupplierId = product.Supplier.Id
+				});
 				
+				return FindProducts(repo, new {
+					Id = newProd.Id
+				}).FirstOrDefault();
+			}
+		}
+		
+		public Product UpdateProduct(Product product)
+		{
+			using (var repo = new General())
+			{
+				var productsRepo = repo.Request<Vko.Repository.Entities.Product>();
+				var existingProduct = productsRepo.GetById(product.Id);
+				if (existingProduct == null)
+				{
+					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", product.Id));
+				}
+				productsRepo.Update(new Vko.Repository.Entities.Product() {
+					Id = product.Id,
+                    ProductName = product.ProductName,
+                    UnitPrice = product.UnitPrice,
+                    UnitsOnOrder = product.UnitsOnOrder,
+                    QuantityPerUnit = product.QuantityPerUnit,
+                    CategoryId = product.Category.Id,
+                    SupplierId = product.Supplier.Id					
+				});
+				
+				return FindProducts(repo, new {
+					Id = product.Id
+				}).FirstOrDefault();
+			}
+		}
+		
+		public Supplier CreateSupplier(Supplier supplier)
+		{
+			using (var repo = new General())
+			{
+				var suppliersRepo = repo.Request<Vko.Repository.Entities.Supplier>();
+				var existing = suppliersRepo.GetById(supplier.Id);
+				if (existing != null)
+				{
+					throw new Exception(string.Format("Product with same Id: '{0}' already exists", supplier.Id));
+				}
+				var newSup = suppliersRepo.Create(new Vko.Repository.Entities.Supplier() {
+                    Id = supplier.Id,
+                    CompanyName = supplier.CompanyName,
+                    ContactName = supplier.ContactName,
+                    ContactTitle = supplier.ContactTitle,
+                    Address = supplier.Address,
+                    City = supplier.City
+				});
+				
+				return FindSuppliers(repo, new {
+					Id = newSup.Id
+				}).FirstOrDefault();
+			}
+		}
+		
+		public Supplier UpdateSupplier(Supplier supplier)
+		{
+			using (var repo = new General())
+			{
+				var suppliersRepo = repo.Request<Vko.Repository.Entities.Supplier>();
+				var existing = suppliersRepo.GetById(supplier.Id);
+				if (existing == null)
+				{
+					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", supplier.Id));
+				}
+				suppliersRepo.Update(new Vko.Repository.Entities.Supplier() {
+                    Id = supplier.Id,
+                    CompanyName = supplier.CompanyName,
+                    ContactName = supplier.ContactName,
+                    ContactTitle = supplier.ContactTitle,
+                    Address = supplier.Address,
+                    City = supplier.City
+				});
+				
+				return FindSuppliers(repo, new {
+					Id = supplier.Id
+				}).FirstOrDefault();
+			}
+		}
+					
 		public IEnumerable<OrderDetail> ListOrderDetails(int from=0, int count=10)
 		{
 			using (var repo = new General())
@@ -67,7 +187,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-	            var orders = repo.Request<Vko.Entities.Order>().List(from, count);
+	            var orders = repo.Request<Vko.Repository.Entities.Order>().List(from, count);
 				var details = FindOrderDetails(repo, new {
 					OrderId = new {
 						__in = orders.Select(x => x.Id).Distinct().ToArray()
@@ -92,8 +212,8 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var product = repo.Request<Vko.Entities.Product>().GetById(productId);
-				var orderDetailsRepo = repo.Request<Vko.Entities.OrderDetail>();
+				var product = repo.Request<Vko.Repository.Entities.Product>().GetById(productId);
+				var orderDetailsRepo = repo.Request<Vko.Repository.Entities.OrderDetail>();
 				if (product == null) {
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
 				}
@@ -108,7 +228,7 @@ namespace Vko.Services
 						}
 					}).ToList();
 					if (details.Count == 0) {
-						var newDetail = orderDetailsRepo.Create(new Vko.Entities.OrderDetail () {
+						var newDetail = orderDetailsRepo.Create(new Vko.Repository.Entities.OrderDetail () {
 							Id = cart.Id + "/" + product.Id,
 							OrderId = cart.Id,
 							ProductId = product.Id,
@@ -119,7 +239,7 @@ namespace Vko.Services
 					}
 					else
 					{
-						var existingDetail = orderDetailsRepo.Update(new Vko.Entities.OrderDetail () {
+						var existingDetail = orderDetailsRepo.Update(new Vko.Repository.Entities.OrderDetail () {
 							Id = details[0].Id,
 							OrderId = cart.Id,
 							ProductId = product.Id,
@@ -138,8 +258,8 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var product = repo.Request<Vko.Entities.Product>().GetById(productId);
-				var orderDetailsRepo = repo.Request<Vko.Entities.OrderDetail>();
+				var product = repo.Request<Vko.Repository.Entities.Product>().GetById(productId);
+				var orderDetailsRepo = repo.Request<Vko.Repository.Entities.OrderDetail>();
 				if (product == null) {
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
 				}
@@ -162,7 +282,7 @@ namespace Vko.Services
 						}
 						else
 						{
-							var existingDetail = orderDetailsRepo.Update(new Vko.Entities.OrderDetail () {
+							var existingDetail = orderDetailsRepo.Update(new Vko.Repository.Entities.OrderDetail () {
 								Id = details[0].Id,
 								OrderId = cart.Id,
 								ProductId = product.Id,
@@ -182,7 +302,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var order = repo.Request<Vko.Entities.Order>().Create(new Vko.Entities.Order () {
+				var order = repo.Request<Vko.Repository.Entities.Order>().Create(new Vko.Repository.Entities.Order () {
 					CustomerId = "ALFKI",
 					EmployeeId = 1,
 					OrderDate = DateTime.Now
@@ -198,12 +318,12 @@ namespace Vko.Services
 		
 		private int TotalProducts(General repo)
 		{
-			return repo.Request<Vko.Entities.Product>().GetCount();
+			return repo.Request<Vko.Repository.Entities.Product>().GetCount();
 		}
 		
 		private IEnumerable<Cart> ListCarts(General repo, int from, int count)
 		{
-            var orders = repo.Request<Vko.Entities.Order>().List(from, count);
+            var orders = repo.Request<Vko.Repository.Entities.Order>().List(from, count);
 			var details = FindCartDetails(repo, new {
 				OrderId = new {
 					__in = orders.Select(x => x.Id).Distinct().ToArray()
@@ -225,19 +345,19 @@ namespace Vko.Services
 		
 		private int TotalCarts(General repo)
 		{
-			return repo.Request<Vko.Entities.Order>().GetCount();
+			return repo.Request<Vko.Repository.Entities.Order>().GetCount();
 		}
 
 		private IEnumerable<Product> ListProducts(General repo, int from=0, int count=10)
 		{
-            var products = repo.Request<Vko.Entities.Product>().List(from, count);
+            var products = repo.Request<Vko.Repository.Entities.Product>().List(from, count);
 
-			var categories = repo.Request<Vko.Entities.Category>().Find(new {
+			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.CategoryId).Distinct().ToArray()
 				}
 			}).ToList();
-			var suppliers = repo.Request<Vko.Entities.Supplier>().Find(new {
+			var suppliers = repo.Request<Vko.Repository.Entities.Supplier>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.SupplierId).Distinct().ToArray()
 				}
@@ -261,14 +381,14 @@ namespace Vko.Services
 		
 		private IEnumerable<Product> FindProducts<T>(General repo, T args)
 		{
-            var products = repo.Request<Vko.Entities.Product>().Find(args);
+            var products = repo.Request<Vko.Repository.Entities.Product>().Find(args);
 
-			var categories = repo.Request<Vko.Entities.Category>().Find(new {
+			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.CategoryId).Distinct().ToArray()
 				}
 			}).ToList();
-			var suppliers = repo.Request<Vko.Entities.Supplier>().Find(new {
+			var suppliers = repo.Request<Vko.Repository.Entities.Supplier>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.SupplierId).Distinct().ToArray()
 				}
@@ -290,9 +410,27 @@ namespace Vko.Services
 			}
 		}
 		
+		private IEnumerable<Supplier> FindSuppliers<T>(General repo, T args)
+		{
+			var suppliers = repo.Request<Vko.Repository.Entities.Supplier>().Find(args);
+			
+			foreach (var entity in suppliers)
+			{
+				yield return new Supplier
+				{
+                    Id = entity.Id,
+                    CompanyName = entity.CompanyName,
+                    ContactName = entity.ContactName,
+                    ContactTitle = entity.ContactTitle,
+                    Address = entity.Address,
+                    City = entity.City
+				};
+			}
+		}
+
 		private IEnumerable<OrderDetail> ListOrderDetails(General repo, int from=0, int count=10)
 		{
-			var details = repo.Request<Vko.Entities.OrderDetail>().List(from, count);
+			var details = repo.Request<Vko.Repository.Entities.OrderDetail>().List(from, count);
             var products = ListProducts(repo).ToList();
 
 			foreach (var entity in details)
@@ -312,7 +450,7 @@ namespace Vko.Services
 
 		private IEnumerable<OrderDetail> FindOrderDetails<T>(General repo, T args)
 		{
-			var details = repo.Request<Vko.Entities.OrderDetail>().Find(args).ToList();
+			var details = repo.Request<Vko.Repository.Entities.OrderDetail>().Find(args).ToList();
             var products = FindProducts(repo, new {
 				Id = new {
 					__in = details.Select(x => x.ProductId).Distinct().ToArray()
@@ -336,7 +474,7 @@ namespace Vko.Services
 		
 		private IEnumerable<CartDetail> FindCartDetails<T>(General repo, T args)
 		{
-			var details = repo.Request<Vko.Entities.OrderDetail>().Find(args).ToList();
+			var details = repo.Request<Vko.Repository.Entities.OrderDetail>().Find(args).ToList();
             var products = FindProducts(repo, new {
 				Id = new {
 					__in = details.Select(x => x.ProductId).Distinct().ToArray()

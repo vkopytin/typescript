@@ -16,11 +16,15 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
     constructor(opts: any) {
         super(opts);
         
-        this.state = this.props.viewModel;
+        this.state = {
+            supplier: this.props.viewModel
+        };
     }
     
     setProduct () {
-        this.setState(this.props.viewModel);
+        this.setState({
+            supplier: this.props.viewModel
+        });
     }
     
     componentWillMount () {
@@ -45,6 +49,30 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
     onClick (evnt: any): any {
         evnt.preventDefault();
         this.props.onSelect && this.props.onSelect();
+    }
+    
+    updateCompanyName (evnt: any) {
+        evnt.preventDefault();
+        var val = $(evnt.target).text();
+        
+        this.setState({
+            supplier: this.state.supplier.setCompanyName(val)
+        });
+    }
+    
+    updateAddress (evnt: any) {
+        evnt.preventDefault();
+        var val = $(evnt.target).text();
+        
+        this.setState({
+            supplier: this.state.supplier.setAddress(val)
+        });
+    }
+    
+    saveSupplier (evnt: any) {
+        evnt.preventDefault();
+        
+        this.props.viewModel.saveSupplier();
     }
     
     render () {

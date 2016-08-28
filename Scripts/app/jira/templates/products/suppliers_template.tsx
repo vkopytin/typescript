@@ -9,6 +9,7 @@ var template = function () {
                     <tr>
                         <th>Company Name</th>
                         <th>Address</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>

@@ -6,6 +6,8 @@ import ModelBase = require('app/jira/base/model_base');
 var fetchProductsXhr: JQueryPromise<any> = null,
     saveProductXhr: JQueryPromise<any> = null,
     saveCartXhr: JQueryPromise<any> = null,
+    saveCategoryXhr: JQueryPromise<any> = null,
+    saveSupplierXhr: JQueryPromise<any> = null,
     fetchCategoriesXhr: JQueryPromise<any> = null,
     fetchSupppliersXhr: JQueryPromise<any> = null,
     fetchOrdersXhr: JQueryPromise<any> = null,
@@ -149,7 +151,9 @@ class AccountingModel extends ModelBase {
             return $.ajax({
                 url: '/jira/products/' + product.Id,
                 type: 'POST',
-                data: product,
+                data: JSON.stringify(product),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
                 success: (item, success, xhr) => {
                     this.setProduct(item);
                 }
@@ -239,6 +243,42 @@ class AccountingModel extends ModelBase {
         saveCartXhr.fail(() => {
             saveCartXhr = null;
         }); 
+    }
+    
+    saveCategory (category: any): any {
+        saveCategoryXhr = $.when(saveCategoryXhr).then(() => {
+            return $.ajax({
+                url: '/jira/categories/' + category.Id,
+                type: 'POST',
+                data: JSON.stringify(category),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: (item, success, xhr) => {
+                    this.fetchCategories();
+                }
+            });
+        });
+        saveCategoryXhr.fail(() => {
+            saveCategoryXhr = null;
+        });
+    }
+
+    saveSupplier (supplier: any): any {
+        saveSupplierXhr = $.when(saveSupplierXhr).then(() => {
+            return $.ajax({
+                url: '/jira/suppliers/' + supplier.Id,
+                type: 'POST',
+                data: JSON.stringify(supplier),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: (item, success, xhr) => {
+                    this.fetchSuppliers();
+                }
+            });
+        });
+        saveSupplierXhr.fail(() => {
+            saveSupplierXhr = null;
+        });
     }
     
 	static getCurent (): AccountingModel {

@@ -158,32 +158,24 @@ namespace hellomvc.Controllers
         }
         
         [HttpPost]
-        public ActionResult Products(Vko.Entities.Product product)
+        public ActionResult Products(Vko.Services.Entities.Product product)
         {
-            using (var repo = new Vko.Repository.General())
+            var products = new Vko.Services.ProductsService();
+            var items = products.FindProducts(new {
+                Id = product.Id
+            });
+            var item = items.FirstOrDefault();
+
+            if (product.Id < 1 || items.Count() == 0)
             {
-                var products = repo.Request<Vko.Entities.Product>();
-                var item = default(Vko.Entities.Product);
-                
-                try
-                {
-                    item = products.GetById(product.Id);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    
-                }
-                if (item == null)
-                {
-                    item = products.Create(product);
-                }
-                else
-                {
-                    item = products.Update(product);
-                }
-    
-                return Json(item, JsonRequestBehavior.AllowGet);
+                item = products.CreateProduct(product);
             }
+            else
+            {
+                item = products.UpdateProduct(product);
+            }
+
+            return Json(item, JsonRequestBehavior.AllowGet);
         }
         
         [HttpGet]
@@ -191,19 +183,40 @@ namespace hellomvc.Controllers
         {
             using (var repo = new Vko.Repository.General())
             {
-                var suppliers = repo.Request<Vko.Entities.Supplier>();
+                var suppliers = repo.Request<Vko.Repository.Entities.Supplier>();
                 var items = suppliers.List(from, count);
     
                 return Json(items.ToList(), JsonRequestBehavior.AllowGet);
             }
         }
-        
+
+        [HttpPost]
+        public ActionResult Suppliers(Vko.Services.Entities.Supplier supplier)
+        {
+            var suppliers = new Vko.Services.ProductsService();
+            var items = suppliers.FindSuppliers(new {
+                Id = supplier.Id
+            });
+            var item = items.FirstOrDefault();
+
+            if (items.Count() == 0)
+            {
+                item = suppliers.CreateSupplier(supplier);
+            }
+            else
+            {
+                item = suppliers.UpdateSupplier(supplier);
+            }
+
+            return Json(item, JsonRequestBehavior.AllowGet);
+        }
+                
         [HttpGet]
         public ActionResult Categories(int from=0, int count=10)
         {
             using (var repo = new Vko.Repository.General())
             {
-                var categories = repo.Request<Vko.Entities.Category>();
+                var categories = repo.Request<Vko.Repository.Entities.Category>();
                 var items = categories.List(from, count);
     
                 return Json(items.ToList(), JsonRequestBehavior.AllowGet);

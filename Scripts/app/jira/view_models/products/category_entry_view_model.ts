@@ -1,7 +1,9 @@
 /// <reference path="../../base/base_view_model.ts" />
 import _ = require('underscore');
 import BaseViewModel = require('app/jira/base/base_view_model');
-    
+import Model = require('app/jira/models/accounting_model');
+
+ 
 class CategoryEntryViewModel extends BaseViewModel {
 
     getId () {
@@ -23,6 +25,11 @@ class CategoryEntryViewModel extends BaseViewModel {
            
            setter && setter.call(this, value); 
         });
+    }
+    
+    saveCategory () {
+        var model = Model.getCurent();
+        model.saveCategory(this.toJSON());
     }
 }
 export = CategoryEntryViewModel;

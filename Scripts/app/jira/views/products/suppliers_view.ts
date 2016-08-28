@@ -43,7 +43,7 @@ class SuppliersView extends BaseView<FeedingViewModel, ISuppliersView> {
         $(this.props.viewModel).off('change:suppliers');
         $(props.viewModel).on('change:suppliers', _.bind(this.setSuppliers, this));
     }
-    
+
     render () {
         return template.call(this);
     }

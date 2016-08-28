@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Vko.Entities;
+using Vko.Repository.Entities;
 
 
 namespace Vko.Repository

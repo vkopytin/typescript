@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Vko.Entities;
+using Vko.Repository.Entities;
 
 
 namespace Vko.Repository
@@ -100,7 +100,7 @@ namespace Vko.Repository
         
         public Supplier Update(Supplier supplier)
         {
-            string strSql = @"UPDATE Supplier
+            string strSql = @"UPDATE [Supplier]
                 SET
                  CompanyName=:companyName,
                  ContactName=:contactName,
@@ -116,6 +116,7 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":contactTitle", supplier.ContactTitle);
                 command.Parameters.AddWithValue(":address", supplier.Address);
                 command.Parameters.AddWithValue(":city", supplier.City);
+                command.Parameters.AddWithValue(":id", supplier.Id);
                 
                 var rows = command.ExecuteNonQuery();
             }

@@ -15,7 +15,9 @@ class ProductEntryViewModel extends BaseViewModel {
             ProductName: '',
             UnitPrice: 0,
             UnitsOnOrder: 1,
-            QuantityPerUnit: 'szt'
+            QuantityPerUnit: 'szt',
+            Supplier: {},
+            Category: {}
         };
         super.init(opts);
     }

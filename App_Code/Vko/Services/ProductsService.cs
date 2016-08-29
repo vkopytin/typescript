@@ -120,7 +120,7 @@ namespace Vko.Services
 				{
 					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", product.Id));
 				}
-				productsRepo.Update(new Vko.Repository.Entities.Product() {
+				productsRepo.Update(product.Id, new Vko.Repository.Entities.Product() {
 					Id = product.Id,
                     ProductName = product.ProductName,
                     UnitPrice = product.UnitPrice,
@@ -171,7 +171,7 @@ namespace Vko.Services
 				{
 					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", supplier.Id));
 				}
-				suppliersRepo.Update(new Vko.Repository.Entities.Supplier() {
+				suppliersRepo.Update(supplier.Id, new Vko.Repository.Entities.Supplier() {
                     Id = supplier.Id,
                     CompanyName = supplier.CompanyName,
                     ContactName = supplier.ContactName,
@@ -217,7 +217,7 @@ namespace Vko.Services
 				{
 					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", category.Id));
 				}
-				categoriesRepo.Update(new Vko.Repository.Entities.Category() {
+				categoriesRepo.Update(category.Id, new Vko.Repository.Entities.Category() {
 	                Id = category.Id,
 	                CategoryName = category.CategoryName,
 	                Description = category.Description
@@ -293,7 +293,7 @@ namespace Vko.Services
 					}
 					else
 					{
-						var existingDetail = orderDetailsRepo.Update(new Vko.Repository.Entities.OrderDetail () {
+						var existingDetail = orderDetailsRepo.Update(details[0].Id, new Vko.Repository.Entities.OrderDetail () {
 							Id = details[0].Id,
 							OrderId = cart.Id,
 							ProductId = product.Id,
@@ -336,7 +336,7 @@ namespace Vko.Services
 						}
 						else
 						{
-							var existingDetail = orderDetailsRepo.Update(new Vko.Repository.Entities.OrderDetail () {
+							var existingDetail = orderDetailsRepo.Update(details[0].Id, new Vko.Repository.Entities.OrderDetail () {
 								Id = details[0].Id,
 								OrderId = cart.Id,
 								ProductId = product.Id,

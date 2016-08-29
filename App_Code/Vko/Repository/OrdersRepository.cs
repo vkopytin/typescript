@@ -93,7 +93,7 @@ namespace Vko.Repository
             }
         }
         
-        public Order Update(Order order)
+        public Order Update(object id, Order order)
         {
             string strSql = @"UPDATE [Order]
                 SET
@@ -107,7 +107,7 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":customerId", order.CustomerId);
                 command.Parameters.AddWithValue(":employeeId", order.EmployeeId);
                 command.Parameters.AddWithValue(":orderDate", order.OrderDate);
-                command.Parameters.AddWithValue(":id", order.Id);
+                command.Parameters.AddWithValue(":id", id);
                 
                 var rows = command.ExecuteNonQuery();
             }

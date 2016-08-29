@@ -112,7 +112,7 @@ namespace Vko.Repository
             }
         }
         
-        public Product Update(Product product)
+        public Product Update(object id, Product product)
         {
             string strSql = @"UPDATE Product
                 SET
@@ -133,7 +133,7 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
                 command.Parameters.AddWithValue(":supplierId", product.SupplierId);
                 command.Parameters.AddWithValue(":categoryId", product.CategoryId);
-                command.Parameters.AddWithValue(":id", product.Id);
+                command.Parameters.AddWithValue(":id", id);
                 
                 var rows = command.ExecuteNonQuery();
             }

@@ -10,7 +10,7 @@ namespace Vko.Repository
 		IEnumerable<T> List(int from, int count);
 		IEnumerable<T> Find<Y>(Y args);
 		
-		T Update(T product);
+		T Update(object id, T product);
 		
 		T Create(T product);
 		

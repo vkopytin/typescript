@@ -88,7 +88,7 @@ namespace Vko.Repository
             }
         }
         
-        public Category Update(Category category)
+        public Category Update(object id, Category category)
         {
             string strSql = @"UPDATE Category
                 SET
@@ -101,7 +101,7 @@ namespace Vko.Repository
             {
                 command.Parameters.AddWithValue(":categoryName", category.CategoryName);
                 command.Parameters.AddWithValue(":description", category.Description);
-                command.Parameters.AddWithValue(":id", category.Id);
+                command.Parameters.AddWithValue(":id", id);
                 
                 var rows = command.ExecuteNonQuery();
             }

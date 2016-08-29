@@ -98,7 +98,7 @@ namespace Vko.Repository
             }
         }
         
-        public Supplier Update(Supplier supplier)
+        public Supplier Update(object id, Supplier supplier)
         {
             string strSql = @"UPDATE [Supplier]
                 SET
@@ -116,7 +116,7 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":contactTitle", supplier.ContactTitle);
                 command.Parameters.AddWithValue(":address", supplier.Address);
                 command.Parameters.AddWithValue(":city", supplier.City);
-                command.Parameters.AddWithValue(":id", supplier.Id);
+                command.Parameters.AddWithValue(":id", id);
                 
                 var rows = command.ExecuteNonQuery();
             }

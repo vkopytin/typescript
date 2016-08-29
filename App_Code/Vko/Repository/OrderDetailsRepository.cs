@@ -102,7 +102,7 @@ namespace Vko.Repository
             }
         }
         
-        public OrderDetail Update(OrderDetail orderDetail)
+        public OrderDetail Update(object id, OrderDetail orderDetail)
         {
             string strSql = @"UPDATE OrderDetail
                 SET
@@ -120,7 +120,7 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":unitPrice", orderDetail.UnitPrice);
                 command.Parameters.AddWithValue(":quantity", orderDetail.Quantity);
                 command.Parameters.AddWithValue(":discount", orderDetail.Discount);
-                command.Parameters.AddWithValue(":id", orderDetail.Id);
+                command.Parameters.AddWithValue(":id", id);
                 
                 var rows = command.ExecuteNonQuery();
             }

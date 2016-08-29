@@ -12,6 +12,7 @@ interface IProductItemView {
 }
 
 class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> {
+    setProductDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -19,6 +20,8 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
         this.state = {
             product: this.props.viewModel
         };
+        
+        this.setProductDelegate = _.bind(this.setProduct, this);
     }
     
     setProduct () {
@@ -27,23 +30,29 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
         });
     }
     
-    componentWillMount () {
-        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit'.split(' '), (en) => {
-            $(this.props.viewModel).on(en, _.bind(this.setProduct, this));
+    attachEvents (viewModel: any) {
+        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), (en) => {
+            $(viewModel).on(en, _.bind(this.setProduct, this));
         });
+    }
+    
+    deattachEvents (viewModel: any) {
+        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), (en) => {
+            $(viewModel).off(en);
+        });
+    }
+    
+    componentWillMount () {
+        this.attachEvents(this.props.viewModel);
     }
     
     componentWillUnmount () {
-        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-        });
+        this.deattachEvents(this.props.viewModel);
     }
     
     componentWillReceiveProps (props: IProductItemView) {
-        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-            $(props.viewModel).on(en, _.bind(this.setProduct, this));
-        });
+        this.deattachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
     }
     
     onClick (evnt: any): any {

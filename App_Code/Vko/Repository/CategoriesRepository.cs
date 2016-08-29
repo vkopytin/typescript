@@ -13,7 +13,7 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class CategoriesRepository : IRepository<Category>
+    class CategoriesRepository : ICategoriesRepository<Category>
     {
         SQLiteConnection conn;
         public CategoriesRepository(SQLiteConnection conn)
@@ -29,15 +29,17 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":id", id);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    reader.Read();
-                    
-                    return new Category {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        CategoryName = Convert.ToString(reader["CategoryName"]),
-                        Description = Convert.ToString(reader["Description"])
-                    };
+                    while(reader.Read())
+                    {
+                        return new Category {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            CategoryName = Convert.ToString(reader["CategoryName"]),
+                            Description = Convert.ToString(reader["Description"])
+                        };
+                    }
                 }
             }
+            return default(Category);
         }
         
         public IEnumerable<Category> List(int from=0, int count=10)
@@ -107,21 +109,41 @@ namespace Vko.Repository
             return GetById(category.Id);
         }
         
-	    public IEnumerable<Category> Find<T>(T args) {
-            var step = 100;
-            var count = this.GetCount();
-            var mod = count % step;
-            var max = count - mod;
-            foreach (var from in Enumerable.Range(0, max / step))
+        static string strSqlSearch = @"Id IN 
+( SELECT DISTINCT Id FROM (
+    SELECT od.Id, 1 AS seeed FROM Categoy od WHERE od.CategoryName = :searchExact
+    UNION
+    SELECT od.Id, 0.99 AS seeed FROM Category od WHERE od.CategoryName LIKE :search
+    UNION
+    SELECT od.Id, 0.98 AS seeed FROM Category od WHERE od.Description LIKE :search
+    ) ORDER BY seed DESC
+)";
+
+        public IEnumerable<Category> Find<T>(T args)
+        {
+            var tupleWhere = WhereStatements.FromArgs(args);
+            string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
+            string strSql = "SELECT * FROM Category WHERE " + sqlWhere;
+            //throw new Exception(strSql);
+            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
             {
-                foreach (var item in this.List(from * step, step))
+                var queryParams = tupleWhere.Item2;
+                foreach(var kvp in queryParams)
                 {
-                    yield return item;
+                    command.Parameters.AddWithValue(kvp.Key, kvp.Value);
                 }
-            }
-            foreach (var item in this.List(max, mod))
-            {
-                yield return item;
+                
+                using(SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        yield return new Category {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            CategoryName = Convert.ToString(reader["CategoryName"]),
+                            Description = Convert.ToString(reader["Description"])
+                        };
+                    }
+                }
             }
 	    }
         

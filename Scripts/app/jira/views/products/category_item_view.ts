@@ -1,17 +1,18 @@
 import _ = require('underscore');
 import $ = require('jquery');
 import BaseView = require('app/jira/base/base_view');
-import ProductEntryViewModel = require('app/jira/view_models/products/category_entry_view_model');
+import CategoryEntryViewModel = require('app/jira/view_models/products/category_entry_view_model');
 import template = require('app/jira/templates/products/category_item_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
 interface IProductItemView {
-    viewModel: ProductEntryViewModel
+    viewModel: CategoryEntryViewModel
     onSelect?: Function
 }
 
-class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView> {
+class CategoryItemView extends BaseView<CategoryEntryViewModel, IProductItemView> {
+    setCategoryDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -19,6 +20,8 @@ class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView>
         this.state = {
             category: this.props.viewModel
         };
+        
+        this.setCategoryDelegate = _.bind(this.setCategory, this);
     }
     
     setCategory () {
@@ -27,23 +30,29 @@ class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView>
         });
     }
     
-    componentWillMount () {
+    attachEvents (viewModel: CategoryEntryViewModel) {
         _.each('change:CategoryName change:Description'.split(' '), (en) => {
-            $(this.props.viewModel).on(en, _.bind(this.setCategory, this));
+            $(viewModel).on(en, this.setCategoryDelegate);
         });
+    }
+    
+    deattachEvents (viewModel: CategoryEntryViewModel) {
+        _.each('change:CategoryName change:Description'.split(' '), (en) => {
+            $(this.props.viewModel).off(en, this.setCategoryDelegate);
+        });
+    }
+    
+    componentWillMount () {
+        this.attachEvents(this.props.viewModel);
     }
     
     componentWillUnmount () {
-        _.each('change:CategoryName change:Description'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-        });
+        this.deattachEvents(this.props.viewModel);
     }
     
     componentWillReceiveProps (props: IProductItemView) {
-        _.each('change:CategoryName change:Description'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-            $(props.viewModel).on(en, _.bind(this.setCategory, this));
-        });
+        this.deattachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
     }
     
     onClick (evnt: any): any {
@@ -72,7 +81,7 @@ class CategoryItemView extends BaseView<ProductEntryViewModel, IProductItemView>
     saveCategory (evnt: any) {
         evnt.preventDefault();
         
-        this.props.viewModel.saveCategory();
+        this.state.category.saveCategory();
     }
 
     render () {

@@ -13,7 +13,7 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class ProductsRepository : IRepository<Product>
+    class ProductsRepository : IProductsRepository<Product>
     {
         SQLiteConnection conn;
         
@@ -31,17 +31,20 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":id", id);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
+                    var pInfoCollection = typeof(Product).GetProperties()
+                    .Where(x => reader.GetOrdinal(x.Name) != -1)
+                    .ToList();
                     while (reader.Read())
                     {
-                        return new Product {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            ProductName = Convert.ToString(reader["ProductName"]),
-                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
-                            UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
-                            QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
-                            CategoryId = Convert.ToInt32(reader["categoryId"]),
-                            SupplierId = Convert.ToInt32(reader["supplierId"])
-                        };
+                        var inst = Activator.CreateInstance<Product>();
+                        
+                        foreach (var pInfo in pInfoCollection)
+                        {
+                            object value = Convert.ChangeType(reader[pInfo.Name], pInfo.PropertyType);
+                            pInfo.SetValue(inst, value, new object[] { });
+                        }
+                                
+                        return inst;
                     }
                 }
             }
@@ -57,17 +60,20 @@ namespace Vko.Repository
                 command.Parameters.AddWithValue(":from", from);
                 using(SQLiteDataReader reader = command.ExecuteReader())
                 {
+                    var pInfoCollection = typeof(Product).GetProperties()
+                    .Where(x => reader.GetOrdinal(x.Name) != -1)
+                    .ToList();
                     while (reader.Read())
                     {
-                        yield return new Product {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            ProductName = Convert.ToString(reader["ProductName"]),
-                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
-                            UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
-                            QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
-                            CategoryId = Convert.ToInt32(reader["categoryId"]),
-                            SupplierId = Convert.ToInt32(reader["supplierId"])
-                        };
+                        var inst = Activator.CreateInstance<Product>();
+                        
+                        foreach (var pInfo in pInfoCollection)
+                        {
+                            object value = Convert.ChangeType(reader[pInfo.Name], pInfo.PropertyType);
+                            pInfo.SetValue(inst, value, new object[] { });
+                        }
+                                
+                        yield return inst;
                     }
                 }
             }

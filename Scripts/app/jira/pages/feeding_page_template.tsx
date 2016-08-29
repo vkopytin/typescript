@@ -5,6 +5,7 @@ import CategoriesView = require('app/jira/views/products/categories_view');
 import SuppliersView = require('app/jira/views/products/suppliers_view');
 import OrdersView = require('app/jira/views/products/orders_view');
 import CartView = require('app/jira/views/products/cart_view');
+import ReportView = require('app/jira/views/products/report_view');
 import CreateProductView = require('app/jira/views/products/create_product_view');
 import PanelView = require('app/jira/ui_controls/panel_view');
 import TabsView = require('app/jira/ui_controls/tabs_view');
@@ -76,6 +77,13 @@ var template = function (viewModel: any) {
 	            <div className={"row"}>
 	                <div className="col-md-12">
 						<OrdersView viewModel={viewModel} />
+	                </div>
+	            </div>
+			</div>
+			<div id={"page-inner"} title={"Report"}>
+	            <div className={"row"}>
+	                <div className="col-md-12">
+						<ReportView viewModel={viewModel} />
 	                </div>
 	            </div>
 			</div>

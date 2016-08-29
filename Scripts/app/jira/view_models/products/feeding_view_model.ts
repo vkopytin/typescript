@@ -22,6 +22,7 @@ class FeedingViewModel extends PageViewModel {
     changeOrdersDelegate: any
     changeProductDelegate: any
     changeCartsDelegate: any
+    changeReportDelegate: any
     
     SelectCommand: Command
     
@@ -37,6 +38,7 @@ class FeedingViewModel extends PageViewModel {
     suppliers: SupplierEntryViewModel[] = []
     orders: OrderEntryViewModel[] = []
     carts: CartEntryViewModel[] = []
+    report: any = {}
     
     getCurentProduct (): any {
         return this.curentProduct;
@@ -133,6 +135,15 @@ class FeedingViewModel extends PageViewModel {
     getCart (): any {
         return _.first(this.carts);
     }
+    
+    getReport () {
+        return this.report;
+    }
+    
+    setReport (value: any) : void {
+        this.report = value;
+        this.triggerProperyChanged('change:report');
+    }
 
     init (opts: any): void {
         var model = Model.getCurent();
@@ -146,7 +157,8 @@ class FeedingViewModel extends PageViewModel {
             'accounting_model.suppliers': this.changeSuppliersDelegate = _.bind(this.changeSuppliers, this),
             'accounting_model.orders': this.changeOrdersDelegate = _.bind(this.changeOrders, this),
             'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this),
-            'accounting_model.carts': this.changeCartsDelegate = _.bind(this.changeCarts, this)
+            'accounting_model.carts': this.changeCartsDelegate = _.bind(this.changeCarts, this),
+            'accounting_model.report': this.changeReportDelegate = _.bind(this.changeReport, this)
         }, (h, e) => { $(model).on(e, h); });
         
         _.defer(_.bind(() => {
@@ -155,6 +167,7 @@ class FeedingViewModel extends PageViewModel {
             this.fetchSuppliers();
             this.fetchOrders();
             this.fetchCarts();
+            this.fetchReport();
         }, this), 0);
     }
     
@@ -166,7 +179,8 @@ class FeedingViewModel extends PageViewModel {
             'accounting_model.suppliers': this.changeSuppliersDelegate,
             'accounting_model.orders': this.changeOrdersDelegate,
             'accounting_model.product': this.changeProductDelegate,
-            'accounting_model.carts': this.changeCartsDelegate
+            'accounting_model.carts': this.changeCartsDelegate,
+            'accounting_model.report': this.changeReportDelegate
         }, (h, e) => { $(model).off(e, h); });
         
         $(this).off();
@@ -189,6 +203,14 @@ class FeedingViewModel extends PageViewModel {
         }
     }
     
+    newProduct () {
+        this.setCurentProduct(new ProductEntryViewModel({
+            Id: 0,
+            Category: { Id: 1},
+            Supplier: { Id: 1}
+        }));
+    }
+    
     onChangeSelected (commandName: string, productId: any): any {
         var product = _.find(this.products, (entity) => entity.getId() === productId);
         product && this.setCurentProduct(product);
@@ -209,6 +231,8 @@ class FeedingViewModel extends PageViewModel {
         var model = Model.getCurent(),
             items = model.getCategories();
             
+        items.push({Id: 0});
+
         this.setCategories(_.map(items, (item) => {
             return new CategoryEntryViewModel(item);
         }, this));
@@ -253,6 +277,11 @@ class FeedingViewModel extends PageViewModel {
         model.createCart();
     }
     
+    changeReport (): void {
+        var model = Model.getCurent();
+        this.setReport(model.getReport());
+    }
+
     fetchProducts (from=0, count=10): void {
         var model = Model.getCurent();
         model.fetchProducts(from, count);
@@ -287,7 +316,11 @@ class FeedingViewModel extends PageViewModel {
         var model = Model.getCurent();
         model.fetchCarts(from, count);
     }
-
+    
+    fetchReport (from=0, count=10): void {
+        var model = Model.getCurent();
+        model.fetchReport(from, count);
+    }
 }
 
 export = FeedingViewModel;

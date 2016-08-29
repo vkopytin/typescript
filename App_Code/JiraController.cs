@@ -223,6 +223,27 @@ namespace hellomvc.Controllers
             }
         }
 
+        [HttpPost]
+        public ActionResult Categories(Vko.Services.Entities.Category category)
+        {
+            var categories = new Vko.Services.ProductsService();
+            var items = categories.FindCategories(new {
+                Id = category.Id
+            });
+            var item = items.FirstOrDefault();
+
+            if (items.Count() == 0)
+            {
+                item = categories.CreateCategory(category);
+            }
+            else
+            {
+                item = categories.UpdateCategory(category);
+            }
+
+            return Json(item, JsonRequestBehavior.AllowGet);
+        }
+        
         [HttpGet]
         public ActionResult Orders(int from=0, int count=10) {
             var products = new Vko.Services.ProductsService();
@@ -267,6 +288,14 @@ namespace hellomvc.Controllers
         public ActionResult RemoveFromCart(int productId) {
             var products = new Vko.Services.ProductsService();
             var items = products.RemoveFromCart(productId);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
+        }
+        
+        [HttpGet]
+        public ActionResult Report(int from=0, int count=10) {
+            var products = new Vko.Services.ProductsService();
+            var items = products.Report();
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }

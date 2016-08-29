@@ -13,7 +13,7 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class SuppliersRepository : IRepository<Supplier>
+    class SuppliersRepository : ISuppliersRepository<Supplier>
     {
         SQLiteConnection conn;
         

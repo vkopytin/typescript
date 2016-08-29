@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using System.Data.SQLite;
+
 using Vko.Repository;
 using Vko.Services.Entities;
 
@@ -57,6 +59,15 @@ namespace Vko.Services
 			using (var repo = new General())
 			{
 				var items = FindSuppliers(repo, args).ToList();
+				return items;
+			}
+		}
+		
+		public IEnumerable<Category> FindCategories<T>(T args)
+		{
+			using (var repo = new General())
+			{
+				var items = FindCategories(repo, args).ToList();
 				return items;
 			}
 		}
@@ -175,6 +186,49 @@ namespace Vko.Services
 			}
 		}
 					
+		public Category CreateCategory(Category category)
+		{
+			using (var repo = new General())
+			{
+				var categoriesRepo = repo.Request<Vko.Repository.Entities.Category>();
+				var existing = categoriesRepo.GetById(category.Id);
+				if (existing != null)
+				{
+					throw new Exception(string.Format("Product with same Id: '{0}' already exists", category.Id));
+				}
+				var newCat = categoriesRepo.Create(new Vko.Repository.Entities.Category() {
+	                CategoryName = category.CategoryName,
+	                Description = category.Description
+				});
+				
+				return FindCategories(repo, new {
+					Id = newCat.Id
+				}).FirstOrDefault();
+			}
+		}
+		
+		public Category UpdateCategory(Category category)
+		{
+			using (var repo = new General())
+			{
+				var categoriesRepo = repo.Request<Vko.Repository.Entities.Category>();
+				var existing = categoriesRepo.GetById(category.Id);
+				if (existing == null)
+				{
+					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", category.Id));
+				}
+				categoriesRepo.Update(new Vko.Repository.Entities.Category() {
+	                Id = category.Id,
+	                CategoryName = category.CategoryName,
+	                Description = category.Description
+				});
+				
+				return FindCategories(repo, new {
+					Id = category.Id
+				}).FirstOrDefault();
+			}
+		}
+
 		public IEnumerable<OrderDetail> ListOrderDetails(int from=0, int count=10)
 		{
 			using (var repo = new General())
@@ -316,6 +370,52 @@ namespace Vko.Services
 			}
 		}
 		
+		public IEnumerable<object> Report()
+		{
+			using (var conn = new SQLiteConnection(Config.DefaultDB))
+			{
+				conn.Open();
+	            string strSql = @"SELECT
+					SUM(od.UnitPrice * od.Quantity) AS Total,
+					'All Products' AS ProductName,
+					SUM(od.Quantity) AS Quantity,
+					
+					strftime('%m-%Y', o.OrderDate) AS Month
+					FROM [Order] o, OrderDetail od, Product p, Supplier s
+					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
+					 AND o.OrderDate > '2016-01-01'
+					GROUP BY Month
+					
+					UNION SELECT
+					SUM(od.UnitPrice * od.Quantity) AS Total,
+					p.ProductName AS ProductName,
+					SUM(od.Quantity) AS Quantity,
+					
+					strftime('%m-%Y', o.OrderDate) AS Month
+					FROM [Order] o, OrderDetail od, Product p, Supplier s
+					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
+					 AND o.OrderDate > '2016-01-01'
+					GROUP BY Month, od.ProductId
+					ORDER BY Total DESC, Quantity DESC
+					";
+	            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+	            {
+	                using(SQLiteDataReader reader = command.ExecuteReader())
+	                {
+	                    while (reader.Read())
+	                    {
+	                        yield return new {
+								Month = Convert.ToString(reader["Month"]),
+								ProductName = Convert.ToString(reader["ProductName"]),
+								Quantity = Convert.ToString(reader["Quantity"]),
+								Total = Convert.ToString(reader["Total"])
+							};
+	                    }
+	                }
+	            }
+			}
+		}
+		
 		private int TotalProducts(General repo)
 		{
 			return repo.Request<Vko.Repository.Entities.Product>().GetCount();
@@ -424,6 +524,21 @@ namespace Vko.Services
                     ContactTitle = entity.ContactTitle,
                     Address = entity.Address,
                     City = entity.City
+				};
+			}
+		}
+
+		private IEnumerable<Category> FindCategories<T>(General repo, T args)
+		{
+			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(args);
+			
+			foreach (var entity in categories)
+			{
+				yield return new Category
+				{
+	                Id = entity.Id,
+	                CategoryName = entity.CategoryName,
+	                Description = entity.Description
 				};
 			}
 		}

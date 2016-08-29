@@ -13,7 +13,7 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class OrderDetailsRepository : IRepository<OrderDetail>
+    class OrderDetailsRepository : IOrderDetailsRepository<OrderDetail>
     {
         SQLiteConnection conn;
         
@@ -128,7 +128,7 @@ namespace Vko.Repository
             return GetById(orderDetail.Id);
         }
         
-            static string strSqlSearch = @"Id IN 
+        static string strSqlSearch = @"Id IN 
 ( SELECT DISTINCT Id FROM (
     SELECT od.Id, 0.98 AS seeed FROM OrderDetail od WHERE od.UnitPrice = :searchExact
     UNION

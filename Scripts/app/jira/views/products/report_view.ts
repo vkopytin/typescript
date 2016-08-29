@@ -6,42 +6,42 @@ import _ = require('underscore');
 import BaseView = require('app/jira/base/base_view');
 import Utils = require('app/jira/utils');
 import FeedingViewModel = require('app/jira/view_models/products/feeding_view_model');
-import template = require('app/jira/templates/products/categories_template');
+import template = require('app/jira/templates/products/report_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
 
-interface ICategoriesView extends React.Props<any> {
+interface IReportView extends React.Props<any> {
     viewModel: FeedingViewModel
 }
 
-class CategoriesView extends BaseView<FeedingViewModel, ICategoriesView> {
-    setCategoriesDelegate: any
+class ReportView extends BaseView<FeedingViewModel, IReportView> {
+    setReportDelegate: any
 
     constructor(opts: any) {
         super(opts);
         
         this.state = {
-            categories: this.props.viewModel.getCategories()
+            report: this.props.viewModel.getReport()
         };
         
-        this.setCategoriesDelegate = _.bind(this.setCategories, this);
+        this.setReportDelegate = _.bind(this.setReport, this);
     }
     
-    setCategories () {
+    setReport () {
         this.setState({
-            categories: this.props.viewModel.getCategories()
+            report: this.props.viewModel.getReport()
         });
     }
     
-    attachEvents (viewModel: any) {
-        $(viewModel).on('change:categories', this.setCategoriesDelegate);
+    attachEvents (viewModel: FeedingViewModel) {
+        $(viewModel).on('change:report', this.setReportDelegate);
     }
     
-    deattachEvents (viewModel: any) {
-        $(viewModel).off('change:categories', this.setCategoriesDelegate);
+    deattachEvents (viewModel: FeedingViewModel) {
+        $(viewModel).off('change:report', this.setReportDelegate);
     }
-    
+
     componentWillMount () {
         this.attachEvents(this.props.viewModel);
     }
@@ -50,7 +50,7 @@ class CategoriesView extends BaseView<FeedingViewModel, ICategoriesView> {
         this.deattachEvents(this.props.viewModel);
     }
     
-    componentWillReceiveProps (props: ICategoriesView) {
+    componentWillReceiveProps (props: IReportView) {
         this.deattachEvents(this.props.viewModel);
         this.attachEvents(props.viewModel);
     }
@@ -60,4 +60,4 @@ class CategoriesView extends BaseView<FeedingViewModel, ICategoriesView> {
     }
 }
 
-export = CategoriesView;
+export = ReportView;

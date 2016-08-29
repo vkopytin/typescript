@@ -16,6 +16,8 @@ interface ICreateProductView extends React.Props<any> {
 
 class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
     setProductDelegate: any
+    setCategoriesDelegate: any
+    setSuppliersDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -27,6 +29,8 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         };
         
         this.setProductDelegate = _.bind(this.setProduct, this);
+        this.setCategoriesDelegate = _.bind(this.setProduct, this);
+        this.setSuppliersDelegate = _.bind(this.setProduct, this);
     }
     
     setProduct () {
@@ -39,10 +43,14 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
 
     attachEvents (viewModel: any): void {
         $(viewModel).on('change:CurentProduct', this.setProductDelegate);
+        $(viewModel).on('change:categories', this.setProductDelegate);
+        $(viewModel).on('change:suppliers', this.setProductDelegate);
     }
     
     deatachEvents (viewModel: any): void {
         $(viewModel).off('change:CurentProduct', this.setProductDelegate);
+        $(viewModel).off('change:categories', this.setProductDelegate);
+        $(viewModel).off('change:suppliers', this.setProductDelegate);
     }
     
     componentWillMount () {
@@ -109,6 +117,12 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
     saveProduct (evnt: any) {
         evnt.preventDefault();
         this.props.viewModel.saveCurentProduct();
+    }
+    
+    newProduct (evnt: any) {
+        evnt.preventDefault();
+        
+        this.props.viewModel.newProduct();
     }
     
     onSubmsubmitFormit (evnt: any) {

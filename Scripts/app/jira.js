@@ -366,7 +366,7 @@ define("app/jira/base/model_base", ["require", "exports", 'jquery', "app/jira/ba
 });
 define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app/jira/base/model_base"], function (require, exports, $, ModelBase) {
     "use strict";
-    var fetchProductsXhr = null, saveProductXhr = null, saveCartXhr = null, saveCategoryXhr = null, saveSupplierXhr = null, fetchCategoriesXhr = null, fetchSupppliersXhr = null, fetchOrdersXhr = null, fetchCartsXhr = null, inst;
+    var fetchProductsXhr = null, saveProductXhr = null, saveCartXhr = null, saveCategoryXhr = null, saveSupplierXhr = null, fetchCategoriesXhr = null, fetchSupppliersXhr = null, fetchOrdersXhr = null, fetchCartsXhr = null, fetchReportXhr = null, inst;
     var AccountingModel = (function (_super) {
         __extends(AccountingModel, _super);
         function AccountingModel() {
@@ -378,6 +378,7 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
             this.suppliers = [];
             this.orders = [];
             this.carts = [];
+            this.report = {};
         }
         AccountingModel.prototype.getProducts = function () {
             return this.products;
@@ -423,6 +424,13 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
         AccountingModel.prototype.setCarts = function (value) {
             this.carts = value;
             this.triggerProperyChanged('accounting_model.carts');
+        };
+        AccountingModel.prototype.getReport = function () {
+            return this.report;
+        };
+        AccountingModel.prototype.setReport = function (value) {
+            this.report = value;
+            this.triggerProperyChanged('accounting_model.report');
         };
         AccountingModel.prototype.fetchProducts = function (from, count) {
             var _this = this;
@@ -632,6 +640,24 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
             });
             saveSupplierXhr.fail(function () {
                 saveSupplierXhr = null;
+            });
+        };
+        AccountingModel.prototype.fetchReport = function (from, count) {
+            var _this = this;
+            if (from === void 0) { from = 0; }
+            if (count === void 0) { count = 0; }
+            fetchReportXhr = $.when(fetchReportXhr).then(function () {
+                return $.ajax({
+                    url: '/jira/report',
+                    type: 'GET',
+                    data: {},
+                    success: function (items, success, xhr) {
+                        _this.setReport(items);
+                    }
+                });
+            });
+            fetchReportXhr.fail(function () {
+                fetchReportXhr = null;
             });
         };
         AccountingModel.getCurent = function () {
@@ -1129,6 +1155,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             this.suppliers = [];
             this.orders = [];
             this.carts = [];
+            this.report = {};
         }
         FeedingViewModel.prototype.getCurentProduct = function () {
             return this.curentProduct;
@@ -1211,6 +1238,13 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
         FeedingViewModel.prototype.getCart = function () {
             return _.first(this.carts);
         };
+        FeedingViewModel.prototype.getReport = function () {
+            return this.report;
+        };
+        FeedingViewModel.prototype.setReport = function (value) {
+            this.report = value;
+            this.triggerProperyChanged('change:report');
+        };
         FeedingViewModel.prototype.init = function (opts) {
             var _this = this;
             var model = Model.getCurent();
@@ -1222,7 +1256,8 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                 'accounting_model.suppliers': this.changeSuppliersDelegate = _.bind(this.changeSuppliers, this),
                 'accounting_model.orders': this.changeOrdersDelegate = _.bind(this.changeOrders, this),
                 'accounting_model.product': this.changeProductDelegate = _.bind(this.changeProduct, this),
-                'accounting_model.carts': this.changeCartsDelegate = _.bind(this.changeCarts, this)
+                'accounting_model.carts': this.changeCartsDelegate = _.bind(this.changeCarts, this),
+                'accounting_model.report': this.changeReportDelegate = _.bind(this.changeReport, this)
             }, function (h, e) { $(model).on(e, h); });
             _.defer(_.bind(function () {
                 _this.fetchProducts();
@@ -1230,6 +1265,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                 _this.fetchSuppliers();
                 _this.fetchOrders();
                 _this.fetchCarts();
+                _this.fetchReport();
             }, this), 0);
         };
         FeedingViewModel.prototype.finish = function () {
@@ -1240,7 +1276,8 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                 'accounting_model.suppliers': this.changeSuppliersDelegate,
                 'accounting_model.orders': this.changeOrdersDelegate,
                 'accounting_model.product': this.changeProductDelegate,
-                'accounting_model.carts': this.changeCartsDelegate
+                'accounting_model.carts': this.changeCartsDelegate,
+                'accounting_model.report': this.changeReportDelegate
             }, function (h, e) { $(model).off(e, h); });
             $(this).off();
             this.setProducts([]);
@@ -1258,6 +1295,13 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
                     return _super.prototype.getCommand.call(this, name);
             }
         };
+        FeedingViewModel.prototype.newProduct = function () {
+            this.setCurentProduct(new ProductEntryViewModel({
+                Id: 0,
+                Category: { Id: 1 },
+                Supplier: { Id: 1 }
+            }));
+        };
         FeedingViewModel.prototype.onChangeSelected = function (commandName, productId) {
             var product = _.find(this.products, function (entity) { return entity.getId() === productId; });
             product && this.setCurentProduct(product);
@@ -1271,6 +1315,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
         };
         FeedingViewModel.prototype.changeCategories = function () {
             var model = Model.getCurent(), items = model.getCategories();
+            items.push({ Id: 0 });
             this.setCategories(_.map(items, function (item) {
                 return new CategoryEntryViewModel(item);
             }, this));
@@ -1303,6 +1348,10 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             var model = Model.getCurent();
             model.createCart();
         };
+        FeedingViewModel.prototype.changeReport = function () {
+            var model = Model.getCurent();
+            this.setReport(model.getReport());
+        };
         FeedingViewModel.prototype.fetchProducts = function (from, count) {
             if (from === void 0) { from = 0; }
             if (count === void 0) { count = 10; }
@@ -1334,6 +1383,12 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             if (count === void 0) { count = 10; }
             var model = Model.getCurent();
             model.fetchCarts(from, count);
+        };
+        FeedingViewModel.prototype.fetchReport = function (from, count) {
+            if (from === void 0) { from = 0; }
+            if (count === void 0) { count = 10; }
+            var model = Model.getCurent();
+            model.fetchReport(from, count);
         };
         return FeedingViewModel;
     }(PageViewModel));
@@ -1631,30 +1686,33 @@ define("app/jira/views/products/product_item_view", ["require", "exports", 'unde
             this.state = {
                 product: this.props.viewModel
             };
+            this.setProductDelegate = _.bind(this.setProduct, this);
         }
         ProductItemView.prototype.setProduct = function () {
             this.setState({
                 product: this.props.viewModel
             });
         };
-        ProductItemView.prototype.componentWillMount = function () {
+        ProductItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
-            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit'.split(' '), function (en) {
-                $(_this.props.viewModel).on(en, _.bind(_this.setProduct, _this));
+            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), function (en) {
+                $(viewModel).on(en, _.bind(_this.setProduct, _this));
             });
+        };
+        ProductItemView.prototype.deattachEvents = function (viewModel) {
+            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), function (en) {
+                $(viewModel).off(en);
+            });
+        };
+        ProductItemView.prototype.componentWillMount = function () {
+            this.attachEvents(this.props.viewModel);
         };
         ProductItemView.prototype.componentWillUnmount = function () {
-            var _this = this;
-            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-            });
+            this.deattachEvents(this.props.viewModel);
         };
         ProductItemView.prototype.componentWillReceiveProps = function (props) {
-            var _this = this;
-            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-                $(props.viewModel).on(en, _.bind(_this.setProduct, _this));
-            });
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         ProductItemView.prototype.onClick = function (evnt) {
             evnt.preventDefault();
@@ -1734,30 +1792,34 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
             this.state = {
                 category: this.props.viewModel
             };
+            this.setCategoryDelegate = _.bind(this.setCategory, this);
         }
         CategoryItemView.prototype.setCategory = function () {
             this.setState({
                 category: this.props.viewModel
             });
         };
-        CategoryItemView.prototype.componentWillMount = function () {
+        CategoryItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
             _.each('change:CategoryName change:Description'.split(' '), function (en) {
-                $(_this.props.viewModel).on(en, _.bind(_this.setCategory, _this));
+                $(viewModel).on(en, _this.setCategoryDelegate);
             });
+        };
+        CategoryItemView.prototype.deattachEvents = function (viewModel) {
+            var _this = this;
+            _.each('change:CategoryName change:Description'.split(' '), function (en) {
+                $(_this.props.viewModel).off(en, _this.setCategoryDelegate);
+            });
+        };
+        CategoryItemView.prototype.componentWillMount = function () {
+            this.attachEvents(this.props.viewModel);
         };
         CategoryItemView.prototype.componentWillUnmount = function () {
-            var _this = this;
-            _.each('change:CategoryName change:Description'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-            });
+            this.deattachEvents(this.props.viewModel);
         };
         CategoryItemView.prototype.componentWillReceiveProps = function (props) {
-            var _this = this;
-            _.each('change:CategoryName change:Description'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-                $(props.viewModel).on(en, _.bind(_this.setCategory, _this));
-            });
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         CategoryItemView.prototype.onClick = function (evnt) {
             evnt.preventDefault();
@@ -1779,7 +1841,7 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
         };
         CategoryItemView.prototype.saveCategory = function (evnt) {
             evnt.preventDefault();
-            this.props.viewModel.saveCategory();
+            this.state.category.saveCategory();
         };
         CategoryItemView.prototype.render = function () {
             return template.call(this, this.props.viewModel);
@@ -1809,21 +1871,28 @@ define("app/jira/views/products/categories_view", ["require", "exports", 'jquery
             this.state = {
                 categories: this.props.viewModel.getCategories()
             };
+            this.setCategoriesDelegate = _.bind(this.setCategories, this);
         }
         CategoriesView.prototype.setCategories = function () {
             this.setState({
                 categories: this.props.viewModel.getCategories()
             });
         };
+        CategoriesView.prototype.attachEvents = function (viewModel) {
+            $(viewModel).on('change:categories', this.setCategoriesDelegate);
+        };
+        CategoriesView.prototype.deattachEvents = function (viewModel) {
+            $(viewModel).off('change:categories', this.setCategoriesDelegate);
+        };
         CategoriesView.prototype.componentWillMount = function () {
-            $(this.props.viewModel).on('change:categories', _.bind(this.setCategories, this));
+            this.attachEvents(this.props.viewModel);
         };
         CategoriesView.prototype.componentWillUnmount = function () {
-            $(this.props.viewModel).off('change:categories');
+            this.deattachEvents(this.props.viewModel);
         };
         CategoriesView.prototype.componentWillReceiveProps = function (props) {
-            $(this.props.viewModel).off('change:categories');
-            $(props.viewModel).on('change:categories', _.bind(this.setCategories, this));
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         CategoriesView.prototype.render = function () {
             return template.call(this);
@@ -2170,6 +2239,56 @@ define("app/jira/views/products/cart_view", ["require", "exports", 'jquery', 'un
     }(BaseView));
     return CartView;
 });
+define("app/jira/templates/products/report_template", ["require", "exports", 'underscore', 'react'], function (require, exports, _, React) {
+    "use strict";
+    var template = function () {
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Month"), React.createElement("th", null, "Total"), React.createElement("th", null, "Quantity"), React.createElement("th", null, "Product/Supplier"), React.createElement("th", null, "Category"))), React.createElement("tbody", null, this.state.report && _.map(this.state.report, function (entity) {
+            return React.createElement("tr", null, React.createElement("td", null, entity.Month), React.createElement("td", null, entity.Total), React.createElement("td", null, entity.Quantity), React.createElement("td", null, entity.ProductName), React.createElement("td", null));
+        })))));
+    };
+    return template;
+});
+/// <reference path="../../../../vendor.d.ts" />
+/// <reference path="../../base/base_view.ts" />
+define("app/jira/views/products/report_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/report_template"], function (require, exports, $, _, BaseView, template) {
+    "use strict";
+    var ReportView = (function (_super) {
+        __extends(ReportView, _super);
+        function ReportView(opts) {
+            _super.call(this, opts);
+            this.state = {
+                report: this.props.viewModel.getReport()
+            };
+            this.setReportDelegate = _.bind(this.setReport, this);
+        }
+        ReportView.prototype.setReport = function () {
+            this.setState({
+                report: this.props.viewModel.getReport()
+            });
+        };
+        ReportView.prototype.attachEvents = function (viewModel) {
+            $(viewModel).on('change:report', this.setReportDelegate);
+        };
+        ReportView.prototype.deattachEvents = function (viewModel) {
+            $(viewModel).off('change:report', this.setReportDelegate);
+        };
+        ReportView.prototype.componentWillMount = function () {
+            this.attachEvents(this.props.viewModel);
+        };
+        ReportView.prototype.componentWillUnmount = function () {
+            this.deattachEvents(this.props.viewModel);
+        };
+        ReportView.prototype.componentWillReceiveProps = function (props) {
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
+        };
+        ReportView.prototype.render = function () {
+            return template.call(this);
+        };
+        return ReportView;
+    }(BaseView));
+    return ReportView;
+});
 define("app/jira/ui_controls/panel_template", ["require", "exports", 'react'], function (require, exports, React) {
     "use strict";
     var template = {
@@ -2233,7 +2352,7 @@ define("app/jira/templates/products/create_product_template", ["require", "expor
             return (React.createElement("option", {key: item.getId(), value: item.getId()}, item.getCategoryName()));
         })), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group"}, React.createElement("label", null, "Select Supplier"), React.createElement("select", {className: "form-control", onChange: function (e) { return _this.updateSupplier(e); }, value: this.state.product.getSupplier() && this.state.product.getSupplier().Id}, _.map(this.state.suppliers, function (item) {
             return (React.createElement("option", {key: item.getId(), value: item.getId()}, item.getCompanyName()));
-        })), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Price"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitPrice(), onChange: function (e) { return _this.updateUnitPrice(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Quantity"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getQuantityPerUnit(), onChange: function (e) { return _this.updateQuantityPerUnit(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Units"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitsOnOrder(), onChange: function (e) { return _this.updateUnitsOnOrder(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("button", {className: "btn btn-info", type: "submit", onClick: function (e) { return _this.saveProduct(e); }}, "Save")));
+        })), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Price"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitPrice(), onChange: function (e) { return _this.updateUnitPrice(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Quantity"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getQuantityPerUnit(), onChange: function (e) { return _this.updateQuantityPerUnit(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Units"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitsOnOrder(), onChange: function (e) { return _this.updateUnitsOnOrder(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-8"}, React.createElement("button", {className: "btn btn-info", type: "submit", onClick: function (e) { return _this.saveProduct(e); }}, "Save")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("button", {className: "btn btn-info", type: "submit", onClick: function (e) { return _this.newProduct(e); }}, "New Product"))));
     };
     return template;
 });
@@ -2251,6 +2370,8 @@ define("app/jira/views/products/create_product_view", ["require", "exports", 'jq
                 suppliers: this.props.viewModel.getSuppliers()
             };
             this.setProductDelegate = _.bind(this.setProduct, this);
+            this.setCategoriesDelegate = _.bind(this.setProduct, this);
+            this.setSuppliersDelegate = _.bind(this.setProduct, this);
         }
         CreateProductView.prototype.setProduct = function () {
             this.setState(_.extend(this.state, {
@@ -2261,9 +2382,13 @@ define("app/jira/views/products/create_product_view", ["require", "exports", 'jq
         };
         CreateProductView.prototype.attachEvents = function (viewModel) {
             $(viewModel).on('change:CurentProduct', this.setProductDelegate);
+            $(viewModel).on('change:categories', this.setProductDelegate);
+            $(viewModel).on('change:suppliers', this.setProductDelegate);
         };
         CreateProductView.prototype.deatachEvents = function (viewModel) {
             $(viewModel).off('change:CurentProduct', this.setProductDelegate);
+            $(viewModel).off('change:categories', this.setProductDelegate);
+            $(viewModel).off('change:suppliers', this.setProductDelegate);
         };
         CreateProductView.prototype.componentWillMount = function () {
             this.attachEvents(this.props.viewModel);
@@ -2321,6 +2446,10 @@ define("app/jira/views/products/create_product_view", ["require", "exports", 'jq
             evnt.preventDefault();
             this.props.viewModel.saveCurentProduct();
         };
+        CreateProductView.prototype.newProduct = function (evnt) {
+            evnt.preventDefault();
+            this.props.viewModel.newProduct();
+        };
         CreateProductView.prototype.onSubmsubmitFormit = function (evnt) {
             evnt.preventDefault();
         };
@@ -2372,13 +2501,13 @@ define("app/jira/ui_controls/tabs_view", ["require", "exports", "app/jira/base/b
     }(BaseView));
     return TabsView;
 });
-define("app/jira/pages/feeding_page_template", ["require", "exports", 'underscore', 'react', "app/jira/views/products/products_view", "app/jira/views/products/categories_view", "app/jira/views/products/suppliers_view", "app/jira/views/products/orders_view", "app/jira/views/products/cart_view", "app/jira/views/products/create_product_view", "app/jira/ui_controls/panel_view", "app/jira/ui_controls/tabs_view"], function (require, exports, _, React, ProductsView, CategoriesView, SuppliersView, OrdersView, CartView, CreateProductView, PanelView, TabsView) {
+define("app/jira/pages/feeding_page_template", ["require", "exports", 'underscore', 'react', "app/jira/views/products/products_view", "app/jira/views/products/categories_view", "app/jira/views/products/suppliers_view", "app/jira/views/products/orders_view", "app/jira/views/products/cart_view", "app/jira/views/products/report_view", "app/jira/views/products/create_product_view", "app/jira/ui_controls/panel_view", "app/jira/ui_controls/tabs_view"], function (require, exports, _, React, ProductsView, CategoriesView, SuppliersView, OrdersView, CartView, ReportView, CreateProductView, PanelView, TabsView) {
     "use strict";
     var template = function (viewModel) {
         var _this = this;
         return (React.createElement(TabsView, {active: 0}, React.createElement("div", {id: "page-inner", title: "Home"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-6"}, React.createElement(PanelView, {title: "Create Product"}, React.createElement(CreateProductView, {viewModel: viewModel}))), React.createElement("div", {className: "col-md-6"}, React.createElement(PanelView, {title: "Cart"}, React.createElement(PanelView.Header, null, React.createElement("button", {className: "btn btn-danger", onClick: function (e) { return _this.createCart(e); }}, "new Cart"), React.createElement("div", {className: "pull-right btn btn-info"}, "Cart: ", this.state.cartName, React.createElement("span", {className: "badge"}, this.state.cartDate))), React.createElement(CartView, {viewModel: viewModel})))), React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(PanelView, {ref: "productsPanel", viewModel: viewModel}, React.createElement(PanelView.Header, null, React.createElement("div", {className: "col-md-7"}, React.createElement("ul", {className: "pagination"}, React.createElement("li", {onClick: function (e) { return _this.fetchProducts(e, 0, 10); }}, React.createElement("a", {href: "#"}, "«")), _.map(_.range(0, this.state.productsTotal, 10), function (index) {
             return React.createElement("li", {key: index}, React.createElement("a", {href: "#", onClick: function (e) { return _this.fetchProducts(e, index, 10); }}, index));
-        }), React.createElement("li", {onClick: function (e) { return _this.fetchProducts(e, 0, 10); }}, React.createElement("a", {href: "#"}, "»")))), React.createElement("div", {className: "input-group col-md-5"}, React.createElement("input", {type: "text", onInput: function (e) { return _this.searchProducts(e); }, className: "form-control", placeholder: "Enter search phrase"}), React.createElement("span", {className: "input-group-btn"}, React.createElement("button", {className: "btn btn-success", type: "button"}, "Find")))), React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))), React.createElement("div", {id: "page-inner", title: "Categories"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CategoriesView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Suppliers"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(SuppliersView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Orders"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(OrdersView, {viewModel: viewModel}))))));
+        }), React.createElement("li", {onClick: function (e) { return _this.fetchProducts(e, 0, 10); }}, React.createElement("a", {href: "#"}, "»")))), React.createElement("div", {className: "input-group col-md-5"}, React.createElement("input", {type: "text", onInput: function (e) { return _this.searchProducts(e); }, className: "form-control", placeholder: "Enter search phrase"}), React.createElement("span", {className: "input-group-btn"}, React.createElement("button", {className: "btn btn-success", type: "button"}, "Find")))), React.createElement(ProductsView, {viewModel: viewModel, products: function (vm) { return vm.getProducts(); }}))))), React.createElement("div", {id: "page-inner", title: "Categories"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(CategoriesView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Suppliers"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(SuppliersView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Orders"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(OrdersView, {viewModel: viewModel})))), React.createElement("div", {id: "page-inner", title: "Report"}, React.createElement("div", {className: "row"}, React.createElement("div", {className: "col-md-12"}, React.createElement(ReportView, {viewModel: viewModel}))))));
     };
     return template;
 });

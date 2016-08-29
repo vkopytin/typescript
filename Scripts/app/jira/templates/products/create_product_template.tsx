@@ -67,12 +67,22 @@ var template = function () {
                  />
                 <p className="help-block">Help text here.</p>
             </div>
-            <button className={"btn btn-info"}
-             type={"submit"}
-             onClick={(e) => this.saveProduct(e)}
-             >
-                 Save
-            </button>
+            <div className="form-group col-md-8">
+                <button className={"btn btn-info"}
+                 type={"submit"}
+                 onClick={(e) => this.saveProduct(e)}
+                 >
+                     Save
+                </button>
+            </div>
+            <div className="form-group col-md-4">
+                <button className={"btn btn-info"}
+                 type={"submit"}
+                 onClick={(e) => this.newProduct(e)}
+                 >
+                     New Product
+                </button>
+            </div>
         </form>
     );
 }

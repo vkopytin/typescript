@@ -12,6 +12,7 @@ var fetchProductsXhr: JQueryPromise<any> = null,
     fetchSupppliersXhr: JQueryPromise<any> = null,
     fetchOrdersXhr: JQueryPromise<any> = null,
     fetchCartsXhr: JQueryPromise<any> = null,
+    fetchReportXhr: JQueryPromise<any> = null,
     inst: AccountingModel;
     
 class AccountingModel extends ModelBase {
@@ -22,6 +23,7 @@ class AccountingModel extends ModelBase {
     suppliers: any[] = []
     orders: any[] = []
     carts: any[] = []
+    report: any = {}
 
     getProducts () {
         return this.products;
@@ -81,6 +83,15 @@ class AccountingModel extends ModelBase {
         this.triggerProperyChanged('accounting_model.carts');
     }
     
+    getReport () {
+        return this.report;
+    }
+    
+    setReport (value: any): void {
+        this.report = value;
+        this.triggerProperyChanged('accounting_model.report');
+    }
+
     fetchProducts (from: number=0, count: number=10): void {
         fetchProductsXhr = $.when(fetchProductsXhr).then(() => {
             return $.ajax({
@@ -278,6 +289,22 @@ class AccountingModel extends ModelBase {
         });
         saveSupplierXhr.fail(() => {
             saveSupplierXhr = null;
+        });
+    }
+    
+    fetchReport (from=0, count=0): void {
+        fetchReportXhr = $.when(fetchReportXhr).then(() => {
+            return $.ajax({
+                url: '/jira/report',
+                type: 'GET',
+                data: {},
+                success: (items, success, xhr) => {
+                    this.setReport(items);
+                }
+            });
+        });
+        fetchReportXhr.fail(() => {
+            fetchReportXhr = null;
         });
     }
     

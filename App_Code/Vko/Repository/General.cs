@@ -14,25 +14,36 @@ namespace Vko.Repository
 			this.connection.Open();
 		}
 		
+		public T Make<T>()
+		{
+			Type type = typeof(T);
+            Type i = type.GetGenericArguments()[0];
+            Type t = typeof(IProductsRepository<>).MakeGenericType(i);
+            if (type == t)
+            {
+                Type f = typeof(ProductsRepository<>).MakeGenericType(i);
+
+                return (T)Activator.CreateInstance(f, connection);
+            }
+
+            throw new NotImplementedException(string.Format("Not found implementation for {0} type!!!", type.FullName));
+		}
+		
 		public IRepository<T> Request<T>()
 		{
-			if (HasGenericInterface(typeof(ProductsRepository), typeof(IRepository<>), typeof(T))) {
-				return (IRepository<T>)Activator.CreateInstance(typeof(ProductsRepository), connection);
-			}
-			
-			if (HasGenericInterface(typeof(SuppliersRepository), typeof(IRepository<>), typeof(T))) {
+			if (HasGenericInterface(typeof(SuppliersRepository), typeof(ISuppliersRepository<>), typeof(T))) {
 				return (IRepository<T>)Activator.CreateInstance(typeof(SuppliersRepository), connection);
 			}
 			
-			if (HasGenericInterface(typeof(CategoriesRepository), typeof(IRepository<>), typeof(T))) {
+			if (HasGenericInterface(typeof(CategoriesRepository), typeof(ICategoriesRepository<>), typeof(T))) {
 				return (IRepository<T>)Activator.CreateInstance(typeof(CategoriesRepository), connection);
 			}
 			
-			if (HasGenericInterface(typeof(OrdersRepository), typeof(IRepository<>), typeof(T))) {
+			if (HasGenericInterface(typeof(OrdersRepository), typeof(IOrdersRepository<>), typeof(T))) {
 				return (IRepository<T>)Activator.CreateInstance(typeof(OrdersRepository), connection);
 			}
 			
-			if (HasGenericInterface(typeof(OrderDetailsRepository), typeof(IRepository<>), typeof(T))) {
+			if (HasGenericInterface(typeof(OrderDetailsRepository), typeof(IOrderDetailsRepository<>), typeof(T))) {
 				return (IRepository<T>)Activator.CreateInstance(typeof(OrderDetailsRepository), connection);
 			}
 			

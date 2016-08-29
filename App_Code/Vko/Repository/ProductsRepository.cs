@@ -13,136 +13,80 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class ProductsRepository : IProductsRepository<Product>
+    class ProductsRepository<T> : IProductsRepository<T>
     {
+        static readonly string[] fields = "ProductName,UnitPrice,UnitsOnOrder,QuantityPerUnit,SupplierId,CategoryId,UnitsInStock,ReorderLevel,Discontinued".Split(',');
+
         SQLiteConnection conn;
+        DataQuery<T> query;
         
         public ProductsRepository(SQLiteConnection conn)
         {
             this.conn = conn;
+            query = new DataQuery<T>(conn);
         }
         
-        public Product GetById(object id)
+        public T GetById(object id)
         {
-            string strSql = "SELECT * FROM Product WHERE Id = :id";
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":id", id);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    var pInfoCollection = typeof(Product).GetProperties()
-                    .Where(x => reader.GetOrdinal(x.Name) != -1)
-                    .ToList();
-                    while (reader.Read())
-                    {
-                        var inst = Activator.CreateInstance<Product>();
-                        
-                        foreach (var pInfo in pInfoCollection)
-                        {
-                            object value = Convert.ChangeType(reader[pInfo.Name], pInfo.PropertyType);
-                            pInfo.SetValue(inst, value, new object[] { });
-                        }
-                                
-                        return inst;
-                    }
-                }
-            }
-            return default(Product);
+            string sqlGetById = "SELECT * FROM Product WHERE Id = :id";
+            
+            return query.SingleResult(sqlGetById, new {
+                Id = id
+            });
         }
         
-        public IEnumerable<Product> List(int from=0, int count=10)
+        public IEnumerable<T> List(int from=0, int count=10)
         {
             string strSql = "SELECT * FROM Product ORDER BY Id LIMIT :count OFFSET :from";
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":count", count);
-                command.Parameters.AddWithValue(":from", from);
-                using(SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    var pInfoCollection = typeof(Product).GetProperties()
-                    .Where(x => reader.GetOrdinal(x.Name) != -1)
-                    .ToList();
-                    while (reader.Read())
-                    {
-                        var inst = Activator.CreateInstance<Product>();
-                        
-                        foreach (var pInfo in pInfoCollection)
-                        {
-                            object value = Convert.ChangeType(reader[pInfo.Name], pInfo.PropertyType);
-                            pInfo.SetValue(inst, value, new object[] { });
-                        }
-                                
-                        yield return inst;
-                    }
-                }
-            }
-        }
-        
-        public Product Create(Product product)
-        {
-            var strSql = @"INSERT INTO
-                    Product (ProductName, UnitPrice, UnitsOnOrder, QuantityPerUnit, SupplierId, CategoryId, UnitsInStock, ReorderLevel, Discontinued)
-                    VALUES (:productName,:unitPrice,:unitsOnOrder,:quantityPerUnit,:supplierId,:categoryId,:unitsInStock,:reorderLevel,:discontinued)";
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":productName", product.ProductName);
-                command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);
-                command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
-                command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
-                command.Parameters.AddWithValue(":supplierId", product.CategoryId);
-                command.Parameters.AddWithValue(":categoryId", product.CategoryId);
-                command.Parameters.AddWithValue(":unitsInStock", 0);
-                command.Parameters.AddWithValue(":reorderLevel", 0);
-                command.Parameters.AddWithValue(":discontinued", 0);
-
-                int rows = command.ExecuteNonQuery();
-                if (rows > 0)
-                {
-                    using (SQLiteCommand command2 = new SQLiteCommand("SELECT last_insert_rowid()", conn))
-                    {
-                        int id = Convert.ToInt32(command2.ExecuteScalar());
-                        
-                        return GetById(id);
-                    }
-                }
-                
-                return product;
-            }
-        }
-        
-        public Product Update(object id, Product product)
-        {
-            string strSql = @"UPDATE Product
-                SET
-                 ProductName=:productName,
-                 UnitPrice=:unitPrice,
-                 UnitsOnOrder=:unitsOnOrder,
-                 QuantityPerUnit=:quantityPerUnit,
-                 SupplierID=:supplierId,
-                 CategoryId=:categoryId
-                WHERE Id = :id";
-
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":productName", product.ProductName);
-                command.Parameters.AddWithValue(":unitPrice", product.UnitPrice);
-                command.Parameters.AddWithValue(":unitsOnOrder", product.UnitsOnOrder);
-                command.Parameters.AddWithValue(":quantityPerUnit", product.QuantityPerUnit);
-                command.Parameters.AddWithValue(":supplierId", product.SupplierId);
-                command.Parameters.AddWithValue(":categoryId", product.CategoryId);
-                command.Parameters.AddWithValue(":id", id);
-                
-                var rows = command.ExecuteNonQuery();
-            }
             
-            return GetById(product.Id);
+            return query.Run(strSql, new {
+                from = from,
+                count = count
+            });
+        }
+        
+        public T Create(T product)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+
+            var strSql = string.Format(
+                "INSERT INTO Product ({0}) VALUES ({1})",
+                string.Join(", ", pInfoCollection.Select(x => x.Name)),
+                string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
+                );
+            
+            int rows = query.Insert(strSql, product);
+            if (rows > 0)
+            {
+                object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
+                
+                return GetById(lastId);
+            }
+                
+            return default(T);
+        }
+        
+        public T Update(object id, T product)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+                
+            string strSql = string.Format(
+                "UPDATE Product SET {0} WHERE Id = :id",
+                string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
+                );
+                
+            var res = query.Update(strSql, product, new {
+                Id = id
+            });
+            
+            return GetById(id);
         }
 
-            static string strSqlSearch = @"Id IN 
-( SELECT DISTINCT Id FROM (
+        static string strSqlSearch = @"( SELECT DISTINCT Id, seed FROM (
     SELECT p.Id, 1 AS seed FROM Product p WHERE p.ProductName = :searchExact
     UNION
     SELECT p.Id, 0.99 AS seed FROM Product p WHERE p.ProductName LIKE :search
@@ -167,48 +111,29 @@ namespace Vko.Repository
     UNION
     SELECT p.Id, 0.70 AS seeed FROM Product p, Category c
     WHERE p.CategoryId = c.Id AND c.Description LIKE :search
-    ) ORDER BY seed DESC
-)";
+    )
+) res";
 
-        public IEnumerable<Product> Find<T>(T args)
+        public IEnumerable<T> Find<Y>(Y args)
         {
             var tupleWhere = WhereStatements.FromArgs(args);
             string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
             string strSql = "SELECT * FROM Product WHERE " + sqlWhere;
-            //throw new Exception(strSql);
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+            if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                var queryParams = tupleWhere.Item2;
-                foreach(var kvp in queryParams)
-                {
-                    command.Parameters.AddWithValue(kvp.Key, kvp.Value);
-                }
-                
-                using(SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return new Product {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            ProductName = Convert.ToString(reader["ProductName"]),
-                            UnitPrice = Convert.ToDecimal(reader["UnitPrice"]),
-                            UnitsOnOrder = Convert.ToInt32(reader["UnitsOnOrder"]),
-                            QuantityPerUnit = Convert.ToString(reader["QuantityPerUnit"]),
-                            CategoryId = Convert.ToInt32(reader["categoryId"]),
-                            SupplierId = Convert.ToInt32(reader["supplierId"])
-                        };
-                    }
-                }
+                strSql = string.Format("SELECT p.* FROM Product p, {0} WHERE p.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                return query.Run(strSql, new {
+                    search = tupleWhere.Item2[":search"],
+                    searchExact = tupleWhere.Item2[":searchExact"]
+                }, tupleWhere.Item2);
             }
+            
+            return query.Run(strSql, new {}, tupleWhere.Item2);
 	    }
         
         public int GetCount()
         {
-            using (SQLiteCommand command = new SQLiteCommand("SELECT COUNT(*) FROM Product", conn))
-            {
-                int count = Convert.ToInt32(command.ExecuteScalar());
-                return count;
-            }
+            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM Product", new {}));
         }
         
         public int RemoveById(object Id)

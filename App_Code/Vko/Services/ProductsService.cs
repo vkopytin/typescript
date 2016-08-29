@@ -88,7 +88,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var productsRepo = repo.Request<Vko.Repository.Entities.Product>();
+				var productsRepo = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>();
 				var existingProduct = productsRepo.GetById(product.Id);
 				if (existingProduct != null)
 				{
@@ -114,7 +114,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var productsRepo = repo.Request<Vko.Repository.Entities.Product>();
+				var productsRepo = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>();
 				var existingProduct = productsRepo.GetById(product.Id);
 				if (existingProduct == null)
 				{
@@ -266,7 +266,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var product = repo.Request<Vko.Repository.Entities.Product>().GetById(productId);
+				var product = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().GetById(productId);
 				var orderDetailsRepo = repo.Request<Vko.Repository.Entities.OrderDetail>();
 				if (product == null) {
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
@@ -312,7 +312,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var product = repo.Request<Vko.Repository.Entities.Product>().GetById(productId);
+				var product = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().GetById(productId);
 				var orderDetailsRepo = repo.Request<Vko.Repository.Entities.OrderDetail>();
 				if (product == null) {
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
@@ -418,7 +418,7 @@ namespace Vko.Services
 		
 		private int TotalProducts(General repo)
 		{
-			return repo.Request<Vko.Repository.Entities.Product>().GetCount();
+			return repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().GetCount();
 		}
 		
 		private IEnumerable<Cart> ListCarts(General repo, int from, int count)
@@ -450,7 +450,7 @@ namespace Vko.Services
 
 		private IEnumerable<Product> ListProducts(General repo, int from=0, int count=10)
 		{
-            var products = repo.Request<Vko.Repository.Entities.Product>().List(from, count);
+            var products = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().List(from, count);
 
 			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(new {
 				Id = new {
@@ -481,7 +481,7 @@ namespace Vko.Services
 		
 		private IEnumerable<Product> FindProducts<T>(General repo, T args)
 		{
-            var products = repo.Request<Vko.Repository.Entities.Product>().Find(args);
+            var products = repo.Make<IProductsRepository<Product>>().Find(args);
 
 			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(new {
 				Id = new {
@@ -496,17 +496,10 @@ namespace Vko.Services
 			
 			foreach (var entity in products)
 			{
-				yield return new Product
-				{
-	                Id = entity.Id,
-	                ProductName = entity.ProductName,
-	                UnitPrice = entity.UnitPrice,
-	                UnitsOnOrder = entity.UnitsOnOrder,
-	                QuantityPerUnit = entity.QuantityPerUnit,
-					
-					Category = categories.FirstOrDefault(x => x.Id == entity.CategoryId),
-					Supplier = suppliers.FirstOrDefault(x => x.Id == entity.SupplierId)
-				};
+				entity.Category = categories.FirstOrDefault(x => x.Id == entity.CategoryId);
+				entity.Supplier = suppliers.FirstOrDefault(x => x.Id == entity.SupplierId);
+
+				yield return entity;
 			}
 		}
 		

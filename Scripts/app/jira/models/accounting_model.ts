@@ -265,7 +265,7 @@ class AccountingModel extends ModelBase {
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: (item, success, xhr) => {
-                    this.fetchCategories();
+                    this.fetchCategories(0, 100);
                 }
             });
         });
@@ -283,7 +283,7 @@ class AccountingModel extends ModelBase {
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: (item, success, xhr) => {
-                    this.fetchSuppliers();
+                    this.fetchSuppliers(0, 100);
                 }
             });
         });

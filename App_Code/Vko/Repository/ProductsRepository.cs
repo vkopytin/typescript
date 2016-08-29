@@ -17,12 +17,10 @@ namespace Vko.Repository
     {
         static readonly string[] fields = "ProductName,UnitPrice,UnitsOnOrder,QuantityPerUnit,SupplierId,CategoryId,UnitsInStock,ReorderLevel,Discontinued".Split(',');
 
-        SQLiteConnection conn;
         DataQuery<T> query;
         
         public ProductsRepository(SQLiteConnection conn)
         {
-            this.conn = conn;
             query = new DataQuery<T>(conn);
         }
         

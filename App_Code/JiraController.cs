@@ -210,17 +210,14 @@ namespace hellomvc.Controllers
 
             return Json(item, JsonRequestBehavior.AllowGet);
         }
-                
+
         [HttpGet]
         public ActionResult Categories(int from=0, int count=10)
         {
-            using (var repo = new Vko.Repository.General())
-            {
-                var categories = repo.Request<Vko.Repository.Entities.Category>();
-                var items = categories.List(from, count);
-    
-                return Json(items.ToList(), JsonRequestBehavior.AllowGet);
-            }
+            var categories = new Vko.Services.ProductsService();
+            var items = categories.ListCategories(from, count);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

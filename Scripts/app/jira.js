@@ -616,7 +616,7 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
                     contentType: 'application/json; charset=utf-8',
                     dataType: 'json',
                     success: function (item, success, xhr) {
-                        _this.fetchCategories();
+                        _this.fetchCategories(0, 100);
                     }
                 });
             });
@@ -634,7 +634,7 @@ define("app/jira/models/accounting_model", ["require", "exports", 'jquery', "app
                     contentType: 'application/json; charset=utf-8',
                     dataType: 'json',
                     success: function (item, success, xhr) {
-                        _this.fetchSuppliers();
+                        _this.fetchSuppliers(0, 100);
                     }
                 });
             });

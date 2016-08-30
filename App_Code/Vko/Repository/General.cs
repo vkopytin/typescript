@@ -18,6 +18,7 @@ namespace Vko.Repository
 		{
 			Type type = typeof(T);
             Type i = type.GetGenericArguments()[0];
+			
             Type t = typeof(IProductsRepository<>).MakeGenericType(i);
             if (type == t)
             {
@@ -26,6 +27,14 @@ namespace Vko.Repository
                 return (T)Activator.CreateInstance(f, connection);
             }
 
+            t = typeof(ICategoriesRepository<>).MakeGenericType(i);
+            if (type == t)
+            {
+                Type f = typeof(CategoriesRepository<>).MakeGenericType(i);
+
+                return (T)Activator.CreateInstance(f, connection);
+            }
+			
             throw new NotImplementedException(string.Format("Not found implementation for {0} type!!!", type.FullName));
 		}
 		
@@ -33,10 +42,6 @@ namespace Vko.Repository
 		{
 			if (HasGenericInterface(typeof(SuppliersRepository), typeof(ISuppliersRepository<>), typeof(T))) {
 				return (IRepository<T>)Activator.CreateInstance(typeof(SuppliersRepository), connection);
-			}
-			
-			if (HasGenericInterface(typeof(CategoriesRepository), typeof(ICategoriesRepository<>), typeof(T))) {
-				return (IRepository<T>)Activator.CreateInstance(typeof(CategoriesRepository), connection);
 			}
 			
 			if (HasGenericInterface(typeof(OrdersRepository), typeof(IOrdersRepository<>), typeof(T))) {

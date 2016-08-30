@@ -13,147 +13,108 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class CategoriesRepository : ICategoriesRepository<Category>
+    class CategoriesRepository<T> : ICategoriesRepository<T>
     {
-        SQLiteConnection conn;
+        static readonly string[] fields = "CategoryName,Description".Split(',');
+
+        DataQuery<T> query;
+
         public CategoriesRepository(SQLiteConnection conn)
         {
-            this.conn = conn;
+            query = new DataQuery<T>(conn);
         }
         
-        public Category GetById(object id)
+        public T GetById(object id)
         {
             string strSql = "SELECT * FROM [Category] WHERE Id = :id";
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":id", id);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while(reader.Read())
-                    {
-                        return new Category {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            CategoryName = Convert.ToString(reader["CategoryName"]),
-                            Description = Convert.ToString(reader["Description"])
-                        };
-                    }
-                }
-            }
-            return default(Category);
+            
+            return query.SingleResult(strSql, new {
+                Id = id
+            });
         }
         
-        public IEnumerable<Category> List(int from=0, int count=10)
+        public IEnumerable<T> List(int from=0, int count=10)
         {
             string strSql = "SELECT * FROM Category ORDER BY Id LIMIT :count OFFSET :from";
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":count", count);
-                command.Parameters.AddWithValue(":from", from);
-                using(SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return new Category {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            CategoryName = Convert.ToString(reader["CategoryName"]),
-                            Description = Convert.ToString(reader["Description"])
-                        };
-                    }
-                }
-            }
-        }
-        
-        public Category Create(Category category)
-        {
-            var strSql = @"INSERT INTO
-                    Category (CategoryName, Description)
-                    VALUES (:categoryName,:description)";
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":categoryName", category.CategoryName);    
-                command.Parameters.AddWithValue(":description", category.Description);
-
-                int rows = command.ExecuteNonQuery();
-                if (rows > 0)
-                {
-                    using (SQLiteCommand command2 = new SQLiteCommand("SELECT last_insert_rowid()", conn))
-                    {
-                        int id = Convert.ToInt32(command2.ExecuteScalar());
-                        
-                        return GetById(id);
-                    }
-                }
-                
-                return category;
-            }
-        }
-        
-        public Category Update(object id, Category category)
-        {
-            string strSql = @"UPDATE Category
-                SET
-                 CategoryName=:categoryName,
-                 Description=:description
-                WHERE Id = :id";
-
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":categoryName", category.CategoryName);
-                command.Parameters.AddWithValue(":description", category.Description);
-                command.Parameters.AddWithValue(":id", id);
-                
-                var rows = command.ExecuteNonQuery();
-            }
             
-            return GetById(category.Id);
+            return query.Run(strSql, new {
+                from = from,
+                count = count
+            });
         }
-        
-        static string strSqlSearch = @"Id IN 
-( SELECT DISTINCT Id FROM (
+
+        static string strSqlSearch = @" 
+( SELECT DISTINCT Id, seed FROM (
     SELECT od.Id, 1 AS seeed FROM Categoy od WHERE od.CategoryName = :searchExact
     UNION
     SELECT od.Id, 0.99 AS seeed FROM Category od WHERE od.CategoryName LIKE :search
     UNION
     SELECT od.Id, 0.98 AS seeed FROM Category od WHERE od.Description LIKE :search
-    ) ORDER BY seed DESC
-)";
+    )
+) res";
 
-        public IEnumerable<Category> Find<T>(T args)
+        public IEnumerable<T> Find<Y>(Y args)
         {
             var tupleWhere = WhereStatements.FromArgs(args);
             string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
             string strSql = "SELECT * FROM Category WHERE " + sqlWhere;
             //throw new Exception(strSql);
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+            if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                var queryParams = tupleWhere.Item2;
-                foreach(var kvp in queryParams)
-                {
-                    command.Parameters.AddWithValue(kvp.Key, kvp.Value);
-                }
-                
-                using(SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return new Category {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            CategoryName = Convert.ToString(reader["CategoryName"]),
-                            Description = Convert.ToString(reader["Description"])
-                        };
-                    }
-                }
+                strSql = string.Format("SELECT p.* FROM Category c, {0} WHERE c.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                return query.Run(strSql, new {
+                    search = tupleWhere.Item2[":search"],
+                    searchExact = tupleWhere.Item2[":searchExact"]
+                }, tupleWhere.Item2);
             }
+            
+            return query.Run(strSql, new {}, tupleWhere.Item2);
 	    }
         
+        public T Create(T category)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+
+            var strSql = string.Format(
+                "INSERT INTO Category ({0}) VALUES ({1})",
+                string.Join(", ", pInfoCollection.Select(x => x.Name)),
+                string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
+                );
+            
+            int rows = query.Insert(strSql, category);
+            if (rows > 0)
+            {
+                object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
+                
+                return GetById(lastId);
+            }
+                
+            return default(T);
+        }
+        
+        public T Update(object id, T category)
+        {
+            var pInfoCollection = typeof(Category).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+                
+            string strSql = string.Format(
+                "UPDATE Category SET {0} WHERE Id = :id",
+                string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
+                );
+                
+            var res = query.Update(strSql, category, new {
+                Id = id
+            });
+            
+            return GetById(id);
+        }
+                
         public int GetCount()
         {
-            using (SQLiteCommand command = new SQLiteCommand("SELECT COUNT(*) FROM Category", conn))
-            {
-                int count = Convert.ToInt32(command.ExecuteScalar());
-                return count;
-            }
+            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM Category", new {}));
         }
         
         public int RemoveById(object Id)

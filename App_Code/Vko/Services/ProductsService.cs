@@ -190,16 +190,13 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var categoriesRepo = repo.Request<Vko.Repository.Entities.Category>();
+				var categoriesRepo = repo.Make<ICategoriesRepository<Category>>();
 				var existing = categoriesRepo.GetById(category.Id);
 				if (existing != null)
 				{
 					throw new Exception(string.Format("Product with same Id: '{0}' already exists", category.Id));
 				}
-				var newCat = categoriesRepo.Create(new Vko.Repository.Entities.Category() {
-	                CategoryName = category.CategoryName,
-	                Description = category.Description
-				});
+				var newCat = categoriesRepo.Create(category);
 				
 				return FindCategories(repo, new {
 					Id = newCat.Id
@@ -211,17 +208,13 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var categoriesRepo = repo.Request<Vko.Repository.Entities.Category>();
+				var categoriesRepo = repo.Make<ICategoriesRepository<Category>>();
 				var existing = categoriesRepo.GetById(category.Id);
 				if (existing == null)
 				{
 					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", category.Id));
 				}
-				categoriesRepo.Update(category.Id, new Vko.Repository.Entities.Category() {
-	                Id = category.Id,
-	                CategoryName = category.CategoryName,
-	                Description = category.Description
-				});
+				categoriesRepo.Update(category.Id, category);
 				
 				return FindCategories(repo, new {
 					Id = category.Id
@@ -370,6 +363,14 @@ namespace Vko.Services
 			}
 		}
 		
+		public IEnumerable<Category> ListCategories(int from=0, int count=10)
+		{
+			using (var repo = new General())
+			{
+				return ListCategories(repo, from, count).ToList();
+			}
+		}
+		
 		public IEnumerable<object> Report()
 		{
 			using (var conn = new SQLiteConnection(Config.DefaultDB))
@@ -447,12 +448,19 @@ namespace Vko.Services
 		{
 			return repo.Request<Vko.Repository.Entities.Order>().GetCount();
 		}
+		
+		private IEnumerable<Category> ListCategories(General repo, int from=0, int count=10)
+		{
+			var categories = repo.Make<ICategoriesRepository<Category>>().List(from, count);
+
+			return categories;
+		}
 
 		private IEnumerable<Product> ListProducts(General repo, int from=0, int count=10)
 		{
             var products = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().List(from, count);
 
-			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(new {
+			var categories = repo.Make<ICategoriesRepository<Category>>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.CategoryId).Distinct().ToArray()
 				}
@@ -483,7 +491,7 @@ namespace Vko.Services
 		{
             var products = repo.Make<IProductsRepository<Product>>().Find(args);
 
-			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(new {
+			var categories = repo.Make<ICategoriesRepository<Category>>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.CategoryId).Distinct().ToArray()
 				}
@@ -523,16 +531,11 @@ namespace Vko.Services
 
 		private IEnumerable<Category> FindCategories<T>(General repo, T args)
 		{
-			var categories = repo.Request<Vko.Repository.Entities.Category>().Find(args);
+			var categories = repo.Make<ICategoriesRepository<Category>>().Find(args);
 			
 			foreach (var entity in categories)
 			{
-				yield return new Category
-				{
-	                Id = entity.Id,
-	                CategoryName = entity.CategoryName,
-	                Description = entity.Description
-				};
+				yield return entity;
 			}
 		}
 

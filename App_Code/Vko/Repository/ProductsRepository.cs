@@ -42,47 +42,6 @@ namespace Vko.Repository
                 count = count
             });
         }
-        
-        public T Create(T product)
-        {
-            var pInfoCollection = typeof(T).GetProperties()
-                .Where(x => Array.IndexOf(fields, x.Name) != -1)
-                .ToList();
-
-            var strSql = string.Format(
-                "INSERT INTO Product ({0}) VALUES ({1})",
-                string.Join(", ", pInfoCollection.Select(x => x.Name)),
-                string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
-                );
-            
-            int rows = query.Insert(strSql, product);
-            if (rows > 0)
-            {
-                object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
-                
-                return GetById(lastId);
-            }
-                
-            return default(T);
-        }
-        
-        public T Update(object id, T product)
-        {
-            var pInfoCollection = typeof(T).GetProperties()
-                .Where(x => Array.IndexOf(fields, x.Name) != -1)
-                .ToList();
-                
-            string strSql = string.Format(
-                "UPDATE Product SET {0} WHERE Id = :id",
-                string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
-                );
-                
-            var res = query.Update(strSql, product, new {
-                Id = id
-            });
-            
-            return GetById(id);
-        }
 
         static string strSqlSearch = @"( SELECT DISTINCT Id, seed FROM (
     SELECT p.Id, 1 AS seed FROM Product p WHERE p.ProductName = :searchExact
@@ -128,6 +87,47 @@ namespace Vko.Repository
             
             return query.Run(strSql, new {}, tupleWhere.Item2);
 	    }
+        
+        public T Create(T product)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+
+            var strSql = string.Format(
+                "INSERT INTO Product ({0}) VALUES ({1})",
+                string.Join(", ", pInfoCollection.Select(x => x.Name)),
+                string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
+                );
+            
+            int rows = query.Insert(strSql, product);
+            if (rows > 0)
+            {
+                object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
+                
+                return GetById(lastId);
+            }
+                
+            return default(T);
+        }
+        
+        public T Update(object id, T product)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+                
+            string strSql = string.Format(
+                "UPDATE Product SET {0} WHERE Id = :id",
+                string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
+                );
+                
+            var res = query.Update(strSql, product, new {
+                Id = id
+            });
+            
+            return GetById(id);
+        }
         
         public int GetCount()
         {

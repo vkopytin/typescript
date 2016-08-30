@@ -17,7 +17,7 @@ namespace Vko.Services.Entities
         public int CategoryId { get; set; }
         public int SupplierId { get; set; }
 
-        public Vko.Repository.Entities.Category Category { get; set; }
+        public Category Category { get; set; }
         public Vko.Repository.Entities.Supplier Supplier { get; set; }
 
         public Product ()

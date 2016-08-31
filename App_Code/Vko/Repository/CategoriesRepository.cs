@@ -45,11 +45,11 @@ namespace Vko.Repository
 
         static string strSqlSearch = @" 
 ( SELECT DISTINCT Id, seed FROM (
-    SELECT od.Id, 1 AS seeed FROM Categoy od WHERE od.CategoryName = :searchExact
+    SELECT c.Id, 1 AS seeed FROM Categoy c WHERE c.CategoryName = :searchExact
     UNION
-    SELECT od.Id, 0.99 AS seeed FROM Category od WHERE od.CategoryName LIKE :search
+    SELECT c.Id, 0.99 AS seeed FROM Category c WHERE c.CategoryName LIKE :search
     UNION
-    SELECT od.Id, 0.98 AS seeed FROM Category od WHERE od.Description LIKE :search
+    SELECT c.Id, 0.98 AS seeed FROM Category c WHERE c.Description LIKE :search
     )
 ) res";
 
@@ -61,7 +61,7 @@ namespace Vko.Repository
             //throw new Exception(strSql);
             if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                strSql = string.Format("SELECT p.* FROM Category c, {0} WHERE c.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                strSql = string.Format("SELECT c.* FROM Category c, {0} WHERE c.Id = res.Id ORDER BY seed DESC", strSqlSearch);
                 return query.Run(strSql, new {
                     search = tupleWhere.Item2[":search"],
                     searchExact = tupleWhere.Item2[":searchExact"]
@@ -90,7 +90,7 @@ namespace Vko.Repository
                 
                 return GetById(lastId);
             }
-                
+
             return default(T);
         }
         
@@ -117,9 +117,13 @@ namespace Vko.Repository
             return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM Category", new {}));
         }
         
-        public int RemoveById(object Id)
+        public int RemoveById(object id)
         {
-            return 0;
+            string strSql = @"DELETE FROM Category WHERE Id = :id";
+
+            return query.Delete(strSql, new {
+                Id = id
+            });
         }
 	}
 }

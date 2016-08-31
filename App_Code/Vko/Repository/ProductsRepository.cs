@@ -134,9 +134,13 @@ namespace Vko.Repository
             return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM Product", new {}));
         }
         
-        public int RemoveById(object Id)
+        public int RemoveById(object id)
         {
-            return 0;
+            string strSql = @"DELETE FROM Product WHERE Id = :id";
+
+            return query.Delete(strSql, new {
+                Id = id
+            });
         }
 	}
 }

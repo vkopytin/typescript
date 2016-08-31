@@ -13,109 +13,119 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class OrdersRepository : IOrdersRepository<Order>
+    class OrdersRepository<T> : IOrdersRepository<T>
     {
-        SQLiteConnection conn;
+        static readonly string[] fields = "CustomerId,EmployeeId,OrderDate,Freight".Split(',');
+
+        DataQuery<T> query;
         
         public OrdersRepository(SQLiteConnection conn)
         {
-            this.conn = conn;
+            query = new DataQuery<T>(conn);
         }
         
-        public Order GetById(object id)
+        public T GetById(object id)
         {
             string strSql = "SELECT * FROM [Order] WHERE Id = :id";
 
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":id", id);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    
-                    return new Order {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        CustomerId = Convert.ToString(reader["CustomerId"]),
-                        EmployeeId = Convert.ToInt32(reader["EmployeeId"]),
-                        OrderDate = Convert.ToDateTime(reader["OrderDate"])
-                    };
-                }
-            }
+            return query.SingleResult(strSql, new {
+                Id = id
+            });
         }
         
-        public IEnumerable<Order> List(int from=0, int count=10)
+        public IEnumerable<T> List(int from=0, int count=10)
         {
             string strSql = "SELECT * FROM [Order] ORDER BY OrderDate DESC LIMIT :count OFFSET :from";
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":count", count);
-                command.Parameters.AddWithValue(":from", from);
-                using(SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return new Order {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            CustomerId = Convert.ToString(reader["CustomerId"]),
-                            EmployeeId = Convert.ToInt32(reader["EmployeeId"]),
-                            OrderDate = Convert.ToDateTime(reader["OrderDate"])
-                        };
-                    }
-                }
-            }
+
+            return query.Run(strSql, new {
+                from = from,
+                count = count
+            });
         }
-        
-        public Order Create(Order order)
+
+        static string strSqlSearch = @" 
+( SELECT DISTINCT Id, seed FROM (
+    SELECT o.Id, 1 AS seeed FROM [Order] o WHERE cast(o.OrderDate as text) = :searchExact
+    UNION
+    SELECT p.Id, 0.82 AS seeed FROM Product p, [Order] o, OrderDetail od
+    WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND p.ProductName LIKE :search
+    )
+) res";
+
+        public IEnumerable<T> Find<Y>(Y args)
         {
-                var strSql = @"INSERT INTO
-                        [Order] (CustomerId, EmployeeId, OrderDate, Freight)
-                        VALUES (:customerId,:employeeId,:orderDate,:freight)";
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+            var tupleWhere = WhereStatements.FromArgs(args);
+            string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
+            string strSql = "SELECT * FROM [Order] WHERE " + sqlWhere;
+            //throw new Exception(strSql);
+            if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                command.Parameters.AddWithValue(":customerId", order.CustomerId);    
-                command.Parameters.AddWithValue(":employeeId", order.EmployeeId);
-                command.Parameters.AddWithValue(":orderDate", order.OrderDate);
-                command.Parameters.AddWithValue(":freight", order.Freight);    
-
-                int rows = command.ExecuteNonQuery();
-                if (rows > 0)
-                {
-                    using (SQLiteCommand command2 = new SQLiteCommand("SELECT last_insert_rowid()", conn))
-                    {
-                        int id = Convert.ToInt32(command2.ExecuteScalar());
-                        
-                        return GetById(id);
-                    }
-                }
-                
-                return order;
-            }
-        }
-        
-        public Order Update(object id, Order order)
-        {
-            string strSql = @"UPDATE [Order]
-                SET
-                 CustomerId=:customerId,
-                 EmployeeId=:employeeId,
-                 OrderDate=:orderDate
-                WHERE Id = :id";
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":customerId", order.CustomerId);
-                command.Parameters.AddWithValue(":employeeId", order.EmployeeId);
-                command.Parameters.AddWithValue(":orderDate", order.OrderDate);
-                command.Parameters.AddWithValue(":id", id);
-                
-                var rows = command.ExecuteNonQuery();
+                strSql = string.Format("SELECT od.* FROM [Order] od, {0} WHERE od.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                return query.Run(strSql, new {
+                    search = tupleWhere.Item2[":search"],
+                    searchExact = tupleWhere.Item2[":searchExact"]
+                }, tupleWhere.Item2);
             }
             
-            return GetById(order.Id);
+            return query.Run(strSql, new {}, tupleWhere.Item2);
+	    }
+        
+        public T Create(T order)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+
+            var strSql = string.Format(
+                "INSERT INTO [Order] ({0}) VALUES ({1})",
+                string.Join(", ", pInfoCollection.Select(x => x.Name)),
+                string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
+                );
+            
+            int rows = query.Insert(strSql, order);
+            if (rows > 0)
+            {
+                object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
+                
+                return GetById(lastId);
+            }
+
+            return default(T);
         }
         
-	    public IEnumerable<Order> Find<T>(T args) {
+        public T Update(object id, T order)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+                
+            string strSql = string.Format(
+                "UPDATE [Order] SET {0} WHERE Id = :oid",
+                string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
+                );
+
+            var res = query.Update(strSql, order, new {
+                oid = id
+            });
+            
+            return GetById(id);
+        }
+        
+        public int GetCount()
+        {
+            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM [Order]", new {}));
+        }
+        
+        public int RemoveById(object id)
+        {
+            string strSql = @"DELETE FROM [Order] WHERE Id = :id";
+
+            return query.Delete(strSql, new {
+                Id = id
+            });
+        }
+
+	    public IEnumerable<T> FindOld<Y>(Y args) {
             var step = 100;
             var count = this.GetCount();
             var mod = count % step;
@@ -132,19 +142,5 @@ namespace Vko.Repository
                 yield return item;
             }
 	    }
-        
-        public int GetCount()
-        {
-            using (SQLiteCommand command = new SQLiteCommand("SELECT COUNT(*) FROM [Order]", conn))
-            {
-                int count = Convert.ToInt32(command.ExecuteScalar());
-                return count;
-            }
-        }
-        
-        public int RemoveById(object Id)
-        {
-            return 0;
-        }
 	}
 }

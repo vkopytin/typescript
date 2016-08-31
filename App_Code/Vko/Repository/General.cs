@@ -35,24 +35,31 @@ namespace Vko.Repository
                 return (T)Activator.CreateInstance(f, connection);
             }
 			
+            t = typeof(IOrderDetailsRepository<>).MakeGenericType(i);
+            if (type == t)
+            {
+                Type f = typeof(OrderDetailsRepository<>).MakeGenericType(i);
+
+                return (T)Activator.CreateInstance(f, connection);
+            }
+
+            t = typeof(IOrdersRepository<>).MakeGenericType(i);
+            if (type == t)
+            {
+                Type f = typeof(OrdersRepository<>).MakeGenericType(i);
+
+                return (T)Activator.CreateInstance(f, connection);
+            }
+
+            t = typeof(ISuppliersRepository<>).MakeGenericType(i);
+            if (type == t)
+            {
+                Type f = typeof(SuppliersRepository<>).MakeGenericType(i);
+
+                return (T)Activator.CreateInstance(f, connection);
+            }
+
             throw new NotImplementedException(string.Format("Not found implementation for {0} type!!!", type.FullName));
-		}
-		
-		public IRepository<T> Request<T>()
-		{
-			if (HasGenericInterface(typeof(SuppliersRepository), typeof(ISuppliersRepository<>), typeof(T))) {
-				return (IRepository<T>)Activator.CreateInstance(typeof(SuppliersRepository), connection);
-			}
-			
-			if (HasGenericInterface(typeof(OrdersRepository), typeof(IOrdersRepository<>), typeof(T))) {
-				return (IRepository<T>)Activator.CreateInstance(typeof(OrdersRepository), connection);
-			}
-			
-			if (HasGenericInterface(typeof(OrderDetailsRepository), typeof(IOrderDetailsRepository<>), typeof(T))) {
-				return (IRepository<T>)Activator.CreateInstance(typeof(OrderDetailsRepository), connection);
-			}
-			
-			throw new Exception(string.Format("There is no defined class that implements {0}", typeof(IRepository<T>).ToString()));
 		}
 		
 		public static bool HasGenericInterface(Type type, Type interf, Type typeparameter)

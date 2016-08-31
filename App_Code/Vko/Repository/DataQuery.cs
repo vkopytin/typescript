@@ -170,5 +170,20 @@ namespace Vko.Repository
                 return command.ExecuteNonQuery();
             }
         }
+        
+        public int Delete<Y>(string strSql, Y whereArgs)
+        {
+            var whereInfoCollection = typeof(Y).GetProperties();
+
+            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+            {
+                foreach (var pInfo in whereInfoCollection)
+                {
+                    command.Parameters.AddWithValue(":" + pInfo.Name, pInfo.GetValue(whereArgs));
+                }
+                
+                return command.ExecuteNonQuery();
+            }
+        }
     }
 }

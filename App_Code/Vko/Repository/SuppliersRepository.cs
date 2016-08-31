@@ -13,147 +13,115 @@ using Vko.Repository.Entities;
 
 namespace Vko.Repository
 {
-    class SuppliersRepository : ISuppliersRepository<Supplier>
+    class SuppliersRepository<T> : ISuppliersRepository<T>
     {
-        SQLiteConnection conn;
+        static readonly string[] fields = "CompanyName,ContactName,ContactTitle,Address,City".Split(',');
+
+        DataQuery<T> query;
         
         public SuppliersRepository(SQLiteConnection conn)
         {
-            this.conn = conn;
+            query = new DataQuery<T>(conn);
         }
         
-        public Supplier GetById(object id)
+        public T GetById(object id)
         {
             string strSql = "SELECT * FROM Supplier WHERE Id = :id";
 
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":id", id);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    reader.Read();
-                    
-                    return new Supplier {
-                        Id = Convert.ToInt32(reader["Id"]),
-                        CompanyName = Convert.ToString(reader["CompanyName"]),
-                        ContactName = Convert.ToString(reader["ContactName"]),
-                        ContactTitle = Convert.ToString(reader["ContactTitle"]),
-                        Address = Convert.ToString(reader["Address"]),
-                        City = Convert.ToString(reader["City"])
-                    };
-                }
-            }
+            return query.SingleResult(strSql, new {
+                Id = id
+            });
         }
         
-        public IEnumerable<Supplier> List(int from=0, int count=10)
+        public IEnumerable<T> List(int from=0, int count=10)
         {
             string strSql = "SELECT * FROM Supplier ORDER BY Id LIMIT :count OFFSET :from";
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":count", count);
-                command.Parameters.AddWithValue(":from", from);
-                using(SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        yield return new Supplier {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            CompanyName = Convert.ToString(reader["CompanyName"]),
-                            ContactName = Convert.ToString(reader["ContactName"]),
-                            ContactTitle = Convert.ToString(reader["ContactTitle"]),
-                            Address = Convert.ToString(reader["Address"]),
-                            City = Convert.ToString(reader["City"])
-                        };
-                    }
-                }
-            }
+            
+            return query.Run(strSql, new {
+                from = from,
+                count = count
+            });
         }
-        
-        public Supplier Create(Supplier supplier)
+
+        static string strSqlSearch = @" 
+( SELECT DISTINCT Id, seed FROM (
+    SELECT s.Id, 1 AS seeed FROM [Supplier] s WHERE s.CompanyName = :searchExact
+    UNION
+    SELECT s.Id, 0.99 AS seeed FROM [Supplier] s WHERE s.CompanyName LIKE :search
+    )
+) res";
+
+        public IEnumerable<T> Find<Y>(Y args)
         {
-            var strSql = @"INSERT INTO
-                    Supplier (CompanyName, ContactName, ContactTitle, Address, City)
-                    VALUES (:companyName,:contactName,:contactTitle,:address,:city)";
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
+            var tupleWhere = WhereStatements.FromArgs(args);
+            string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
+            string strSql = "SELECT * FROM [Supplier] WHERE " + sqlWhere;
+            //throw new Exception(strSql);
+            if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                command.Parameters.AddWithValue(":companyName", supplier.CompanyName);
-                command.Parameters.AddWithValue(":contactName", supplier.ContactName);
-                command.Parameters.AddWithValue(":ContactTitle", supplier.ContactTitle);
-                command.Parameters.AddWithValue(":address", supplier.Address);
-                command.Parameters.AddWithValue(":city", supplier.City);
-
-                int rows = command.ExecuteNonQuery();
-                if (rows > 0)
-                {
-                    using (SQLiteCommand command2 = new SQLiteCommand("SELECT last_insert_rowid()", conn))
-                    {
-                        int id = Convert.ToInt32(command2.ExecuteScalar());
-                        
-                        return GetById(id);
-                    }
-                }
-                
-                return supplier;
-            }
-        }
-        
-        public Supplier Update(object id, Supplier supplier)
-        {
-            string strSql = @"UPDATE [Supplier]
-                SET
-                 CompanyName=:companyName,
-                 ContactName=:contactName,
-                 ContactTitle=:contactTitle,
-                 Address=:address,
-                 City=:city
-                WHERE Id = :id";
-
-            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
-            {
-                command.Parameters.AddWithValue(":companyName", supplier.CompanyName);
-                command.Parameters.AddWithValue(":contactName", supplier.ContactName);
-                command.Parameters.AddWithValue(":contactTitle", supplier.ContactTitle);
-                command.Parameters.AddWithValue(":address", supplier.Address);
-                command.Parameters.AddWithValue(":city", supplier.City);
-                command.Parameters.AddWithValue(":id", id);
-                
-                var rows = command.ExecuteNonQuery();
+                strSql = string.Format("SELECT od.* FROM [Supplier] od, {0} WHERE od.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                return query.Run(strSql, new {
+                    search = tupleWhere.Item2[":search"],
+                    searchExact = tupleWhere.Item2[":searchExact"]
+                }, tupleWhere.Item2);
             }
             
-            return GetById(supplier.Id);
+            return query.Run(strSql, new {}, tupleWhere.Item2);
+	    }
+        
+        public T Create(T supplier)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+
+            var strSql = string.Format(
+                "INSERT INTO [Supplier] ({0}) VALUES ({1})",
+                string.Join(", ", pInfoCollection.Select(x => x.Name)),
+                string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
+                );
+            
+            int rows = query.Insert(strSql, supplier);
+            if (rows > 0)
+            {
+                object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
+                
+                return GetById(lastId);
+            }
+
+            return default(T);
         }
         
-	    public IEnumerable<Supplier> Find<T>(T args) {
-            var step = 100;
-            var count = this.GetCount();
-            var mod = count % step;
-            var max = count - mod;
-            foreach (var from in Enumerable.Range(0, max / step))
-            {
-                foreach (var item in this.List(from * step, step))
-                {
-                    yield return item;
-                }
-            }
-            foreach (var item in this.List(max, mod))
-            {
-                yield return item;
-            }
-	    }
+        public T Update(object id, T supplier)
+        {
+            var pInfoCollection = typeof(T).GetProperties()
+                .Where(x => Array.IndexOf(fields, x.Name) != -1)
+                .ToList();
+                
+            string strSql = string.Format(
+                "UPDATE [Supplier] SET {0} WHERE Id = :oid",
+                string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
+                );
+
+            var res = query.Update(strSql, supplier, new {
+                oid = id
+            });
+            
+            return GetById(id);
+        }
         
         public int GetCount()
         {
-            using (SQLiteCommand command = new SQLiteCommand("SELECT COUNT(*) FROM Supplier", conn))
-            {
-                int count = Convert.ToInt32(command.ExecuteScalar());
-                return count;
-            }
+            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM [Supplier]", new {}));
         }
         
-        public int RemoveById(object Id)
+        public int RemoveById(object id)
         {
-            return 0;
+            string strSql = @"DELETE FROM [Supplier] WHERE Id = :id";
+
+            return query.Delete(strSql, new {
+                Id = id
+            });
         }
 	}
 }

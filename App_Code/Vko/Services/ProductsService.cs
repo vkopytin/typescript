@@ -140,20 +140,13 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var suppliersRepo = repo.Request<Vko.Repository.Entities.Supplier>();
+				var suppliersRepo = repo.Make<ISuppliersRepository<Supplier>>();
 				var existing = suppliersRepo.GetById(supplier.Id);
 				if (existing != null)
 				{
 					throw new Exception(string.Format("Product with same Id: '{0}' already exists", supplier.Id));
 				}
-				var newSup = suppliersRepo.Create(new Vko.Repository.Entities.Supplier() {
-                    Id = supplier.Id,
-                    CompanyName = supplier.CompanyName,
-                    ContactName = supplier.ContactName,
-                    ContactTitle = supplier.ContactTitle,
-                    Address = supplier.Address,
-                    City = supplier.City
-				});
+				var newSup = suppliersRepo.Create(supplier);
 				
 				return FindSuppliers(repo, new {
 					Id = newSup.Id
@@ -165,20 +158,13 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var suppliersRepo = repo.Request<Vko.Repository.Entities.Supplier>();
+				var suppliersRepo = repo.Make<ISuppliersRepository<Supplier>>();
 				var existing = suppliersRepo.GetById(supplier.Id);
 				if (existing == null)
 				{
 					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", supplier.Id));
 				}
-				suppliersRepo.Update(supplier.Id, new Vko.Repository.Entities.Supplier() {
-                    Id = supplier.Id,
-                    CompanyName = supplier.CompanyName,
-                    ContactName = supplier.ContactName,
-                    ContactTitle = supplier.ContactTitle,
-                    Address = supplier.Address,
-                    City = supplier.City
-				});
+				suppliersRepo.Update(supplier.Id, supplier);
 				
 				return FindSuppliers(repo, new {
 					Id = supplier.Id
@@ -234,7 +220,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-	            var orders = repo.Request<Vko.Repository.Entities.Order>().List(from, count);
+	            var orders = repo.Make<IOrdersRepository<Order>>().List(from, count);
 				var details = FindOrderDetails(repo, new {
 					OrderId = new {
 						__in = orders.Select(x => x.Id).Distinct().ToArray()
@@ -243,14 +229,12 @@ namespace Vko.Services
 				
 				foreach (var entity in orders)
 				{
-					yield return new Order
-					{
-		                Id = entity.Id,
-		                OrderDate = entity.OrderDate.ToJSLong(),
-						OrderDetail = details
-							.Where(x => x.OrderId == entity.Id)
-							.ToList()
-					};
+					
+					entity.OrderDetail = details
+						.Where(x => x.OrderId == entity.Id)
+						.ToList();
+						
+					yield return entity;
 				}
 			}
 		}
@@ -259,8 +243,8 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var product = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().GetById(productId);
-				var orderDetailsRepo = repo.Request<Vko.Repository.Entities.OrderDetail>();
+				var product = repo.Make<IProductsRepository<Product>>().GetById(productId);
+				var orderDetailsRepo = repo.Make<IOrderDetailsRepository<OrderDetail>>();
 				if (product == null) {
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
 				}
@@ -275,7 +259,7 @@ namespace Vko.Services
 						}
 					}).ToList();
 					if (details.Count == 0) {
-						var newDetail = orderDetailsRepo.Create(new Vko.Repository.Entities.OrderDetail () {
+						var newDetail = orderDetailsRepo.Create(new OrderDetail () {
 							Id = cart.Id + "/" + product.Id,
 							OrderId = cart.Id,
 							ProductId = product.Id,
@@ -286,7 +270,7 @@ namespace Vko.Services
 					}
 					else
 					{
-						var existingDetail = orderDetailsRepo.Update(details[0].Id, new Vko.Repository.Entities.OrderDetail () {
+						var existingDetail = orderDetailsRepo.Update(details[0].Id, new OrderDetail () {
 							Id = details[0].Id,
 							OrderId = cart.Id,
 							ProductId = product.Id,
@@ -305,8 +289,8 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var product = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().GetById(productId);
-				var orderDetailsRepo = repo.Request<Vko.Repository.Entities.OrderDetail>();
+				var product = repo.Make<IProductsRepository<Product>>().GetById(productId);
+				var orderDetailsRepo = repo.Make<IOrderDetailsRepository<OrderDetail>>();
 				if (product == null) {
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
 				}
@@ -329,7 +313,7 @@ namespace Vko.Services
 						}
 						else
 						{
-							var existingDetail = orderDetailsRepo.Update(details[0].Id, new Vko.Repository.Entities.OrderDetail () {
+							var existingDetail = orderDetailsRepo.Update(details[0].Id, new OrderDetail () {
 								Id = details[0].Id,
 								OrderId = cart.Id,
 								ProductId = product.Id,
@@ -349,7 +333,7 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var order = repo.Request<Vko.Repository.Entities.Order>().Create(new Vko.Repository.Entities.Order () {
+				var order = repo.Make<IOrdersRepository<Order>>().Create(new Order () {
 					CustomerId = "ALFKI",
 					EmployeeId = 1,
 					OrderDate = DateTime.Now
@@ -380,24 +364,46 @@ namespace Vko.Services
 					SUM(od.UnitPrice * od.Quantity) AS Total,
 					'All Products' AS ProductName,
 					SUM(od.Quantity) AS Quantity,
-					
-					strftime('%m-%Y', o.OrderDate) AS Month
+					strftime('%m-%Y', o.OrderDate) AS Month,
+					100 AS seed
 					FROM [Order] o, OrderDetail od, Product p, Supplier s
 					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
 					 AND o.OrderDate > '2016-01-01'
 					GROUP BY Month
+
+					UNION SELECT
+					SUM(od.UnitPrice * od.Quantity) AS Total,
+					c.CategoryName AS ProductName,
+					SUM(od.Quantity) AS Quantity,
+					strftime('%m-%Y', o.OrderDate) AS Month,
+					90 AS seed
+					FROM [Order] o, OrderDetail od, Product p, Category c
+					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND c.Id = p.CategoryId
+					 AND o.OrderDate > '2016-01-01'
+					GROUP BY Month, c.CategoryName
+
+					UNION SELECT
+					SUM(od.UnitPrice * od.Quantity) AS Total,
+					s.CompanyName AS ProductName,
+					SUM(od.Quantity) AS Quantity,
+					strftime('%m-%Y', o.OrderDate) AS Month,
+					80 AS seed
+					FROM [Order] o, OrderDetail od, Product p, Supplier s
+					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
+					 AND o.OrderDate > '2016-01-01'
+					GROUP BY Month, s.CompanyName
 					
 					UNION SELECT
 					SUM(od.UnitPrice * od.Quantity) AS Total,
 					p.ProductName AS ProductName,
 					SUM(od.Quantity) AS Quantity,
-					
-					strftime('%m-%Y', o.OrderDate) AS Month
+					strftime('%m-%Y', o.OrderDate) AS Month,
+					70 AS seed
 					FROM [Order] o, OrderDetail od, Product p, Supplier s
 					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
 					 AND o.OrderDate > '2016-01-01'
 					GROUP BY Month, od.ProductId
-					ORDER BY Total DESC, Quantity DESC
+					ORDER BY seed DESC, Total DESC, Quantity DESC
 					";
 	            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
 	            {
@@ -424,7 +430,7 @@ namespace Vko.Services
 		
 		private IEnumerable<Cart> ListCarts(General repo, int from, int count)
 		{
-            var orders = repo.Request<Vko.Repository.Entities.Order>().List(from, count);
+            var orders = repo.Make<IOrdersRepository<Order>>().List(from, count);
 			var details = FindCartDetails(repo, new {
 				OrderId = new {
 					__in = orders.Select(x => x.Id).Distinct().ToArray()
@@ -446,7 +452,7 @@ namespace Vko.Services
 		
 		private int TotalCarts(General repo)
 		{
-			return repo.Request<Vko.Repository.Entities.Order>().GetCount();
+			return repo.Make<IOrdersRepository<Order>>().GetCount();
 		}
 		
 		private IEnumerable<Category> ListCategories(General repo, int from=0, int count=10)
@@ -458,14 +464,14 @@ namespace Vko.Services
 
 		private IEnumerable<Product> ListProducts(General repo, int from=0, int count=10)
 		{
-            var products = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().List(from, count);
+            var products = repo.Make<IProductsRepository<Product>>().List(from, count);
 
 			var categories = repo.Make<ICategoriesRepository<Category>>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.CategoryId).Distinct().ToArray()
 				}
 			}).ToList();
-			var suppliers = repo.Request<Vko.Repository.Entities.Supplier>().Find(new {
+			var suppliers = repo.Make<ISuppliersRepository<Supplier>>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.SupplierId).Distinct().ToArray()
 				}
@@ -473,17 +479,10 @@ namespace Vko.Services
 			
 			foreach (var entity in products)
 			{
-				yield return new Product
-				{
-	                Id = entity.Id,
-	                ProductName = entity.ProductName,
-	                UnitPrice = entity.UnitPrice,
-	                UnitsOnOrder = entity.UnitsOnOrder,
-	                QuantityPerUnit = entity.QuantityPerUnit,
-					
-					Category = categories.FirstOrDefault(x => x.Id == entity.CategoryId),
-					Supplier = suppliers.FirstOrDefault(x => x.Id == entity.SupplierId)
-				};
+				entity.Category = categories.FirstOrDefault(x => x.Id == entity.CategoryId);
+				entity.Supplier = suppliers.FirstOrDefault(x => x.Id == entity.SupplierId);
+				
+				yield return entity;
 			}
 		}
 		
@@ -496,7 +495,7 @@ namespace Vko.Services
 					__in = products.Select(x => x.CategoryId).Distinct().ToArray()
 				}
 			}).ToList();
-			var suppliers = repo.Request<Vko.Repository.Entities.Supplier>().Find(new {
+			var suppliers = repo.Make<ISuppliersRepository<Supplier>>().Find(new {
 				Id = new {
 					__in = products.Select(x => x.SupplierId).Distinct().ToArray()
 				}
@@ -513,7 +512,7 @@ namespace Vko.Services
 		
 		private IEnumerable<Supplier> FindSuppliers<T>(General repo, T args)
 		{
-			var suppliers = repo.Request<Vko.Repository.Entities.Supplier>().Find(args);
+			var suppliers = repo.Make<ISuppliersRepository<Supplier>>().Find(args);
 			
 			foreach (var entity in suppliers)
 			{
@@ -541,7 +540,7 @@ namespace Vko.Services
 
 		private IEnumerable<OrderDetail> ListOrderDetails(General repo, int from=0, int count=10)
 		{
-			var details = repo.Request<Vko.Repository.Entities.OrderDetail>().List(from, count);
+			var details = repo.Make<IOrderDetailsRepository<OrderDetail>>().List(from, count);
             var products = ListProducts(repo).ToList();
 
 			foreach (var entity in details)
@@ -561,7 +560,7 @@ namespace Vko.Services
 
 		private IEnumerable<OrderDetail> FindOrderDetails<T>(General repo, T args)
 		{
-			var details = repo.Request<Vko.Repository.Entities.OrderDetail>().Find(args).ToList();
+			var details = repo.Make<IOrderDetailsRepository<OrderDetail>>().Find(args).ToList();
             var products = FindProducts(repo, new {
 				Id = new {
 					__in = details.Select(x => x.ProductId).Distinct().ToArray()
@@ -585,7 +584,7 @@ namespace Vko.Services
 		
 		private IEnumerable<CartDetail> FindCartDetails<T>(General repo, T args)
 		{
-			var details = repo.Request<Vko.Repository.Entities.OrderDetail>().Find(args).ToList();
+			var details = repo.Make<IOrderDetailsRepository<OrderDetail>>().Find(args).ToList();
             var products = FindProducts(repo, new {
 				Id = new {
 					__in = details.Select(x => x.ProductId).Distinct().ToArray()

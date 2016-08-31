@@ -183,7 +183,7 @@ namespace hellomvc.Controllers
         {
             using (var repo = new Vko.Repository.General())
             {
-                var suppliers = repo.Request<Vko.Repository.Entities.Supplier>();
+                var suppliers = repo.Make<Vko.Repository.ISuppliersRepository<Vko.Services.Entities.Supplier>>();
                 var items = suppliers.List(from, count);
     
                 return Json(items.ToList(), JsonRequestBehavior.AllowGet);

@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-using Vko.Repository.Entities;
-
 
 namespace Vko.Repository.Implementation
 {
@@ -96,7 +94,7 @@ namespace Vko.Repository.Implementation
         
         public T Update(object id, T category)
         {
-            var pInfoCollection = typeof(Category).GetProperties()
+            var pInfoCollection = typeof(T).GetProperties()
                 .Where(x => Array.IndexOf(fields, x.Name) != -1)
                 .ToList();
                 

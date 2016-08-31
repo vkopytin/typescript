@@ -7,6 +7,7 @@ using System.Data.SQLite;
 using Vko.Repository;
 using Vko.Services.Entities;
 
+
 namespace Vko.Services
 {
 	public class ProductsService
@@ -96,21 +97,13 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var productsRepo = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>();
+				var productsRepo = repo.Make<IProductsRepository<Product>>();
 				var existingProduct = productsRepo.GetById(product.Id);
 				if (existingProduct != null)
 				{
 					throw new Exception(string.Format("Product with same Id: '{0}' already exists", product.Id));
 				}
-				var newProd = productsRepo.Create(new Vko.Repository.Entities.Product() {
-					Id = product.Id,
-                    ProductName = product.ProductName,
-                    UnitPrice = product.UnitPrice,
-                    UnitsOnOrder = product.UnitsOnOrder,
-                    QuantityPerUnit = product.QuantityPerUnit,
-                    CategoryId = product.Category.Id,
-                    SupplierId = product.Supplier.Id
-				});
+				var newProd = productsRepo.Create(product);
 				
 				return FindProducts(repo, new {
 					Id = newProd.Id
@@ -122,21 +115,13 @@ namespace Vko.Services
 		{
 			using (var repo = new General())
 			{
-				var productsRepo = repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>();
+				var productsRepo = repo.Make<IProductsRepository<Product>>();
 				var existingProduct = productsRepo.GetById(product.Id);
 				if (existingProduct == null)
 				{
 					throw new Exception(string.Format("Product with Id: '{0}' doesn't exist", product.Id));
 				}
-				productsRepo.Update(product.Id, new Vko.Repository.Entities.Product() {
-					Id = product.Id,
-                    ProductName = product.ProductName,
-                    UnitPrice = product.UnitPrice,
-                    UnitsOnOrder = product.UnitsOnOrder,
-                    QuantityPerUnit = product.QuantityPerUnit,
-                    CategoryId = product.Category.Id,
-                    SupplierId = product.Supplier.Id					
-				});
+				productsRepo.Update(product.Id, product);
 				
 				return FindProducts(repo, new {
 					Id = product.Id
@@ -433,7 +418,7 @@ namespace Vko.Services
 		
 		private int TotalProducts(General repo)
 		{
-			return repo.Make<IProductsRepository<Vko.Repository.Entities.Product>>().GetCount();
+			return repo.Make<IProductsRepository<Product>>().GetCount();
 		}
 		
 		private IEnumerable<Cart> ListCarts(General repo, int from, int count)

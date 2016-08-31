@@ -11,22 +11,22 @@ using System.Threading.Tasks;
 using Vko.Repository.Entities;
 
 
-namespace Vko.Repository
+namespace Vko.Repository.Implementation
 {
-    class OrdersRepository<T> : IOrdersRepository<T>
+    class SuppliersRepository<T> : ISuppliersRepository<T>
     {
-        static readonly string[] fields = "CustomerId,EmployeeId,OrderDate,Freight".Split(',');
+        static readonly string[] fields = "CompanyName,ContactName,ContactTitle,Address,City".Split(',');
 
         DataQuery<T> query;
         
-        public OrdersRepository(SQLiteConnection conn)
+        public SuppliersRepository(SQLiteConnection conn)
         {
             query = new DataQuery<T>(conn);
         }
         
         public T GetById(object id)
         {
-            string strSql = "SELECT * FROM [Order] WHERE Id = :id";
+            string strSql = "SELECT * FROM Supplier WHERE Id = :id";
 
             return query.SingleResult(strSql, new {
                 Id = id
@@ -35,8 +35,8 @@ namespace Vko.Repository
         
         public IEnumerable<T> List(int from=0, int count=10)
         {
-            string strSql = "SELECT * FROM [Order] ORDER BY OrderDate DESC LIMIT :count OFFSET :from";
-
+            string strSql = "SELECT * FROM Supplier ORDER BY Id LIMIT :count OFFSET :from";
+            
             return query.Run(strSql, new {
                 from = from,
                 count = count
@@ -45,10 +45,9 @@ namespace Vko.Repository
 
         static string strSqlSearch = @" 
 ( SELECT DISTINCT Id, seed FROM (
-    SELECT o.Id, 1 AS seeed FROM [Order] o WHERE cast(o.OrderDate as text) = :searchExact
+    SELECT s.Id, 1 AS seeed FROM [Supplier] s WHERE s.CompanyName = :searchExact
     UNION
-    SELECT p.Id, 0.82 AS seeed FROM Product p, [Order] o, OrderDetail od
-    WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND p.ProductName LIKE :search
+    SELECT s.Id, 0.99 AS seeed FROM [Supplier] s WHERE s.CompanyName LIKE :search
     )
 ) res";
 
@@ -56,11 +55,11 @@ namespace Vko.Repository
         {
             var tupleWhere = WhereStatements.FromArgs(args);
             string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
-            string strSql = "SELECT * FROM [Order] WHERE " + sqlWhere;
+            string strSql = "SELECT * FROM [Supplier] WHERE " + sqlWhere;
             //throw new Exception(strSql);
             if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                strSql = string.Format("SELECT od.* FROM [Order] od, {0} WHERE od.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                strSql = string.Format("SELECT od.* FROM [Supplier] od, {0} WHERE od.Id = res.Id ORDER BY seed DESC", strSqlSearch);
                 return query.Run(strSql, new {
                     search = tupleWhere.Item2[":search"],
                     searchExact = tupleWhere.Item2[":searchExact"]
@@ -70,19 +69,19 @@ namespace Vko.Repository
             return query.Run(strSql, new {}, tupleWhere.Item2);
 	    }
         
-        public T Create(T order)
+        public T Create(T supplier)
         {
             var pInfoCollection = typeof(T).GetProperties()
                 .Where(x => Array.IndexOf(fields, x.Name) != -1)
                 .ToList();
 
             var strSql = string.Format(
-                "INSERT INTO [Order] ({0}) VALUES ({1})",
+                "INSERT INTO [Supplier] ({0}) VALUES ({1})",
                 string.Join(", ", pInfoCollection.Select(x => x.Name)),
                 string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
                 );
             
-            int rows = query.Insert(strSql, order);
+            int rows = query.Insert(strSql, supplier);
             if (rows > 0)
             {
                 object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
@@ -93,18 +92,18 @@ namespace Vko.Repository
             return default(T);
         }
         
-        public T Update(object id, T order)
+        public T Update(object id, T supplier)
         {
             var pInfoCollection = typeof(T).GetProperties()
                 .Where(x => Array.IndexOf(fields, x.Name) != -1)
                 .ToList();
                 
             string strSql = string.Format(
-                "UPDATE [Order] SET {0} WHERE Id = :oid",
+                "UPDATE [Supplier] SET {0} WHERE Id = :oid",
                 string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
                 );
 
-            var res = query.Update(strSql, order, new {
+            var res = query.Update(strSql, supplier, new {
                 oid = id
             });
             
@@ -113,34 +112,16 @@ namespace Vko.Repository
         
         public int GetCount()
         {
-            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM [Order]", new {}));
+            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM [Supplier]", new {}));
         }
         
         public int RemoveById(object id)
         {
-            string strSql = @"DELETE FROM [Order] WHERE Id = :id";
+            string strSql = @"DELETE FROM [Supplier] WHERE Id = :id";
 
             return query.Delete(strSql, new {
                 Id = id
             });
         }
-
-	    public IEnumerable<T> FindOld<Y>(Y args) {
-            var step = 100;
-            var count = this.GetCount();
-            var mod = count % step;
-            var max = count - mod;
-            foreach (var from in Enumerable.Range(0, max / step))
-            {
-                foreach (var item in this.List(from * step, step))
-                {
-                    yield return item;
-                }
-            }
-            foreach (var item in this.List(max, mod))
-            {
-                yield return item;
-            }
-	    }
 	}
 }

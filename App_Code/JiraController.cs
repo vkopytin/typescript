@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using Rebelmouse.jira;
+using Vko;
 
 namespace hellomvc.Controllers
 {
@@ -241,7 +242,14 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Orders(int from=0, int count=10) {
             var products = new Vko.Services.ProductsService();
-            var items = products.ListOrders(from, count);
+            var items = products.ListOrders(from, count).Select(x => new {
+                Id = x.Id,
+                OrderDate = x.OrderDate.ToJSLong(),
+                CustomerId = x.CustomerId,
+                EmployeeId = x.EmployeeId,
+                Freight = x.Freight,
+                OrderDetail = x.OrderDetail
+            });
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }

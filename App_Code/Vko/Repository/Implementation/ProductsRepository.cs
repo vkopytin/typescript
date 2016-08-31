@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Vko.Repository.Entities;
 
 
-namespace Vko.Repository
+namespace Vko.Repository.Implementation
 {
     class ProductsRepository<T> : IProductsRepository<T>
     {

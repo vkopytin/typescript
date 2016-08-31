@@ -1,6 +1,8 @@
 using System;
 using System.Data.SQLite;
 
+using Vko.Repository.Implementation;
+
 
 namespace Vko.Repository
 {

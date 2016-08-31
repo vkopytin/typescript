@@ -11,23 +11,23 @@ using System.Threading.Tasks;
 using Vko.Repository.Entities;
 
 
-namespace Vko.Repository
+namespace Vko.Repository.Implementation
 {
-    class CategoriesRepository<T> : ICategoriesRepository<T>
+    class OrderDetailsRepository<T> : IOrderDetailsRepository<T>
     {
-        static readonly string[] fields = "CategoryName,Description".Split(',');
+        static readonly string[] fields = "Id,OrderId,ProductId,UnitPrice,Quantity,Discount".Split(',');
 
         DataQuery<T> query;
-
-        public CategoriesRepository(SQLiteConnection conn)
+        
+        public OrderDetailsRepository(SQLiteConnection conn)
         {
             query = new DataQuery<T>(conn);
         }
         
         public T GetById(object id)
         {
-            string strSql = "SELECT * FROM [Category] WHERE Id = :id";
-            
+            string strSql = "SELECT * FROM OrderDetail WHERE Id = :id";
+
             return query.SingleResult(strSql, new {
                 Id = id
             });
@@ -35,8 +35,8 @@ namespace Vko.Repository
         
         public IEnumerable<T> List(int from=0, int count=10)
         {
-            string strSql = "SELECT * FROM Category ORDER BY Id LIMIT :count OFFSET :from";
-            
+            string strSql = "SELECT * FROM [OrderDetail] ORDER BY Id LIMIT :count OFFSET :from";
+
             return query.Run(strSql, new {
                 from = from,
                 count = count
@@ -45,11 +45,14 @@ namespace Vko.Repository
 
         static string strSqlSearch = @" 
 ( SELECT DISTINCT Id, seed FROM (
-    SELECT c.Id, 1 AS seeed FROM Categoy c WHERE c.CategoryName = :searchExact
+    SELECT od.Id, 1 AS seeed FROM OrderDetail od WHERE d.UnitPrice = :searchExact
     UNION
-    SELECT c.Id, 0.99 AS seeed FROM Category c WHERE c.CategoryName LIKE :search
+    SELECT od.Id, 0.99 AS seeed FROM OrderDetail od WHERE cast(od.UnitPrice as text) LIKE :search
     UNION
-    SELECT c.Id, 0.98 AS seeed FROM Category c WHERE c.Description LIKE :search
+    SELECT od.Id, 0.97 AS seeed FROM OrderDetail od WHERE od.Quantity LIKE :search
+    UNION
+    SELECT p.Id, 0.82 AS seeed FROM Product p, OrderDetail od
+    WHERE p.Id = od.ProductId AND s.ProductName LIKE :search
     )
 ) res";
 
@@ -57,11 +60,11 @@ namespace Vko.Repository
         {
             var tupleWhere = WhereStatements.FromArgs(args);
             string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
-            string strSql = "SELECT * FROM Category WHERE " + sqlWhere;
+            string strSql = "SELECT * FROM OrderDetail WHERE " + sqlWhere;
             //throw new Exception(strSql);
             if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                strSql = string.Format("SELECT c.* FROM Category c, {0} WHERE c.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                strSql = string.Format("SELECT od.* FROM OrderDetail od, {0} WHERE od.Id = res.Id ORDER BY seed DESC", strSqlSearch);
                 return query.Run(strSql, new {
                     search = tupleWhere.Item2[":search"],
                     searchExact = tupleWhere.Item2[":searchExact"]
@@ -70,56 +73,56 @@ namespace Vko.Repository
             
             return query.Run(strSql, new {}, tupleWhere.Item2);
 	    }
-        
-        public T Create(T category)
+            
+        public T Create(T orderDetail)
         {
             var pInfoCollection = typeof(T).GetProperties()
                 .Where(x => Array.IndexOf(fields, x.Name) != -1)
                 .ToList();
 
             var strSql = string.Format(
-                "INSERT INTO Category ({0}) VALUES ({1})",
+                "INSERT INTO OrderDetail ({0}) VALUES ({1})",
                 string.Join(", ", pInfoCollection.Select(x => x.Name)),
                 string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
                 );
             
-            int rows = query.Insert(strSql, category);
+            int rows = query.Insert(strSql, orderDetail);
             if (rows > 0)
             {
                 object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
                 
                 return GetById(lastId);
             }
-
+                
             return default(T);
         }
         
-        public T Update(object id, T category)
+        public T Update(object id, T orderDetail)
         {
-            var pInfoCollection = typeof(Category).GetProperties()
+            var pInfoCollection = typeof(T).GetProperties()
                 .Where(x => Array.IndexOf(fields, x.Name) != -1)
                 .ToList();
                 
             string strSql = string.Format(
-                "UPDATE Category SET {0} WHERE Id = :id",
+                "UPDATE OrderDetail SET {0} WHERE Id = :oid",
                 string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
                 );
-                
-            var res = query.Update(strSql, category, new {
-                Id = id
+
+            var res = query.Update(strSql, orderDetail, new {
+                oid = id
             });
             
             return GetById(id);
         }
-                
+        
         public int GetCount()
         {
-            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM Category", new {}));
+            return Convert.ToInt32(query.Scalar("SELECT COUNT(*) FROM OrderDetail", new {}));
         }
         
         public int RemoveById(object id)
         {
-            string strSql = @"DELETE FROM Category WHERE Id = :id";
+            string strSql = @"DELETE FROM OrderDetail WHERE Id = :id";
 
             return query.Delete(strSql, new {
                 Id = id

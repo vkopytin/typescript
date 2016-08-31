@@ -35,6 +35,8 @@ namespace hellomvc
 
 		protected void Application_Start ()
 		{
+			ControllerBuilder.Current.SetControllerFactory(new MyControllerFactory());
+			
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
 			AreaRegistration.RegisterAllAreas ();

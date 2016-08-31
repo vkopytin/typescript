@@ -8,9 +8,9 @@ using Vko.Repository;
 using Vko.Services.Entities;
 
 
-namespace Vko.Services
+namespace Vko.Services.Impl
 {
-	public class ProductsService
+	public class ProductsService: IProductsService
 	{
 		public PagedResult<Cart> ListCarts(int from=0, int count=0)
 		{

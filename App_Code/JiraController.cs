@@ -11,6 +11,7 @@ using System.Text;
 
 using Rebelmouse.jira;
 using Vko;
+using Vko.Services;
 
 namespace hellomvc.Controllers
 {
@@ -19,7 +20,14 @@ namespace hellomvc.Controllers
         static string URL = Vko.Config.JiraConfig["url"];
         static string jUserID = Vko.Config.JiraConfig["user"];
         static string jPassword = Vko.Config.JiraConfig["password"];
-
+        
+        IProductsService productsService;
+        
+        public JiraController(IProductsService productsService)
+        {
+            this.productsService = productsService;
+        }
+        
         public ActionResult Index ()
         {
             var mvcName = typeof(Controller).Assembly.GetName ();
@@ -147,13 +155,12 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Products(int from=0, int count=10, string search=null)
         {
-            var products = new Vko.Services.ProductsService();
             if (string.IsNullOrEmpty(search)) {
-                var items = products.ListProductsPaged(from, count);
+                var items = productsService.ListProductsPaged(from, count);
 
                 return Json(items, JsonRequestBehavior.AllowGet);
             }
-            var result = products.FindProductsPaged(search);
+            var result = productsService.FindProductsPaged(search);
 
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -161,19 +168,18 @@ namespace hellomvc.Controllers
         [HttpPost]
         public ActionResult Products(Vko.Services.Entities.Product product)
         {
-            var products = new Vko.Services.ProductsService();
-            var items = products.FindProducts(new {
+            var items = productsService.FindProducts(new {
                 Id = product.Id
             });
             var item = items.FirstOrDefault();
 
             if (product.Id < 1 || items.Count() == 0)
             {
-                item = products.CreateProduct(product);
+                item = productsService.CreateProduct(product);
             }
             else
             {
-                item = products.UpdateProduct(product);
+                item = productsService.UpdateProduct(product);
             }
 
             return Json(item, JsonRequestBehavior.AllowGet);
@@ -182,8 +188,7 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Suppliers(int from=0, int count=10)
         {
-            var suppliers = new Vko.Services.ProductsService();
-            var items = suppliers.ListSuppliers(from, count);
+            var items = productsService.ListSuppliers(from, count);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
@@ -191,19 +196,18 @@ namespace hellomvc.Controllers
         [HttpPost]
         public ActionResult Suppliers(Vko.Services.Entities.Supplier supplier)
         {
-            var suppliers = new Vko.Services.ProductsService();
-            var items = suppliers.FindSuppliers(new {
+            var items = productsService.FindSuppliers(new {
                 Id = supplier.Id
             });
             var item = items.FirstOrDefault();
 
             if (items.Count() == 0)
             {
-                item = suppliers.CreateSupplier(supplier);
+                item = productsService.CreateSupplier(supplier);
             }
             else
             {
-                item = suppliers.UpdateSupplier(supplier);
+                item = productsService.UpdateSupplier(supplier);
             }
 
             return Json(item, JsonRequestBehavior.AllowGet);
@@ -212,8 +216,7 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Categories(int from=0, int count=10)
         {
-            var categories = new Vko.Services.ProductsService();
-            var items = categories.ListCategories(from, count);
+            var items = productsService.ListCategories(from, count);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
@@ -221,28 +224,27 @@ namespace hellomvc.Controllers
         [HttpPost]
         public ActionResult Categories(Vko.Services.Entities.Category category)
         {
-            var categories = new Vko.Services.ProductsService();
-            var items = categories.FindCategories(new {
+            var items = productsService.FindCategories(new {
                 Id = category.Id
             });
             var item = items.FirstOrDefault();
 
             if (items.Count() == 0)
             {
-                item = categories.CreateCategory(category);
+                item = productsService.CreateCategory(category);
             }
             else
             {
-                item = categories.UpdateCategory(category);
+                item = productsService.UpdateCategory(category);
             }
 
             return Json(item, JsonRequestBehavior.AllowGet);
         }
         
         [HttpGet]
-        public ActionResult Orders(int from=0, int count=10) {
-            var products = new Vko.Services.ProductsService();
-            var items = products.ListOrders(from, count).Select(x => new {
+        public ActionResult Orders(int from=0, int count=10)
+        {
+            var items = productsService.ListOrders(from, count).Select(x => new {
                 Id = x.Id,
                 OrderDate = x.OrderDate.ToJSLong(),
                 CustomerId = x.CustomerId,
@@ -255,49 +257,49 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult OrderDetails(int from=0, int count=10) {
-            var products = new Vko.Services.ProductsService();
-            var items = products.ListOrderDetails(from, count);
+        public ActionResult OrderDetails(int from=0, int count=10)
+        {
+            var items = productsService.ListOrderDetails(from, count);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
         
         [HttpGet]
-        public ActionResult Carts(int from=0, int count=10) {
-            var products = new Vko.Services.ProductsService();
-            var items = products.ListCarts(from, count);
+        public ActionResult Carts(int from=0, int count=10)
+        {
+            var items = productsService.ListCarts(from, count);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
         
         [HttpPost]
-        public ActionResult Carts(int cartDate=0) {
-            var products = new Vko.Services.ProductsService();
-            var items = products.CreateCart(DateTime.Now);
+        public ActionResult Carts(int cartDate=0)
+        {
+            var items = productsService.CreateCart(DateTime.Now);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]
-        public ActionResult AddToCart(int productId, decimal price) {
-            var products = new Vko.Services.ProductsService();
-            var items = products.AddToCart(productId, price);
+        public ActionResult AddToCart(int productId, decimal price)
+        {
+            var items = productsService.AddToCart(productId, price);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
         
         [HttpPost]
-        public ActionResult RemoveFromCart(int productId) {
-            var products = new Vko.Services.ProductsService();
-            var items = products.RemoveFromCart(productId);
+        public ActionResult RemoveFromCart(int productId)
+        {
+            var items = productsService.RemoveFromCart(productId);
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
         
         [HttpGet]
-        public ActionResult Report(int from=0, int count=10) {
-            var products = new Vko.Services.ProductsService();
-            var items = products.Report();
+        public ActionResult Report(int from=0, int count=10)
+        {
+            var items = productsService.Report();
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }

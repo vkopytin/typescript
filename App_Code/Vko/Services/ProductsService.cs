@@ -31,6 +31,14 @@ namespace Vko.Services
 				return ListProducts(repo, from, count).ToList();
 			}
 		}
+
+		public IEnumerable<Supplier> ListSuppliers(int from=0, int count=10)
+		{
+			using (var repo = new General())
+			{
+				return ListSuppliers(repo, from, count).ToList();
+			}
+		}
 		
 		public PagedResult<Product> FindProductsPaged(string search)
 		{
@@ -486,6 +494,13 @@ namespace Vko.Services
 			}
 		}
 		
+		private IEnumerable<Supplier> ListSuppliers(General repo, int from=0, int count=10)
+		{
+            var suppliers = repo.Make<ISuppliersRepository<Supplier>>().List(from, count);
+			
+			return suppliers;
+		}
+
 		private IEnumerable<Product> FindProducts<T>(General repo, T args)
 		{
             var products = repo.Make<IProductsRepository<Product>>().Find(args);

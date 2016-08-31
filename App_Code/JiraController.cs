@@ -181,13 +181,10 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Suppliers(int from=0, int count=10)
         {
-            using (var repo = new Vko.Repository.General())
-            {
-                var suppliers = repo.Make<Vko.Repository.ISuppliersRepository<Vko.Services.Entities.Supplier>>();
-                var items = suppliers.List(from, count);
-    
-                return Json(items.ToList(), JsonRequestBehavior.AllowGet);
-            }
+            var suppliers = new Vko.Services.ProductsService();
+            var items = suppliers.ListSuppliers(from, count);
+
+            return Json(items, JsonRequestBehavior.AllowGet);
         }
 
         [HttpPost]

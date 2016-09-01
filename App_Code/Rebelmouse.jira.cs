@@ -10,16 +10,18 @@ using System.Web.Script.Serialization;
 using System.Linq.Expressions;
 
 
-namespace Rebelmouse.jira {
-    public class JiraClient {
-
+namespace Rebelmouse.jira
+{
+    public class JiraClient
+    {
         private readonly string username;
         private readonly string password;
         private readonly JavaScriptSerializer deserializer = new JavaScriptSerializer();
         private readonly string baseApiUrl;
         private readonly string projectKey = "BRAD";
 
-        public JiraClient(string baseUrl, string username, string password) {
+        public JiraClient(string baseUrl, string username, string password)
+        {
             this.username = username;
             this.password = password;
 
@@ -127,7 +129,8 @@ namespace Rebelmouse.jira {
         {
             var queryParts = new List<string>();
             
-            if (!string.IsNullOrEmpty(projectKey)) {
+            if (!string.IsNullOrEmpty(projectKey))
+            {
                 queryParts.Add(string.Format("project={0}", projectKey));
             }
 

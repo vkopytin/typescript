@@ -8,7 +8,8 @@ namespace Rebelmouse.jira
     {
 	    private readonly IRepository<Issue> issuesRepo = Repository.General.Request<Issue>();
 		
-		public IEnumerable<Issue> Issues {
+		public IEnumerable<Issue> Issues
+        {
             get {
                 return this.GetIssues();
             }
@@ -30,15 +31,18 @@ namespace Rebelmouse.jira
 			return issuesRepo.Find(filter);
         }
         
-        public IEnumerable<Issue> GetIssuesByStatus(string[] status) {
+        public IEnumerable<Issue> GetIssuesByStatus(string[] status)
+        {
 			return issuesRepo.Find(new {status=status});
         }
         
-        public IEnumerable<Issue> GetIssuesByEpic(string[] epicLink) {
+        public IEnumerable<Issue> GetIssuesByEpic(string[] epicLink)
+        {
 			return issuesRepo.Find(new {epicLink=epicLink});
         }
         
-        public IEnumerable<Issue> GetIssues(string[] status, string[] epicLink) {
+        public IEnumerable<Issue> GetIssues(string[] status, string[] epicLink)
+        {
 			return issuesRepo.Find(new {
                 status=status,
                 epicLink=epicLink

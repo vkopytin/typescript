@@ -70,7 +70,6 @@ namespace hellomvc.Controllers
         {
             return Task.Factory.StartNew(() => {
             var jiraManager = new JiraManager();
-            var jiraClient = new JiraClient(URL, jUserID, jPassword);
             var items = default(IEnumerable<Issue>);
             
             if (string.IsNullOrEmpty(status) && string.IsNullOrEmpty(epicLink)) {

@@ -222,7 +222,6 @@ namespace Vko.Services.Impl
 				
 				foreach (var entity in orders)
 				{
-					
 					entity.OrderDetail = details
 						.Where(x => x.OrderId == entity.Id)
 						.ToList();
@@ -238,7 +237,8 @@ namespace Vko.Services.Impl
 			{
 				var product = repo.Make<IProductsRepository<Product>>().GetById(productId);
 				var orderDetailsRepo = repo.Make<IOrderDetailsRepository<OrderDetail>>();
-				if (product == null) {
+				if (product == null)
+				{
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
 				}
 				
@@ -251,7 +251,8 @@ namespace Vko.Services.Impl
 							ProductId = product.Id
 						}
 					}).ToList();
-					if (details.Count == 0) {
+					if (details.Count == 0)
+					{
 						var newDetail = orderDetailsRepo.Create(new OrderDetail () {
 							Id = cart.Id + "/" + product.Id,
 							OrderId = cart.Id,
@@ -284,7 +285,8 @@ namespace Vko.Services.Impl
 			{
 				var product = repo.Make<IProductsRepository<Product>>().GetById(productId);
 				var orderDetailsRepo = repo.Make<IOrderDetailsRepository<OrderDetail>>();
-				if (product == null) {
+				if (product == null)
+				{
 					throw new Exception(string.Format("Product with Id: {0} doesn't found in the store", productId));
 				}
 				
@@ -398,6 +400,7 @@ namespace Vko.Services.Impl
 					GROUP BY Month, od.ProductId
 					ORDER BY seed DESC, Total DESC, Quantity DESC
 					";
+					
 	            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
 	            {
 	                using(SQLiteDataReader reader = command.ExecuteReader())

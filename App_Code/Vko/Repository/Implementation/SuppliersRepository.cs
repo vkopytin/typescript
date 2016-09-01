@@ -42,11 +42,11 @@ namespace Vko.Repository.Implementation
         }
 
         static string strSqlSearch = @" 
-( SELECT DISTINCT Id, seed FROM (
+( SELECT Id, MAX(seed) AS seed FROM (
     SELECT s.Id, 1 AS seeed FROM [Supplier] s WHERE s.CompanyName = :searchExact
     UNION
     SELECT s.Id, 0.99 AS seeed FROM [Supplier] s WHERE s.CompanyName LIKE :search
-    )
+    ) GROUP BY ID ORDER BY seed
 ) res";
 
         public IEnumerable<T> Find<Y>(Y args)
@@ -57,7 +57,7 @@ namespace Vko.Repository.Implementation
             //throw new Exception(strSql);
             if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                strSql = string.Format("SELECT od.* FROM [Supplier] od, {0} WHERE od.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                strSql = string.Format("SELECT s.* FROM [Supplier] s, {0} WHERE s.Id = res.Id ORDER BY res.seed DESC", strSqlSearch);
                 return query.Run(strSql, new {
                     search = tupleWhere.Item2[":search"],
                     searchExact = tupleWhere.Item2[":searchExact"]

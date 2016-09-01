@@ -41,7 +41,7 @@ namespace Vko.Repository.Implementation
             });
         }
 
-        static string strSqlSearch = @"( SELECT DISTINCT Id, seed FROM (
+        static string strSqlSearch = @"( SELECT Id, MAX(seed) AS seed FROM (
     SELECT p.Id, 1 AS seed FROM Product p WHERE p.ProductName = :searchExact
     UNION
     SELECT p.Id, 0.99 AS seed FROM Product p WHERE p.ProductName LIKE :search
@@ -66,7 +66,7 @@ namespace Vko.Repository.Implementation
     UNION
     SELECT p.Id, 0.70 AS seeed FROM Product p, Category c
     WHERE p.CategoryId = c.Id AND c.Description LIKE :search
-    )
+    ) GROUP BY ID ORDER BY seed
 ) res";
 
         public IEnumerable<T> Find<Y>(Y args)
@@ -76,7 +76,7 @@ namespace Vko.Repository.Implementation
             string strSql = "SELECT * FROM Product WHERE " + sqlWhere;
             if (tupleWhere.Item2.ContainsKey(":search"))
             {
-                strSql = string.Format("SELECT p.* FROM Product p, {0} WHERE p.Id = res.Id ORDER BY seed DESC", strSqlSearch);
+                strSql = string.Format("SELECT p.* FROM Product p, {0} WHERE p.Id = res.Id ORDER BY res.seed DESC", strSqlSearch);
                 return query.Run(strSql, new {
                     search = tupleWhere.Item2[":search"],
                     searchExact = tupleWhere.Item2[":searchExact"]

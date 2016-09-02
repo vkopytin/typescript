@@ -13,6 +13,8 @@ class ProductEntryViewModel extends BaseViewModel {
         this.defaults = {
             Id: -1,
             ProductName: '',
+            CategoryId: 1,
+            SupplierId: 1,
             UnitPrice: 0,
             UnitsOnOrder: 1,
             QuantityPerUnit: 'szt',

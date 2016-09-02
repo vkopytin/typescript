@@ -99,7 +99,9 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         var category = _.find(this.state.categories, (item: any) => item.getId() == evnt.target.value);
         if (category) {
             this.setState({
-                product: this.state.product.setCategory(category.toJSON())
+                product: this.state.product
+                    .setCategory(category.toJSON())
+                    .setCategoryId(category.getId())
             });
         }
     }
@@ -109,7 +111,9 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         var supplier = _.find(this.state.suppliers, (item: any) => item.getId() == evnt.target.value);
         if (supplier) {
             this.setState({
-                product: this.state.product.setSupplier(supplier.toJSON())
+                product: this.state.product
+                    .setSupplier(supplier.toJSON())
+                    .setSupplierId(supplier.getId())
             });
         }
     }

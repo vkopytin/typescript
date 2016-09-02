@@ -309,7 +309,8 @@ define("app/jira", ["require", "exports", "app/jira/base/base_view_model", "app/
         // Inject debendencies
         BaseViewModel.prototype.navigation = new PageViewModel({});
         function init() {
-            navigation.navigateTo('jira-report');
+            var location = window.location.hash.substr(1) || 'jira-report';
+            navigation.navigateTo(location);
             return true;
         }
         jira.init = init;
@@ -987,6 +988,8 @@ define("app/jira/view_models/products/product_entry_view_model", ["require", "ex
             this.defaults = {
                 Id: -1,
                 ProductName: '',
+                CategoryId: 1,
+                SupplierId: 1,
                 UnitPrice: 0,
                 UnitsOnOrder: 1,
                 QuantityPerUnit: 'szt',
@@ -1673,7 +1676,7 @@ define("app/jira/templates/products/product_item_template", ["require", "exports
     "use strict";
     var template = function (data) {
         var _this = this;
-        return (React.createElement("tr", null, React.createElement("td", null, React.createElement("button", {className: "btn btn-sm btn-link", onClick: function (e) { return _this.addToCart(e); }}, React.createElement("i", {className: "glyphicon glyphicon-plus"}), React.createElement("span", null, "to Cart"))), React.createElement("td", null, React.createElement("a", {href: "#", onClick: function (e) { return _this.onClick(e); }}, React.createElement("button", {className: "btn btn-sm btn-link"}, data.getProductName()))), React.createElement("td", {style: { width: "140px" }}, data.getUnitPrice()), React.createElement("td", {style: { width: "140px" }}, data.getQuantityPerUnit()), React.createElement("td", null, data.getCategory() && data.getCategory().CategoryName), React.createElement("td", null, data.getSupplier() && data.getSupplier().CompanyName)));
+        return (React.createElement("div", {className: "list-group-item"}, React.createElement("div", {className: "col-md-6"}, React.createElement("p", null, React.createElement("button", {className: "btn btn-sm btn-link", onClick: function (e) { return _this.addToCart(e); }}, React.createElement("i", {className: "glyphicon glyphicon-plus"}), React.createElement("span", null, "to Cart"))), React.createElement("p", null, React.createElement("a", {href: "#", onClick: function (e) { return _this.onClick(e); }}, React.createElement("button", {className: "btn btn-sm btn-link"}, data.getProductName()))), React.createElement("p", {className: "col-md-2"}, data.getUnitPrice())), React.createElement("div", {className: "col-md-6"}, React.createElement("p", {style: { width: "140px" }}, data.getQuantityPerUnit()), React.createElement("p", null, data.getCategory() && data.getCategory().CategoryName), React.createElement("p", null, data.getSupplier() && data.getSupplier().CompanyName))));
     };
     return template;
 });
@@ -1733,9 +1736,9 @@ define("app/jira/templates/products/products_template", ["require", "exports", '
     "use strict";
     var template = function () {
         var _this = this;
-        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null), React.createElement("th", null, "Description"), React.createElement("th", null, "Price"), React.createElement("th", null, "Quantity"), React.createElement("th", null, "Supplier"), React.createElement("th", null, "Category"))), React.createElement("tbody", null, this.state.products && this.state.products.map(function (entity) {
+        return (React.createElement("div", {className: "list-group"}, this.state.products && this.state.products.map(function (entity) {
             return React.createElement(ProductItemView, {viewModel: entity, key: entity.getId(), onSelect: function () { return _this.runCommand('SelectCommand', entity.getId()); }});
-        })))));
+        })));
     };
     return template;
 });
@@ -2429,7 +2432,9 @@ define("app/jira/views/products/create_product_view", ["require", "exports", 'jq
             var category = _.find(this.state.categories, function (item) { return item.getId() == evnt.target.value; });
             if (category) {
                 this.setState({
-                    product: this.state.product.setCategory(category.toJSON())
+                    product: this.state.product
+                        .setCategory(category.toJSON())
+                        .setCategoryId(category.getId())
                 });
             }
         };
@@ -2438,7 +2443,9 @@ define("app/jira/views/products/create_product_view", ["require", "exports", 'jq
             var supplier = _.find(this.state.suppliers, function (item) { return item.getId() == evnt.target.value; });
             if (supplier) {
                 this.setState({
-                    product: this.state.product.setSupplier(supplier.toJSON())
+                    product: this.state.product
+                        .setSupplier(supplier.toJSON())
+                        .setSupplierId(supplier.getId())
                 });
             }
         };

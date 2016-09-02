@@ -13,7 +13,8 @@ module jira {
     BaseViewModel.prototype.navigation = new PageViewModel({});
     
     export function init () {
-        navigation.navigateTo('jira-report');
+        var location = window.location.hash.substr(1) || 'jira-report';
+        navigation.navigateTo(location);
         
         return true;
     }

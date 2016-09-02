@@ -360,6 +360,7 @@ namespace Vko.Services.Impl
 					'All Products' AS ProductName,
 					SUM(od.Quantity) AS Quantity,
 					strftime('%m-%Y', o.OrderDate) AS Month,
+					o.OrderDate AS Date,
 					100 AS seed
 					FROM [Order] o, OrderDetail od, Product p, Supplier s
 					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
@@ -371,6 +372,7 @@ namespace Vko.Services.Impl
 					c.CategoryName AS ProductName,
 					SUM(od.Quantity) AS Quantity,
 					strftime('%m-%Y', o.OrderDate) AS Month,
+					o.OrderDate AS Date,
 					90 AS seed
 					FROM [Order] o, OrderDetail od, Product p, Category c
 					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND c.Id = p.CategoryId
@@ -382,6 +384,7 @@ namespace Vko.Services.Impl
 					s.CompanyName AS ProductName,
 					SUM(od.Quantity) AS Quantity,
 					strftime('%m-%Y', o.OrderDate) AS Month,
+					o.OrderDate AS Date,
 					80 AS seed
 					FROM [Order] o, OrderDetail od, Product p, Supplier s
 					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
@@ -392,13 +395,14 @@ namespace Vko.Services.Impl
 					SUM(od.UnitPrice * od.Quantity) AS Total,
 					p.ProductName AS ProductName,
 					SUM(od.Quantity) AS Quantity,
-					strftime('%m-%Y', o.OrderDate) AS Month,
+					'2016-01' AS Month,
+					'2016-01-01 10:00:00' AS Date,
 					70 AS seed
 					FROM [Order] o, OrderDetail od, Product p, Supplier s
 					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
 					 AND o.OrderDate > '2016-01-01'
 					GROUP BY Month, od.ProductId
-					ORDER BY seed DESC, Total DESC, Quantity DESC
+					ORDER BY seed DESC, Date DESC, Total DESC, Quantity DESC
 					";
 					
 	            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))

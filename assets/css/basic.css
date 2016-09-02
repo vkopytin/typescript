@@ -251,3 +251,12 @@ body {
         border-radius: 0px;
     }
 }
+
+@media (max-width:600px) {
+    #page-wrapper {
+        padding: 0px 0px;
+        min-height: 600px;
+        background: #F3F3F3;
+    }
+
+}

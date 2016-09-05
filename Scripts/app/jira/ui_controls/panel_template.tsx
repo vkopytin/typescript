@@ -5,9 +5,7 @@ var template = {
     <div className={"panel panel-default highlight"}>
         {this.getHeader()}
         <div className={"panel-body"}>
-            <div className={"form-group"}>
-                {this.getChildren()}
-            </div>
+            {this.getChildren()}
         </div>
     </div>
     );},

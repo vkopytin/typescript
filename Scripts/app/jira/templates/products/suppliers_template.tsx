@@ -4,7 +4,7 @@ import SupplierItemView = require('app/jira/views/products/supplier_item_view');
 var template = function () {
     return (
         <div className={"table-responsive"}>
-            <table className={"table table-striped table-bordered table-hover"}>
+            <table className={"table table-hover"}>
                 <thead>
                     <tr>
                         <th>Company Name</th>

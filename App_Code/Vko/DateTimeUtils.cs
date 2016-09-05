@@ -14,6 +14,10 @@ namespace Vko
 		public static long ToJSLong(this DateTime input)
 		{
 		    var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+			if (input < epoch)
+			{
+				return 0;
+			}
 		    var time = input.Subtract(new TimeSpan(epoch.Ticks));
 		    return (long)(time.Ticks / 10000);
 		}

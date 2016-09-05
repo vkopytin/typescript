@@ -1676,7 +1676,7 @@ define("app/jira/templates/products/product_item_template", ["require", "exports
     "use strict";
     var template = function (data) {
         var _this = this;
-        return (React.createElement("div", {className: "list-group-item"}, React.createElement("div", {className: "col-md-6"}, React.createElement("p", null, React.createElement("button", {className: "btn btn-sm btn-link", onClick: function (e) { return _this.addToCart(e); }}, React.createElement("i", {className: "glyphicon glyphicon-plus"}), React.createElement("span", null, "to Cart"))), React.createElement("p", null, React.createElement("a", {href: "#", onClick: function (e) { return _this.onClick(e); }}, React.createElement("button", {className: "btn btn-sm btn-link"}, data.getProductName()))), React.createElement("p", {className: "col-md-2"}, data.getUnitPrice())), React.createElement("div", {className: "col-md-6"}, React.createElement("p", {style: { width: "140px" }}, data.getQuantityPerUnit()), React.createElement("p", null, data.getCategory() && data.getCategory().CategoryName), React.createElement("p", null, data.getSupplier() && data.getSupplier().CompanyName))));
+        return (React.createElement("tr", {onClick: function (e) { return _this.editProduct(e); }}, React.createElement("td", null, React.createElement("button", {className: "btn btn-sm btn-link", onClick: function (e) { return _this.addToCart(e); }}, React.createElement("i", {className: "glyphicon glyphicon-plus"}), React.createElement("span", null, "to Cart"))), React.createElement("td", null, React.createElement("a", {href: "#", onClick: function (e) { return _this.onClick(e); }}, React.createElement("button", {className: "btn btn-sm btn-link"}, data.getProductName()))), React.createElement("td", {style: { width: "140px" }}, data.getUnitPrice()), React.createElement("td", {style: { width: "140px" }}, data.getQuantityPerUnit()), React.createElement("td", null, data.getCategory() && data.getCategory().CategoryName), React.createElement("td", null, data.getSupplier() && data.getSupplier().CompanyName), React.createElement("td", null, React.createElement("em", null, (new Date(data.getOrderDateTs())).toLocaleString()))));
     };
     return template;
 });
@@ -1719,14 +1719,21 @@ define("app/jira/views/products/product_item_view", ["require", "exports", 'unde
         };
         ProductItemView.prototype.onClick = function (evnt) {
             evnt.preventDefault();
+            evnt.stopPropagation();
             this.props.onSelect && this.props.onSelect();
         };
         ProductItemView.prototype.render = function () {
             return template.call(this, this.props.viewModel);
         };
         ProductItemView.prototype.addToCart = function (evnt) {
+            evnt.preventDefault();
+            evnt.stopPropagation();
             var vm = this.props.viewModel;
             this.props.viewModel.addToCart(vm.getId(), vm.getUnitPrice());
+        };
+        ProductItemView.prototype.editProduct = function (evnt) {
+            evnt.preventDefault();
+            console.log('Selected product');
         };
         return ProductItemView;
     }(BaseView));
@@ -1736,9 +1743,9 @@ define("app/jira/templates/products/products_template", ["require", "exports", '
     "use strict";
     var template = function () {
         var _this = this;
-        return (React.createElement("div", {className: "list-group"}, this.state.products && this.state.products.map(function (entity) {
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null), React.createElement("th", null, "Description"), React.createElement("th", null, "Price"), React.createElement("th", null, "Quantity"), React.createElement("th", null, "Supplier"), React.createElement("th", null, "Category"), React.createElement("th", null, "Order Date"))), React.createElement("tbody", null, this.state.products && this.state.products.map(function (entity) {
             return React.createElement(ProductItemView, {viewModel: entity, key: entity.getId(), onSelect: function () { return _this.runCommand('SelectCommand', entity.getId()); }});
-        })));
+        })))));
     };
     return template;
 });
@@ -1755,21 +1762,34 @@ define("app/jira/views/products/products_view", ["require", "exports", 'jquery',
             this.state = {
                 products: this.props.products(this.props.viewModel)
             };
+            this.setProductsDelegate = _.bind(this.setProducts, this);
         }
         ProductsView.prototype.setProducts = function () {
             this.setState({
                 products: this.props.products(this.props.viewModel)
             });
         };
+        ProductsView.prototype.attachEvents = function (viewModel) {
+            var _this = this;
+            _.each('change:products'.split(' '), function (en) {
+                $(viewModel).on(en, _this.setProductsDelegate);
+            });
+        };
+        ProductsView.prototype.deattachEvents = function (viewModel) {
+            var _this = this;
+            _.each('change:products'.split(' '), function (en) {
+                $(viewModel).off(en, _this.setProductsDelegate);
+            });
+        };
         ProductsView.prototype.componentWillMount = function () {
-            $(this.props.viewModel).on('change:products', _.bind(this.setProducts, this));
+            this.attachEvents(this.props.viewModel);
         };
         ProductsView.prototype.componentWillUnmount = function () {
-            $(this.props.viewModel).off('change:products');
+            this.deattachEvents(this.props.viewModel);
         };
         ProductsView.prototype.componentWillReceiveProps = function (props) {
-            $(this.props.viewModel).off('change:products');
-            $(props.viewModel).on('change:products', _.bind(this.setProducts, this));
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         ProductsView.prototype.render = function () {
             return template.call(this);
@@ -1782,7 +1802,7 @@ define("app/jira/templates/products/category_item_template", ["require", "export
     "use strict";
     var template = function (data) {
         var _this = this;
-        return (React.createElement("tr", {onClick: function (e) { return _this.onClick(e); }}, React.createElement("td", null, React.createElement("div", {contentEditable: "true", onInput: function (e) { return _this.updateCategoryName(e); }}, data.getCategoryName())), React.createElement("td", null, React.createElement("div", {contentEditable: "true", onInput: function (e) { return _this.updateDescription(e); }}, data.getDescription())), React.createElement("td", null, React.createElement("button", {className: "btn btn-xs btn-info", onClick: function (e) { return _this.saveCategory(e); }}, "Apply"))));
+        return (React.createElement("tr", {onClick: function (e) { return _this.onClick(e); }}, React.createElement("td", null, React.createElement("input", {className: "form-control", type: "text", onChange: function (e) { return _this.updateCategoryName(e); }, value: data.getCategoryName()})), React.createElement("td", null, React.createElement("input", {className: "form-control", type: "text", onChange: function (e) { return _this.updateDescription(e); }, value: data.getDescription()})), React.createElement("td", null, React.createElement("button", {className: "btn btn-xs btn-info", onClick: function (e) { return _this.saveCategory(e); }}, "Apply"))));
     };
     return template;
 });
@@ -1830,14 +1850,14 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
         };
         CategoryItemView.prototype.updateCategoryName = function (evnt) {
             evnt.preventDefault();
-            var val = $(evnt.target).text();
+            var val = $(evnt.target).val();
             this.setState({
                 category: this.state.category.setCategoryName(val)
             });
         };
         CategoryItemView.prototype.updateDescription = function (evnt) {
             evnt.preventDefault();
-            var val = $(evnt.target).text();
+            var val = $(evnt.target).val();
             this.setState({
                 category: this.state.category.setDescription(val)
             });
@@ -1847,7 +1867,7 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
             this.state.category.saveCategory();
         };
         CategoryItemView.prototype.render = function () {
-            return template.call(this, this.props.viewModel);
+            return template.call(this, this.state.category);
         };
         return CategoryItemView;
     }(BaseView));
@@ -1857,7 +1877,7 @@ define("app/jira/templates/products/categories_template", ["require", "exports",
     "use strict";
     var template = function () {
         var _this = this;
-        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Categoriy Name"), React.createElement("th", null, "Category Description"), React.createElement("th", null))), React.createElement("tbody", null, this.state.categories && this.state.categories.map(function (entity) {
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Categoriy Name"), React.createElement("th", null, "Category Description"), React.createElement("th", null))), React.createElement("tbody", null, this.state.categories && this.state.categories.map(function (entity) {
             return React.createElement(CategoryItemView, {viewModel: entity, key: entity.getId(), onSelect: function () { return _this.runCommand('SelectCommand', entity.getId()); }});
         })))));
     };
@@ -1908,7 +1928,7 @@ define("app/jira/templates/products/supplier_item_template", ["require", "export
     "use strict";
     var template = function (data) {
         var _this = this;
-        return (React.createElement("tr", {onClick: function (e) { return _this.onClick(e); }}, React.createElement("td", null, React.createElement("div", {contentEditable: "true", onInput: function (e) { return _this.updateCompanyName(e); }}, data.getCompanyName())), React.createElement("td", null, React.createElement("div", {contentEditable: "true", onInput: function (e) { return _this.updateAddress(e); }}, data.getAddress())), React.createElement("td", null, React.createElement("button", {className: "btn btn-xs btn-info", onClick: function (e) { return _this.saveSupplier(e); }}, "Apply"))));
+        return (React.createElement("tr", {onClick: function (e) { return _this.onClick(e); }}, React.createElement("td", null, React.createElement("input", {className: "form-control", type: "text", onChange: function (e) { return _this.updateCompanyName(e); }, value: data.getCompanyName()})), React.createElement("td", null, React.createElement("input", {className: "form-control", type: "text", onChange: function (e) { return _this.updateAddress(e); }, value: data.getAddress()})), React.createElement("td", null, React.createElement("button", {className: "btn btn-xs btn-info", onClick: function (e) { return _this.saveSupplier(e); }}, "Apply"))));
     };
     return template;
 });
@@ -1921,30 +1941,34 @@ define("app/jira/views/products/supplier_item_view", ["require", "exports", 'und
             this.state = {
                 supplier: this.props.viewModel
             };
+            this.setSupplierDelegate = _.bind(this.setSupplier, this);
         }
-        SupplierItemView.prototype.setProduct = function () {
+        SupplierItemView.prototype.setSupplier = function () {
             this.setState({
                 supplier: this.props.viewModel
             });
         };
-        SupplierItemView.prototype.componentWillMount = function () {
+        SupplierItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
             _.each('change:CompanyName change:Address'.split(' '), function (en) {
-                $(_this.props.viewModel).on(en, _.bind(_this.setProduct, _this));
+                $(viewModel).on(en, _this.setSupplierDelegate);
             });
+        };
+        SupplierItemView.prototype.deattachEvents = function (viewModel) {
+            var _this = this;
+            _.each('change:CompanyName change:Address'.split(' '), function (en) {
+                $(viewModel).off(en, _this.setSupplierDelegate);
+            });
+        };
+        SupplierItemView.prototype.componentWillMount = function () {
+            this.attachEvents(this.props.viewModel);
         };
         SupplierItemView.prototype.componentWillUnmount = function () {
-            var _this = this;
-            _.each('change:CompanyName change:Address'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-            });
+            this.deattachEvents(this.props.viewModel);
         };
         SupplierItemView.prototype.componentWillReceiveProps = function (props) {
-            var _this = this;
-            _.each('change:CompanyName change:Address'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-                $(props.viewModel).on(en, _.bind(_this.setProduct, _this));
-            });
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         SupplierItemView.prototype.onClick = function (evnt) {
             evnt.preventDefault();
@@ -1952,24 +1976,24 @@ define("app/jira/views/products/supplier_item_view", ["require", "exports", 'und
         };
         SupplierItemView.prototype.updateCompanyName = function (evnt) {
             evnt.preventDefault();
-            var val = $(evnt.target).text();
+            var val = $(evnt.target).val();
             this.setState({
                 supplier: this.state.supplier.setCompanyName(val)
             });
         };
         SupplierItemView.prototype.updateAddress = function (evnt) {
             evnt.preventDefault();
-            var val = $(evnt.target).text();
+            var val = $(evnt.target).val();
             this.setState({
                 supplier: this.state.supplier.setAddress(val)
             });
         };
         SupplierItemView.prototype.saveSupplier = function (evnt) {
             evnt.preventDefault();
-            this.props.viewModel.saveSupplier();
+            this.state.supplier.saveSupplier();
         };
         SupplierItemView.prototype.render = function () {
-            return template.call(this, this.props.viewModel);
+            return template.call(this, this.state.supplier);
         };
         return SupplierItemView;
     }(BaseView));
@@ -1979,7 +2003,7 @@ define("app/jira/templates/products/suppliers_template", ["require", "exports", 
     "use strict";
     var template = function () {
         var _this = this;
-        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Company Name"), React.createElement("th", null, "Address"), React.createElement("th", null))), React.createElement("tbody", null, this.state.suppliers && this.state.suppliers.map(function (entity) {
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Company Name"), React.createElement("th", null, "Address"), React.createElement("th", null))), React.createElement("tbody", null, this.state.suppliers && this.state.suppliers.map(function (entity) {
             return React.createElement(SupplierItemView, {viewModel: entity, key: entity.getId(), onSelect: function () { return _this.runCommand('SelectCommand', entity.getId()); }});
         })))));
     };
@@ -1996,21 +2020,34 @@ define("app/jira/views/products/suppliers_view", ["require", "exports", 'jquery'
             this.state = {
                 suppliers: this.props.viewModel.getSuppliers()
             };
+            this.setSuppliersDelegate = _.bind(this.setSuppliers, this);
         }
         SuppliersView.prototype.setSuppliers = function () {
             this.setState({
                 suppliers: this.props.viewModel.getSuppliers()
             });
         };
+        SuppliersView.prototype.attachEvents = function (viewModel) {
+            var _this = this;
+            _.each('change:suppliers'.split(' '), function (en) {
+                $(viewModel).on(en, _this.setSuppliersDelegate);
+            });
+        };
+        SuppliersView.prototype.deattachEvents = function (viewModel) {
+            var _this = this;
+            _.each('change:suppliers'.split(' '), function (en) {
+                $(viewModel).off(en, _this.setSuppliersDelegate);
+            });
+        };
         SuppliersView.prototype.componentWillMount = function () {
-            $(this.props.viewModel).on('change:suppliers', _.bind(this.setSuppliers, this));
+            this.attachEvents(this.props.viewModel);
         };
         SuppliersView.prototype.componentWillUnmount = function () {
-            $(this.props.viewModel).off('change:suppliers');
+            this.deattachEvents(this.props.viewModel);
         };
         SuppliersView.prototype.componentWillReceiveProps = function (props) {
-            $(this.props.viewModel).off('change:suppliers');
-            $(props.viewModel).on('change:suppliers', _.bind(this.setSuppliers, this));
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         SuppliersView.prototype.render = function () {
             return template.call(this);
@@ -2245,8 +2282,8 @@ define("app/jira/views/products/cart_view", ["require", "exports", 'jquery', 'un
 define("app/jira/templates/products/report_template", ["require", "exports", 'underscore', 'react'], function (require, exports, _, React) {
     "use strict";
     var template = function () {
-        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Month"), React.createElement("th", null, "Total"), React.createElement("th", null, "Quantity"), React.createElement("th", null, "Product/Supplier"), React.createElement("th", null, "Category"))), React.createElement("tbody", null, this.state.report && _.map(this.state.report, function (entity) {
-            return React.createElement("tr", null, React.createElement("td", null, entity.Month), React.createElement("td", null, entity.Total), React.createElement("td", null, entity.Quantity), React.createElement("td", null, entity.ProductName), React.createElement("td", null));
+        return (React.createElement("div", {className: "table-responsive"}, React.createElement("table", {className: "table table-striped table-bordered table-hover"}, React.createElement("thead", null, React.createElement("tr", null, React.createElement("th", null, "Month"), React.createElement("th", null, "Total"), React.createElement("th", null, "Quantity"), React.createElement("th", null, "Product/Supplier"), React.createElement("th", null, "Category"))), React.createElement("tbody", null, this.state.report && _.map(this.state.report, function (entity, index) {
+            return React.createElement("tr", {key: index}, React.createElement("td", null, entity.Month), React.createElement("td", null, entity.Total), React.createElement("td", null, entity.Quantity), React.createElement("td", null, entity.ProductName), React.createElement("td", null));
         })))));
     };
     return template;
@@ -2296,7 +2333,7 @@ define("app/jira/ui_controls/panel_template", ["require", "exports", 'react'], f
     "use strict";
     var template = {
         body: function () {
-            return (React.createElement("div", {className: "panel panel-default highlight"}, this.getHeader(), React.createElement("div", {className: "panel-body"}, React.createElement("div", {className: "form-group"}, this.getChildren()))));
+            return (React.createElement("div", {className: "panel panel-default highlight"}, this.getHeader(), React.createElement("div", {className: "panel-body"}, this.getChildren())));
         },
         header: function (def) {
             return (React.createElement("div", {className: "panel-heading"}, !def && this.props.children, def && React.createElement("label", null, this.props.title)));
@@ -2351,11 +2388,11 @@ define("app/jira/templates/products/create_product_template", ["require", "expor
     "use strict";
     var template = function () {
         var _this = this;
-        return (React.createElement("form", {role: "form", onSubmit: this.submitForm}, React.createElement("div", {className: "form-group"}, React.createElement("label", null, "Enter Product Name"), React.createElement("textarea", {className: "form-control", rows: "3", value: this.state.product.getProductName(), onChange: function (e) { return _this.updateProductName(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group"}, React.createElement("label", null, "Select Category"), React.createElement("select", {className: "form-control", value: this.state.product.getCategory() && this.state.product.getCategory().Id, onChange: function (e) { return _this.updateCategory(e); }}, _.map(this.state.categories, function (item) {
+        return (React.createElement("div", {className: "form-group"}, React.createElement("form", {role: "form", onSubmit: this.submitForm}, React.createElement("div", {className: "form-group"}, React.createElement("label", null, "Enter Product Name"), React.createElement("textarea", {className: "form-control", rows: "3", value: this.state.product.getProductName(), onChange: function (e) { return _this.updateProductName(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group"}, React.createElement("label", null, "Select Category"), React.createElement("select", {className: "form-control", value: this.state.product.getCategory() && this.state.product.getCategory().Id, onChange: function (e) { return _this.updateCategory(e); }}, _.map(this.state.categories, function (item) {
             return (React.createElement("option", {key: item.getId(), value: item.getId()}, item.getCategoryName()));
         })), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group"}, React.createElement("label", null, "Select Supplier"), React.createElement("select", {className: "form-control", onChange: function (e) { return _this.updateSupplier(e); }, value: this.state.product.getSupplier() && this.state.product.getSupplier().Id}, _.map(this.state.suppliers, function (item) {
             return (React.createElement("option", {key: item.getId(), value: item.getId()}, item.getCompanyName()));
-        })), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Price"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitPrice(), onChange: function (e) { return _this.updateUnitPrice(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Quantity"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getQuantityPerUnit(), onChange: function (e) { return _this.updateQuantityPerUnit(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Units"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitsOnOrder(), onChange: function (e) { return _this.updateUnitsOnOrder(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-8"}, React.createElement("button", {className: "btn btn-info", type: "submit", onClick: function (e) { return _this.saveProduct(e); }}, "Save")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("button", {className: "btn btn-info", type: "submit", onClick: function (e) { return _this.newProduct(e); }}, "New Product"))));
+        })), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Price"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitPrice(), onChange: function (e) { return _this.updateUnitPrice(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Quantity"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getQuantityPerUnit(), onChange: function (e) { return _this.updateQuantityPerUnit(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("label", null, "Units"), React.createElement("input", {className: "form-control", type: "text", value: this.state.product.getUnitsOnOrder(), onChange: function (e) { return _this.updateUnitsOnOrder(e); }}), React.createElement("p", {className: "help-block"}, "Help text here.")), React.createElement("div", {className: "form-group col-md-8"}, React.createElement("button", {className: "btn btn-info", type: "submit", onClick: function (e) { return _this.saveProduct(e); }}, "Save")), React.createElement("div", {className: "form-group col-md-4"}, React.createElement("button", {className: "btn btn-info", type: "submit", onClick: function (e) { return _this.newProduct(e); }}, "New Product")))));
     };
     return template;
 });
@@ -2530,7 +2567,9 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
             _super.call(this, opts);
             this.handlers = {
                 onDraw: function () {
-                    $('#main-menu').metisMenu();
+                    _.defer(function () {
+                        $('#main-menu').metisMenu();
+                    });
                 }
             };
             var cart = this.props.viewModel.getCart();
@@ -2563,12 +2602,12 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
             Base.prototype.finish.apply(this, arguments);
         };
         FeedingPage.prototype.attachEvents = function (viewModel) {
-            $(this.props.viewModel).on('change:products', this.setProductsTotalDelegate);
-            $(this.props.viewModel).on('change:carts', this.updateCartDelegate);
+            $(viewModel).on('change:products', this.setProductsTotalDelegate);
+            $(viewModel).on('change:carts', this.updateCartDelegate);
         };
         FeedingPage.prototype.deattachEvents = function (viewModel) {
-            $(this.props.viewModel).off('change:products', this.setProductsTotalDelegate);
-            $(this.props.viewModel).off('change:carts', this.updateCartDelegate);
+            $(viewModel).off('change:products', this.setProductsTotalDelegate);
+            $(viewModel).off('change:carts', this.updateCartDelegate);
         };
         FeedingPage.prototype.componentWillMount = function () {
             this.attachEvents(this.props.viewModel);

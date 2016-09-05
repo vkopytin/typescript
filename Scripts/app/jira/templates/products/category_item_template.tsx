@@ -3,14 +3,14 @@ import React = require('react');
 var template = function (data: any) {
 	return (<tr onClick={(e) => this.onClick(e)}>
 		<td>
-			<div contentEditable="true"
-			 onInput={(e) => this.updateCategoryName(e)}
-			 >{data.getCategoryName()}</div>
+			<input className="form-control" type="text"
+			 onChange={(e) => this.updateCategoryName(e)}
+			 value={data.getCategoryName()}/>
 		</td>
 		<td>
-			<div contentEditable="true"
-			 onInput={(e) => this.updateDescription(e)}
-			 >{data.getDescription()}</div>
+			<input className="form-control" type="text"
+			 onChange={(e) => this.updateDescription(e)}
+			 value={data.getDescription()}/>
 		</td>
 		<td>
 			<button className="btn btn-xs btn-info"

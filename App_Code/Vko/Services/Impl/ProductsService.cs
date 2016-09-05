@@ -402,7 +402,7 @@ namespace Vko.Services.Impl
 					WHERE o.Id = od.OrderId AND p.Id = od.ProductId AND s.Id = p.SupplierId
 					 AND o.OrderDate > '2016-01-01'
 					GROUP BY Month, od.ProductId
-					ORDER BY seed DESC, Date DESC, Total DESC, Quantity DESC
+					ORDER BY seed DESC, Month DESC, Total DESC, Quantity DESC
 					";
 					
 	            using (SQLiteCommand command = new SQLiteCommand(strSql, conn))
@@ -415,7 +415,8 @@ namespace Vko.Services.Impl
 								Month = Convert.ToString(reader["Month"]),
 								ProductName = Convert.ToString(reader["ProductName"]),
 								Quantity = Convert.ToString(reader["Quantity"]),
-								Total = Convert.ToString(reader["Total"])
+								Total = Convert.ToString(reader["Total"]),
+								seed = Convert.ToString(reader["seed"])
 							};
 	                    }
 	                }
@@ -476,23 +477,33 @@ namespace Vko.Services.Impl
 					__in = products.Select(x => x.SupplierId).Distinct().ToArray()
 				}
 			}).ToList();
+			var orderDetails = repo.Make<IOrderDetailsRepository<OrderDetail>>().Find(new {
+				ProductId = new {
+					__in = products.Select(x => x.Id).Distinct().ToArray()
+				}
+			}).ToList();
+			var orders = repo.Make<IOrdersRepository<Order>>().Find(new {
+				Id = new {
+					__in = orderDetails.Select(x => x.OrderId).Distinct().ToArray()
+				}
+			}).ToList();
 			
 			foreach (var entity in products)
 			{
+				var curOrder = (from orderDetail in orderDetails
+    				from order in orders
+					where orderDetail.OrderId == order.Id && orderDetail.ProductId == entity.Id
+					orderby order.OrderDate descending
+                    select order).FirstOrDefault();
+					
 				entity.Category = categories.FirstOrDefault(x => x.Id == entity.CategoryId);
 				entity.Supplier = suppliers.FirstOrDefault(x => x.Id == entity.SupplierId);
+				entity.OrderDate = curOrder == null ? DateTime.MinValue : curOrder.OrderDate;
 				
 				yield return entity;
 			}
 		}
 		
-		private IEnumerable<Supplier> ListSuppliers(General repo, int from=0, int count=10)
-		{
-            var suppliers = repo.Make<ISuppliersRepository<Supplier>>().List(from, count);
-			
-			return suppliers;
-		}
-
 		private IEnumerable<Product> FindProducts<T>(General repo, T args)
 		{
             var products = repo.Make<IProductsRepository<Product>>().Find(args);
@@ -517,6 +528,13 @@ namespace Vko.Services.Impl
 			}
 		}
 		
+		private IEnumerable<Supplier> ListSuppliers(General repo, int from=0, int count=10)
+		{
+            var suppliers = repo.Make<ISuppliersRepository<Supplier>>().List(from, count);
+			
+			return suppliers;
+		}
+
 		private IEnumerable<Supplier> FindSuppliers<T>(General repo, T args)
 		{
 			var suppliers = repo.Make<ISuppliersRepository<Supplier>>().Find(args);

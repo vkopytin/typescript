@@ -12,6 +12,7 @@ interface ISupplierItemView {
 }
 
 class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemView> {
+    setSupplierDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -19,31 +20,39 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
         this.state = {
             supplier: this.props.viewModel
         };
+        
+        this.setSupplierDelegate = _.bind(this.setSupplier, this);
     }
     
-    setProduct () {
+    setSupplier () {
         this.setState({
             supplier: this.props.viewModel
         });
     }
     
-    componentWillMount () {
+    attachEvents (viewModel: SupplierEntryViewModel): void {
         _.each('change:CompanyName change:Address'.split(' '), (en) => {
-            $(this.props.viewModel).on(en, _.bind(this.setProduct, this));
+            $(viewModel).on(en, this.setSupplierDelegate);
         });
+    }
+    
+    deattachEvents (viewModel: SupplierEntryViewModel): void {
+        _.each('change:CompanyName change:Address'.split(' '), (en) => {
+            $(viewModel).off(en, this.setSupplierDelegate);
+        });
+    }
+
+    componentWillMount () {
+        this.attachEvents(this.props.viewModel);
     }
     
     componentWillUnmount () {
-        _.each('change:CompanyName change:Address'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-        });
+        this.deattachEvents(this.props.viewModel);
     }
     
     componentWillReceiveProps (props: ISupplierItemView) {
-        _.each('change:CompanyName change:Address'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-            $(props.viewModel).on(en, _.bind(this.setProduct, this));
-        });
+        this.deattachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
     }
     
     onClick (evnt: any): any {
@@ -53,7 +62,7 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
     
     updateCompanyName (evnt: any) {
         evnt.preventDefault();
-        var val = $(evnt.target).text();
+        var val = $(evnt.target).val();
         
         this.setState({
             supplier: this.state.supplier.setCompanyName(val)
@@ -62,7 +71,7 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
     
     updateAddress (evnt: any) {
         evnt.preventDefault();
-        var val = $(evnt.target).text();
+        var val = $(evnt.target).val();
         
         this.setState({
             supplier: this.state.supplier.setAddress(val)
@@ -72,12 +81,12 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
     saveSupplier (evnt: any) {
         evnt.preventDefault();
         
-        this.props.viewModel.saveSupplier();
+        this.state.supplier.saveSupplier();
     }
     
     render () {
         
-        return template.call(this, this.props.viewModel);
+        return template.call(this, this.state.supplier);
     }
 }
 

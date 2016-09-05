@@ -30,7 +30,7 @@ namespace hellomvc.Controllers
         
         public ActionResult Index ()
         {
-            var mvcName = typeof(Controller).Assembly.GetName ();
+            var mvcName = typeof(Controller).Assembly.GetName();
             var isMono = Type.GetType ("Mono.Runtime") != null;
 
             ViewData ["Version"] = mvcName.Version.Major + "." + mvcName.Version.Minor;
@@ -155,7 +155,8 @@ namespace hellomvc.Controllers
         [HttpGet]
         public ActionResult Products(int from=0, int count=10, string search=null)
         {
-            if (string.IsNullOrEmpty(search)) {
+            if (string.IsNullOrEmpty(search))
+            {
                 var items = productsService.ListProductsPaged(from, count);
 
                 return Json(items, JsonRequestBehavior.AllowGet);

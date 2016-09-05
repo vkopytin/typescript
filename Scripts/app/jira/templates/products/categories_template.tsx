@@ -4,7 +4,7 @@ import CategoryItemView = require('app/jira/views/products/category_item_view');
 var template = function () {
     return (
         <div className={"table-responsive"}>
-            <table className={"table table-striped table-bordered table-hover"}>
+            <table className={"table table-hover"}>
                 <thead>
                     <tr>
                         <th>Categoriy Name</th>

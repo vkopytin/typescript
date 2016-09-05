@@ -16,6 +16,7 @@ interface ISuppliersView extends React.Props<any> {
 }
 
 class SuppliersView extends BaseView<FeedingViewModel, ISuppliersView> {
+    setSuppliersDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -23,6 +24,8 @@ class SuppliersView extends BaseView<FeedingViewModel, ISuppliersView> {
         this.state = {
             suppliers: this.props.viewModel.getSuppliers()
         };
+        
+        this.setSuppliersDelegate = _.bind(this.setSuppliers, this);
     }
     
     setSuppliers () {
@@ -30,18 +33,30 @@ class SuppliersView extends BaseView<FeedingViewModel, ISuppliersView> {
             suppliers: this.props.viewModel.getSuppliers()
         });
     }
+
+    attachEvents (viewModel: FeedingViewModel): void {
+        _.each('change:suppliers'.split(' '), (en) => {
+            $(viewModel).on(en, this.setSuppliersDelegate);
+        });
+    }
+    
+    deattachEvents (viewModel: FeedingViewModel): void {
+        _.each('change:suppliers'.split(' '), (en) => {
+            $(viewModel).off(en, this.setSuppliersDelegate);
+        });
+    }
     
     componentWillMount () {
-        $(this.props.viewModel).on('change:suppliers', _.bind(this.setSuppliers, this));
+        this.attachEvents(this.props.viewModel);
     }
     
     componentWillUnmount () {
-        $(this.props.viewModel).off('change:suppliers');
+        this.deattachEvents(this.props.viewModel);
     }
     
     componentWillReceiveProps (props: ISuppliersView) {
-        $(this.props.viewModel).off('change:suppliers');
-        $(props.viewModel).on('change:suppliers', _.bind(this.setSuppliers, this));
+        this.deattachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
     }
 
     render () {

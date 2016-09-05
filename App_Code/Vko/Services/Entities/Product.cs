@@ -19,6 +19,15 @@ namespace Vko.Services.Entities
 
         public Category Category { get; set; }
         public Supplier Supplier { get; set; }
+        
+        public DateTime OrderDate { get; set; }
+        public long OrderDateTs
+        {
+            get
+            {
+                return OrderDate.ToJSLong();
+            }
+        }
 
         public Product ()
         {

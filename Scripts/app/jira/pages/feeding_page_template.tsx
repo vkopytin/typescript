@@ -40,7 +40,7 @@ var template = function (viewModel: any) {
 							<PanelView.Header>
 								<div className="col-md-7">
 									<ul className={"pagination"}>
-									 <li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&laquo;</a></li>
+									<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&laquo;</a></li>
 									{_.map(_.range(0, this.state.productsTotal, 10), (index: number) => 
 										 <li key={index}><a href="#" onClick={(e) => this.fetchProducts(e, index, 10)}>{index}</a></li>
 									)}

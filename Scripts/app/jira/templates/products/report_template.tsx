@@ -16,8 +16,8 @@ var template = function () {
                     </tr>
                 </thead>
                 <tbody>
-	               {this.state.report && _.map(this.state.report, (entity: any) => 
-                    <tr>
+	               {this.state.report && _.map(this.state.report, (entity: any, index: number) => 
+                    <tr key={index}>
                 		<td>{entity.Month}</td>
                 		<td>{entity.Total}</td>
                 		<td>{entity.Quantity}</td>

@@ -62,7 +62,7 @@ class CategoryItemView extends BaseView<CategoryEntryViewModel, IProductItemView
     
     updateCategoryName (evnt: any) {
         evnt.preventDefault();
-        var val = $(evnt.target).text();
+        var val = $(evnt.target).val();
         
         this.setState({
             category: this.state.category.setCategoryName(val)
@@ -71,7 +71,7 @@ class CategoryItemView extends BaseView<CategoryEntryViewModel, IProductItemView
     
     updateDescription (evnt: any) {
         evnt.preventDefault();
-        var val = $(evnt.target).text();
+        var val = $(evnt.target).val();
         
         this.setState({
             category: this.state.category.setDescription(val)
@@ -86,7 +86,7 @@ class CategoryItemView extends BaseView<CategoryEntryViewModel, IProductItemView
 
     render () {
         
-        return template.call(this, this.props.viewModel);
+        return template.call(this, this.state.category);
     }
 }
 

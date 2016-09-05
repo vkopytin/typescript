@@ -22,6 +22,7 @@ interface IProductsView extends React.Props<any> {
 }
 
 class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
+    setProductsDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -29,6 +30,8 @@ class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
         this.state = {
             products: this.props.products(this.props.viewModel)
         };
+        
+        this.setProductsDelegate = _.bind(this.setProducts, this);
     }
     
     setProducts () {
@@ -37,17 +40,29 @@ class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
         });
     }
     
+    attachEvents (viewModel: FeedingViewModel): void {
+        _.each('change:products'.split(' '), (en) => {
+            $(viewModel).on(en, this.setProductsDelegate);
+        });
+    }
+    
+    deattachEvents (viewModel: FeedingViewModel): void {
+        _.each('change:products'.split(' '), (en) => {
+            $(viewModel).off(en, this.setProductsDelegate);
+        });
+    }
+    
     componentWillMount () {
-        $(this.props.viewModel).on('change:products', _.bind(this.setProducts, this));
+        this.attachEvents(this.props.viewModel);
     }
     
     componentWillUnmount () {
-        $(this.props.viewModel).off('change:products');
+        this.deattachEvents(this.props.viewModel);
     }
     
     componentWillReceiveProps (props: IProductsView) {
-        $(this.props.viewModel).off('change:products');
-        $(props.viewModel).on('change:products', _.bind(this.setProducts, this));
+        this.deattachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
     }
     
     render () {

@@ -1,7 +1,7 @@
 import React = require('react');
 
 var template = function (data: any) {
-	return (<tr>
+	return (<tr onClick={(e) => this.editProduct(e)}>
 		<td>
 			<button className="btn btn-sm btn-link"
 			 onClick={(e) => this.addToCart(e)}
@@ -23,6 +23,11 @@ var template = function (data: any) {
 		<td style={{width: "140px"}}>{data.getQuantityPerUnit()}</td>
 		<td>{data.getCategory() && data.getCategory().CategoryName}</td>
 		<td>{data.getSupplier() && data.getSupplier().CompanyName}</td>
+		<td>
+			<em>
+				{(new Date(data.getOrderDateTs())).toLocaleString()}
+			</em>
+		</td>
 	</tr>);
 };
 

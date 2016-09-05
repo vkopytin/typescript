@@ -6,6 +6,7 @@ import PanelView = require('app/jira/ui_controls/panel_view');
 
 var template = function () {
     return (
+    <div className={"form-group"}>
         <form role="form" onSubmit={this.submitForm}>
             <div className="form-group">
                 <label>Enter Product Name</label>
@@ -84,6 +85,7 @@ var template = function () {
                 </button>
             </div>
         </form>
+    </div>
     );
 }
 

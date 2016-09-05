@@ -26,7 +26,9 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
 
     handlers = {
         onDraw: function () {
-            $('#main-menu').metisMenu();
+            _.defer(function () {
+                $('#main-menu').metisMenu();
+            });
         }
     }
     
@@ -65,18 +67,19 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
         
         super.init(options);
     }
+    
     finish (): void {
         Base.prototype.finish.apply(this, arguments);
     }
     
     attachEvents (viewModel: any) {
-        $(this.props.viewModel).on('change:products', this.setProductsTotalDelegate);
-        $(this.props.viewModel).on('change:carts', this.updateCartDelegate);
+        $(viewModel).on('change:products', this.setProductsTotalDelegate);
+        $(viewModel).on('change:carts', this.updateCartDelegate);
     }
     
     deattachEvents (viewModel: any) {
-        $(this.props.viewModel).off('change:products', this.setProductsTotalDelegate);
-        $(this.props.viewModel).off('change:carts', this.updateCartDelegate);
+        $(viewModel).off('change:products', this.setProductsTotalDelegate);
+        $(viewModel).off('change:carts', this.updateCartDelegate);
     }
 
     componentWillMount () {

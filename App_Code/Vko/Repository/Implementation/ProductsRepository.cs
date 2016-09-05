@@ -33,7 +33,7 @@ namespace Vko.Repository.Implementation
         
         public IEnumerable<T> List(int from=0, int count=10)
         {
-            string strSql = "SELECT * FROM Product ORDER BY Id LIMIT :count OFFSET :from";
+            string strSql = @"SELECT * FROM Product ORDER BY Id LIMIT :count OFFSET :from";
             
             return query.Run(strSql, new {
                 from = from,

@@ -57,6 +57,7 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
     
     onClick (evnt: any): any {
         evnt.preventDefault();
+        evnt.stopPropagation();
         this.props.onSelect && this.props.onSelect();
     }
     
@@ -66,11 +67,18 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
     }
     
     addToCart(evnt: any) {
+        evnt.preventDefault();
+        evnt.stopPropagation();
         var vm: any = this.props.viewModel;
         this.props.viewModel.addToCart(
             vm.getId(),
             vm.getUnitPrice()
         );
+    }
+    
+    editProduct(evnt: any) {
+        evnt.preventDefault();
+        console.log('Selected product');
     }
 }
 

@@ -13,6 +13,7 @@ var template = function () {
                         <th>Quantity</th>
                         <th>Supplier</th>
                         <th>Category</th>
+                        <th>Order Date</th>
                     </tr>
                 </thead>
                 <tbody>

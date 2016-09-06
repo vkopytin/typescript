@@ -15,8 +15,8 @@ import FeedingViewModel = require('app/jira/view_models/products/feeding_view_mo
 var template = function (viewModel: any) {
 	return (
 		<TabsView active={0}>
-			<div id={"page-inner"} title={"Home"}>
-	            <div className={"row"}>
+			<div id="page-inner" tabTitle="Home">
+	            <div className="row">
 					<div className="col-md-6">
 						<PanelView title="Create Product">
 							<CreateProductView viewModel={viewModel}/>
@@ -35,19 +35,21 @@ var template = function (viewModel: any) {
 					</div>
 				</div>
 	            <div className={"row"}>
+					<div className="col-md-12">
+						<ul className={"pagination"}>
+						<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&laquo;</a></li>
+						{_.map(_.range(0, this.state.productsTotal, 10), (index: number) => 
+							 <li key={index}><a href="#" onClick={(e) => this.fetchProducts(e, index, 10)}>{index}</a></li>
+						)}
+						<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&raquo;</a></li>
+						</ul>
+					</div>
+				</div>
+	            <div className={"row"}>
 	                <div className="col-md-12">
 						<PanelView ref="productsPanel" viewModel={viewModel}>
 							<PanelView.Header>
-								<div className="col-md-7">
-									<ul className={"pagination"}>
-									<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&laquo;</a></li>
-									{_.map(_.range(0, this.state.productsTotal, 10), (index: number) => 
-										 <li key={index}><a href="#" onClick={(e) => this.fetchProducts(e, index, 10)}>{index}</a></li>
-									)}
-									<li onClick={(e) => this.fetchProducts(e, 0, 10)}><a href="#">&raquo;</a></li>
-									</ul>
-								</div>
-								<div className="input-group col-md-5">
+								<div className="input-group col-md-12">
 			        	       		<input type="text" onInput={(e) => this.searchProducts(e)} className="form-control" placeholder="Enter search phrase" />
 		    	                   	<span className="input-group-btn">
 		        	                  	<button className="btn btn-success" type="button">Find</button>
@@ -59,28 +61,28 @@ var template = function (viewModel: any) {
 	                </div>
 	            </div>
 			</div>
-			<div id={"page-inner"} title={"Categories"}>
+			<div id={"page-inner"} tabTitle={"Categories"}>
 	            <div className={"row"}>
 	                <div className="col-md-12">
 						<CategoriesView viewModel={viewModel} />
 	                </div>
 	            </div>
 			</div>
-			<div id={"page-inner"} title={"Suppliers"}>
+			<div id={"page-inner"} tabTitle={"Suppliers"}>
 	            <div className={"row"}>
 	                <div className="col-md-12">
 						<SuppliersView viewModel={viewModel} />
 	                </div>
 	            </div>
 			</div>
-			<div id={"page-inner"} title={"Orders"}>
+			<div id={"page-inner"} tabTitle={"Orders"}>
 	            <div className={"row"}>
 	                <div className="col-md-12">
 						<OrdersView viewModel={viewModel} />
 	                </div>
 	            </div>
 			</div>
-			<div id={"page-inner"} title={"Report"}>
+			<div id={"page-inner"} tabTitle={"Report"}>
 	            <div className={"row"}>
 	                <div className="col-md-12">
 						<ReportView viewModel={viewModel} />

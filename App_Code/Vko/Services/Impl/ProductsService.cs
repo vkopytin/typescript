@@ -487,18 +487,19 @@ namespace Vko.Services.Impl
 					__in = orderDetails.Select(x => x.OrderId).Distinct().ToArray()
 				}
 			}).ToList();
+			var orderDateDict = (from product in products
+				join orderDetail in orderDetails on product.Id equals orderDetail.ProductId
+				join order in orders on orderDetail.OrderId equals order.Id
+                select new { ProductId = product.Id, OrderDate = order.OrderDate } into g
+				group g by g.ProductId into r
+				select new { ProductId = r.Key, OrderDate = r.Max(t => t.OrderDate) })
+				    .ToDictionary(x => x.ProductId, x => x.OrderDate);
 			
 			foreach (var entity in products)
 			{
-				var curOrder = (from orderDetail in orderDetails
-    				from order in orders
-					where orderDetail.OrderId == order.Id && orderDetail.ProductId == entity.Id
-					orderby order.OrderDate descending
-                    select order).FirstOrDefault();
-					
 				entity.Category = categories.FirstOrDefault(x => x.Id == entity.CategoryId);
 				entity.Supplier = suppliers.FirstOrDefault(x => x.Id == entity.SupplierId);
-				entity.OrderDate = curOrder == null ? DateTime.MinValue : curOrder.OrderDate;
+				entity.OrderDate = orderDateDict.ContainsKey(entity.Id) ? orderDateDict[entity.Id] : DateTime.MinValue;
 				
 				yield return entity;
 			}
@@ -518,11 +519,29 @@ namespace Vko.Services.Impl
 					__in = products.Select(x => x.SupplierId).Distinct().ToArray()
 				}
 			}).ToList();
+			var orderDetails = repo.Make<IOrderDetailsRepository<OrderDetail>>().Find(new {
+				ProductId = new {
+					__in = products.Select(x => x.Id).Distinct().ToArray()
+				}
+			}).ToList();
+			var orders = repo.Make<IOrdersRepository<Order>>().Find(new {
+				Id = new {
+					__in = orderDetails.Select(x => x.OrderId).Distinct().ToArray()
+				}
+			}).ToList();
+			var orderDateDict = (from product in products
+				join orderDetail in orderDetails on product.Id equals orderDetail.ProductId
+				join order in orders on orderDetail.OrderId equals order.Id
+                select new { ProductId = product.Id, OrderDate = order.OrderDate } into g
+				group g by g.ProductId into r
+				select new { ProductId = r.Key, OrderDate = r.Max(t => t.OrderDate) })
+				    .ToDictionary(x => x.ProductId, x => x.OrderDate);
 			
 			foreach (var entity in products)
 			{
 				entity.Category = categories.FirstOrDefault(x => x.Id == entity.CategoryId);
 				entity.Supplier = suppliers.FirstOrDefault(x => x.Id == entity.SupplierId);
+				entity.OrderDate = orderDateDict.ContainsKey(entity.Id) ? orderDateDict[entity.Id] : DateTime.MinValue;
 
 				yield return entity;
 			}

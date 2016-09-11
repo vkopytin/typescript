@@ -33,7 +33,7 @@ namespace Vko.Repository.Implementation
         
         public IEnumerable<T> List(int from=0, int count=10)
         {
-            string strSql = @"SELECT * FROM Product ORDER BY Id LIMIT :count OFFSET :from";
+            string strSql = @"SELECT * FROM Product ORDER BY Id DESC LIMIT :count OFFSET :from";
             
             return query.Run(strSql, new {
                 from = from,
@@ -66,6 +66,12 @@ namespace Vko.Repository.Implementation
     UNION
     SELECT p.Id, 0.70 AS seeed FROM Product p, Category c
     WHERE p.CategoryId = c.Id AND c.Description LIKE :search
+    UNION
+    SELECT p.Id, 0.61 AS seeed FROM Product p, OrderDetail od
+    WHERE p.Id = od.ProductId AND od.OrderId = :searchExact
+    UNION
+    SELECT p.Id, 0.60 AS seeed FROM Product p, OrderDetail od
+    WHERE p.Id = od.ProductId AND od.OrderId LIKE :search
     ) GROUP BY ID ORDER BY seed
 ) res";
 

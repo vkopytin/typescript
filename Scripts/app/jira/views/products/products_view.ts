@@ -68,6 +68,7 @@ class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
     render () {
         return template.call(this);
     }
+    
 }
 
 export = ProductsView;

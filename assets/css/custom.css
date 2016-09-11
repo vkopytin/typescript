@@ -244,3 +244,33 @@ ul#filters {
 		overflow:hidden;
 	}
 	
+.pivot-wrapper {
+	white-space: nowrap;
+	overflow-y: hidden;
+	overflow-x: scroll;
+	x-webkit-overflow-scrolling: touch;
+    perspective: 1px;
+    -webkit-perspective: 2px;
+}
+
+.pivot-internal {
+	display: inline-block;
+    width: 95%;
+    vertical-align: top;
+}
+
+.pivot-internal-header {
+    -webkit-transform: translateZ(-2px) scale(2);
+    transform: translateZ(-2px) scale(2);
+    position: absolute;
+    top: 0;
+    z-index: -2;
+    width: 50%;
+    bottom: 0;
+}
+.pivot-internal-contents {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    z-index: 3;
+    margin-top: 52px;
+}

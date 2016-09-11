@@ -23,6 +23,7 @@ interface IFeedingPage extends IBaseView {
 class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     setProductsTotalDelegate: any
     updateCartDelegate: any
+    changeCurrentProductDelegate: any
 
     handlers = {
         onDraw: function () {
@@ -60,6 +61,7 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
         this.searchProductsInternal = _.debounce(this.searchProductsInternal, 500);
         this.setProductsTotalDelegate = _.bind(this.setProductsTotal, this);
         this.updateCartDelegate = _.bind(this.updateCart, this);
+        this.changeCurrentProductDelegate = _.bind(this.changeCurrentProduct, this);
     }
     
     init (options: any): void {
@@ -75,11 +77,13 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     attachEvents (viewModel: any) {
         $(viewModel).on('change:products', this.setProductsTotalDelegate);
         $(viewModel).on('change:carts', this.updateCartDelegate);
+        $(viewModel).on('change:CurentProduct', this.changeCurrentProductDelegate);
     }
     
     deattachEvents (viewModel: any) {
         $(viewModel).off('change:products', this.setProductsTotalDelegate);
         $(viewModel).off('change:carts', this.updateCartDelegate);
+        $(viewModel).off('change:CurentProduct', this.changeCurrentProductDelegate);
     }
 
     componentWillMount () {
@@ -104,6 +108,10 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
         return master_page_template.call(this,
                 template.call(this, this.props.viewModel)
             );
+    }
+    
+    changeCurrentProduct () {
+        
     }
     
     fetchProducts (evnt: any, from: number, count: number): void {

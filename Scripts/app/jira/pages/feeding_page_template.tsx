@@ -18,9 +18,6 @@ var template = function (viewModel: any) {
 			<div id="page-inner" tabTitle="Home">
 	            <div className="row">
 					<div className="col-md-6">
-						<PanelView title="Create Product">
-							<CreateProductView viewModel={viewModel}/>
-						</PanelView>
 					</div>
 					<div className="col-md-6">
 						<PanelView title="Cart">
@@ -56,7 +53,26 @@ var template = function (viewModel: any) {
 				    	            </span>
 								</div>
 							</PanelView.Header>
-							<ProductsView viewModel={viewModel} products={(vm: FeedingViewModel) => vm.getProducts()}/>
+							<div className="pivot-wrapper">
+							<span className="pivot-internal">
+								<div className="pivot-internal-header">
+								Products list
+								</div>
+								<div className="pivot-internal-contents">
+									<ProductsView viewModel={viewModel} products={(vm: FeedingViewModel) => vm.getProducts()}/>
+								</div>
+							</span>
+							<span className="pivot-internal">
+								<div className="pivot-internal-header">
+								Edit Product
+								</div>
+								<div className="pivot-internal-contents">
+									<PanelView title="Create Product">
+										<CreateProductView viewModel={viewModel}/>
+									</PanelView>
+								</div>
+							</span>
+							</div>
 						</PanelView>
 	                </div>
 	            </div>

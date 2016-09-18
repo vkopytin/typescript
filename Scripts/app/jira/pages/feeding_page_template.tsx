@@ -59,7 +59,9 @@ var template = function (viewModel: any) {
 								Products list
 								</div>
 								<div className="pivot-internal-contents">
-									<ProductsView viewModel={viewModel} products={(vm: FeedingViewModel) => vm.getProducts()}/>
+									<ProductsView viewModel={viewModel}
+									 products={(vm: FeedingViewModel) => vm.getProducts()}
+									 />
 								</div>
 							</span>
 							<span className="pivot-internal">

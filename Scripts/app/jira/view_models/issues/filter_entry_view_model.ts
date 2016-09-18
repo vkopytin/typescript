@@ -30,6 +30,7 @@ class FilterEntryViewModel extends BaseViewModel implements IFilterEntryViewMode
         this.opts.selected = value;
         
         this.triggerProperyChanged('change:selected');
+        this.onPropertyChange('Selected', value);
         
         model.toggleFilter('status', this.getId(), value);
     }

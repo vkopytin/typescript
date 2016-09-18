@@ -41,29 +41,18 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
         }));
     }
 
-    attachEvents (viewModel: any): void {
+    attachEvents (viewModel: FeedingViewModel): void {
+        super.attachEvents(viewModel);
         $(viewModel).on('change:CurentProduct', this.setProductDelegate);
         $(viewModel).on('change:categories', this.setProductDelegate);
         $(viewModel).on('change:suppliers', this.setProductDelegate);
     }
     
-    deatachEvents (viewModel: any): void {
+    detachEvents (viewModel: FeedingViewModel): void {
+        super.detachEvents(viewModel);
         $(viewModel).off('change:CurentProduct', this.setProductDelegate);
         $(viewModel).off('change:categories', this.setProductDelegate);
         $(viewModel).off('change:suppliers', this.setProductDelegate);
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deatachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: ICreateProductView) {
-        this.deatachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     updateProductName (evnt: any) {

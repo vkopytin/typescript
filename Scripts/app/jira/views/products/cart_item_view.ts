@@ -32,28 +32,17 @@ class CartItemView extends BaseView<CartEntryViewModel, ICartViewItem> {
     }
     
     attachEvents (viewModel: CartEntryViewModel): void {
+        super.attachEvents(viewModel);
         _.each('change:CartDate change:CartDetail'.split(' '), (en) => {
             $(viewModel).on(en, this.setCartDelegate);
         });
     }
     
-    deattachEvents (viewModel: CartEntryViewModel): void {
+    detachEvents (viewModel: CartEntryViewModel): void {
+        super.detachEvents(viewModel);
         _.each('change:CartDate change:CartDetail'.split(' '), (en) => {
             $(viewModel).off(en, this.setCartDelegate);
         });
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: ICartViewItem) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     isSelected (): any {

@@ -31,28 +31,17 @@ class CategoryItemView extends BaseView<CategoryEntryViewModel, IProductItemView
     }
     
     attachEvents (viewModel: CategoryEntryViewModel) {
+        super.attachEvents(viewModel);
         _.each('change:CategoryName change:Description'.split(' '), (en) => {
             $(viewModel).on(en, this.setCategoryDelegate);
         });
     }
     
-    deattachEvents (viewModel: CategoryEntryViewModel) {
+    detachEvents (viewModel: CategoryEntryViewModel) {
+        super.detachEvents(viewModel);
         _.each('change:CategoryName change:Description'.split(' '), (en) => {
             $(this.props.viewModel).off(en, this.setCategoryDelegate);
         });
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: IProductItemView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     onClick (evnt: any): any {

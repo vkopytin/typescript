@@ -35,24 +35,13 @@ class CategoriesView extends BaseView<FeedingViewModel, ICategoriesView> {
     }
     
     attachEvents (viewModel: any) {
+        super.attachEvents(viewModel);
         $(viewModel).on('change:categories', this.setCategoriesDelegate);
     }
     
-    deattachEvents (viewModel: any) {
+    detachEvents (viewModel: any) {
+        super.detachEvents(viewModel);
         $(viewModel).off('change:categories', this.setCategoriesDelegate);
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: ICategoriesView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     render () {

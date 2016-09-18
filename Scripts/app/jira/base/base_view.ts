@@ -27,6 +27,27 @@ class BaseView<TViewModel extends BaseViewModel, TBaseView extends IBaseView> ex
         //console.log('Created: ' + this.constructor.name)
     }
     
+    attachEvents(viewModel: BaseViewModel) {
+        
+    }
+    
+    detachEvents(viewModel: BaseViewModel) {
+        
+    }
+    
+    componentWillMount () {
+        this.attachEvents(this.props.viewModel);
+    }
+    
+    componentWillUnmount () {
+        this.detachEvents(this.props.viewModel);
+    }
+    
+    componentWillReceiveProps (props: TBaseView) {
+        this.detachEvents(this.props.viewModel);
+        this.attachEvents(props.viewModel);
+    }
+    
     init (opts: any): void {
 
         $(this.props.viewModel).on('viewModel.finish', _.bind(this.finish, this));

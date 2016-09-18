@@ -26,6 +26,7 @@ class EmailViewModel extends BaseViewModel {
         , 0);
         this.issues = value;
         this.triggerProperyChanged('change:issues');
+        this.onPropertyChange('Issues', value);
     }
     init (opts: any): void {
         var model = Model.getCurrent();

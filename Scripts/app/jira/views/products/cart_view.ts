@@ -35,24 +35,13 @@ class CartView extends BaseView<FeedingViewModel, ICartView> {
     }
     
     attachEvents (viewModel: FeedingViewModel): void {
+        super.attachEvents(viewModel);
         $(viewModel).on('change:carts', this.setCartsDelegate);
     }
     
-    deattachEvents (viewModel: FeedingViewModel): void {
+    detachEvents (viewModel: FeedingViewModel): void {
+        super.detachEvents(viewModel);
         $(viewModel).off('change:carts', this.setCartsDelegate);
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: ICartView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     render () {

@@ -75,28 +75,17 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     }
     
     attachEvents (viewModel: any) {
+        super.attachEvents(viewModel);
         $(viewModel).on('change:products', this.setProductsTotalDelegate);
         $(viewModel).on('change:carts', this.updateCartDelegate);
         $(viewModel).on('change:CurentProduct', this.changeCurrentProductDelegate);
     }
     
-    deattachEvents (viewModel: any) {
+    detachEvents (viewModel: any) {
+        super.detachEvents(viewModel);
         $(viewModel).off('change:products', this.setProductsTotalDelegate);
         $(viewModel).off('change:carts', this.updateCartDelegate);
         $(viewModel).off('change:CurentProduct', this.changeCurrentProductDelegate);
-    }
-
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: IFeedingPage) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     onNavigateTo (): any {

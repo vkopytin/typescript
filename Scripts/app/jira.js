@@ -36,6 +36,20 @@ define("app/jira/base/base_view", ["require", "exports", 'jquery', 'underscore',
             this.init(opts);
             //console.log('Created: ' + this.constructor.name)
         }
+        BaseView.prototype.attachEvents = function (viewModel) {
+        };
+        BaseView.prototype.detachEvents = function (viewModel) {
+        };
+        BaseView.prototype.componentWillMount = function () {
+            this.attachEvents(this.props.viewModel);
+        };
+        BaseView.prototype.componentWillUnmount = function () {
+            this.detachEvents(this.props.viewModel);
+        };
+        BaseView.prototype.componentWillReceiveProps = function (props) {
+            this.detachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
+        };
         BaseView.prototype.init = function (opts) {
             $(this.props.viewModel).on('viewModel.finish', _.bind(this.finish, this));
         };
@@ -845,6 +859,7 @@ define("app/jira/view_models/email_report/email_view_model", ["require", "export
             }, 0);
             this.issues = value;
             this.triggerProperyChanged('change:issues');
+            this.onPropertyChange('Issues', value);
         };
         EmailViewModel.prototype.init = function (opts) {
             var model = Model.getCurrent();
@@ -1170,6 +1185,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
         FeedingViewModel.prototype.setCurentProduct = function (value) {
             this.curentProduct = value;
             this.triggerProperyChanged('change:CurentProduct');
+            this.onPropertyChange('CurentProduct', value);
         };
         FeedingViewModel.prototype.getProducts = function () {
             return this.products;
@@ -1183,6 +1199,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             }, 0);
             this.products = value;
             this.triggerProperyChanged('change:products');
+            this.onPropertyChange('Products', value);
         };
         FeedingViewModel.prototype.getProductsTotal = function () {
             return this.productsTotal;
@@ -1202,6 +1219,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             }, 0);
             this.categories = value;
             this.triggerProperyChanged('change:categories');
+            this.onPropertyChange('Categories', value);
         };
         FeedingViewModel.prototype.getSuppliers = function () {
             return this.suppliers;
@@ -1215,6 +1233,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             }, 0);
             this.suppliers = value;
             this.triggerProperyChanged('change:suppliers');
+            this.onPropertyChange('Suppliers', value);
         };
         FeedingViewModel.prototype.getOrders = function () {
             return this.orders;
@@ -1228,6 +1247,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             }, 0);
             this.orders = value;
             this.triggerProperyChanged('change:orders');
+            this.onPropertyChange('Orders', value);
         };
         FeedingViewModel.prototype.getCarts = function () {
             return this.carts;
@@ -1241,6 +1261,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
             }, 0);
             this.carts = value;
             this.triggerProperyChanged('change:carts');
+            this.onPropertyChange('Carts', value);
         };
         FeedingViewModel.prototype.getCart = function () {
             return _.first(this.carts);
@@ -1251,6 +1272,7 @@ define("app/jira/view_models/products/feeding_view_model", ["require", "exports"
         FeedingViewModel.prototype.setReport = function (value) {
             this.report = value;
             this.triggerProperyChanged('change:report');
+            this.onPropertyChange('Report', value);
         };
         FeedingViewModel.prototype.init = function (opts) {
             var _this = this;
@@ -1418,6 +1440,7 @@ define("app/jira/view_models/issues/filter_entry_view_model", ["require", "expor
             var model = Model.getCurrent();
             this.opts.selected = value;
             this.triggerProperyChanged('change:selected');
+            this.onPropertyChange('Selected', value);
             model.toggleFilter('status', this.getId(), value);
         };
         FilterEntryViewModel.prototype.init = function (opts) {
@@ -1467,6 +1490,7 @@ define("app/jira/view_models/issues/filter_epic_view_model", ["require", "export
             var model = Model.getCurrent();
             this.opts.selected = value;
             this.triggerProperyChanged('change:selected');
+            this.onPropertyChange('Selected', value);
             model.toggleFilter('epicLink', this.getId(), value);
         };
         FilterEpicViewModel.prototype.init = function (opts) {
@@ -1559,6 +1583,7 @@ define("app/jira/view_models/issues/jira_view_model", ["require", "exports", 'un
             }, 0);
             this.issues = value;
             this.triggerProperyChanged('change:issues');
+            this.onPropertyChange('Issues', value);
         };
         JiraViewModel.prototype.getStatuses = function () {
             return this.statuses;
@@ -1572,6 +1597,7 @@ define("app/jira/view_models/issues/jira_view_model", ["require", "exports", 'un
             }, 0);
             this.statuses = value;
             this.triggerProperyChanged('change:statuses');
+            this.onPropertyChange('Statuses', value);
         };
         JiraViewModel.prototype.getEpics = function () {
             return this.epics;
@@ -1585,6 +1611,7 @@ define("app/jira/view_models/issues/jira_view_model", ["require", "exports", 'un
             }, 0);
             this.epics = value;
             this.triggerProperyChanged('change:epics');
+            this.onPropertyChange('Statuses', value);
         };
         JiraViewModel.prototype.getFilter = function () {
             var filterItems = _.reduce(this.statuses, function (res, item) {
@@ -1702,24 +1729,16 @@ define("app/jira/views/products/product_item_view", ["require", "exports", 'unde
         };
         ProductItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.attachEvents.call(this, viewModel);
             _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), function (en) {
                 $(viewModel).on(en, _.bind(_this.setProduct, _this));
             });
         };
-        ProductItemView.prototype.deattachEvents = function (viewModel) {
+        ProductItemView.prototype.detachEvents = function (viewModel) {
+            _super.prototype.detachEvents.call(this, viewModel);
             _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), function (en) {
                 $(viewModel).off(en);
             });
-        };
-        ProductItemView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        ProductItemView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        ProductItemView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         ProductItemView.prototype.onClick = function (evnt) {
             evnt.preventDefault();
@@ -1775,25 +1794,17 @@ define("app/jira/views/products/products_view", ["require", "exports", 'jquery',
         };
         ProductsView.prototype.attachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.attachEvents.call(this, viewModel);
             _.each('change:products'.split(' '), function (en) {
                 $(viewModel).on(en, _this.setProductsDelegate);
             });
         };
-        ProductsView.prototype.deattachEvents = function (viewModel) {
+        ProductsView.prototype.detachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.detachEvents.call(this, viewModel);
             _.each('change:products'.split(' '), function (en) {
                 $(viewModel).off(en, _this.setProductsDelegate);
             });
-        };
-        ProductsView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        ProductsView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        ProductsView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         ProductsView.prototype.render = function () {
             return template.call(this);
@@ -1828,25 +1839,17 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
         };
         CategoryItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.attachEvents.call(this, viewModel);
             _.each('change:CategoryName change:Description'.split(' '), function (en) {
                 $(viewModel).on(en, _this.setCategoryDelegate);
             });
         };
-        CategoryItemView.prototype.deattachEvents = function (viewModel) {
+        CategoryItemView.prototype.detachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.detachEvents.call(this, viewModel);
             _.each('change:CategoryName change:Description'.split(' '), function (en) {
                 $(_this.props.viewModel).off(en, _this.setCategoryDelegate);
             });
-        };
-        CategoryItemView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        CategoryItemView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        CategoryItemView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         CategoryItemView.prototype.onClick = function (evnt) {
             evnt.preventDefault();
@@ -1906,20 +1909,12 @@ define("app/jira/views/products/categories_view", ["require", "exports", 'jquery
             });
         };
         CategoriesView.prototype.attachEvents = function (viewModel) {
+            _super.prototype.attachEvents.call(this, viewModel);
             $(viewModel).on('change:categories', this.setCategoriesDelegate);
         };
-        CategoriesView.prototype.deattachEvents = function (viewModel) {
+        CategoriesView.prototype.detachEvents = function (viewModel) {
+            _super.prototype.detachEvents.call(this, viewModel);
             $(viewModel).off('change:categories', this.setCategoriesDelegate);
-        };
-        CategoriesView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        CategoriesView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        CategoriesView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         CategoriesView.prototype.render = function () {
             return template.call(this);
@@ -1954,25 +1949,17 @@ define("app/jira/views/products/supplier_item_view", ["require", "exports", 'und
         };
         SupplierItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.attachEvents.call(this, viewModel);
             _.each('change:CompanyName change:Address'.split(' '), function (en) {
                 $(viewModel).on(en, _this.setSupplierDelegate);
             });
         };
-        SupplierItemView.prototype.deattachEvents = function (viewModel) {
+        SupplierItemView.prototype.detachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.detachEvents.call(this, viewModel);
             _.each('change:CompanyName change:Address'.split(' '), function (en) {
                 $(viewModel).off(en, _this.setSupplierDelegate);
             });
-        };
-        SupplierItemView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        SupplierItemView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        SupplierItemView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         SupplierItemView.prototype.onClick = function (evnt) {
             evnt.preventDefault();
@@ -2033,25 +2020,17 @@ define("app/jira/views/products/suppliers_view", ["require", "exports", 'jquery'
         };
         SuppliersView.prototype.attachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.attachEvents.call(this, viewModel);
             _.each('change:suppliers'.split(' '), function (en) {
                 $(viewModel).on(en, _this.setSuppliersDelegate);
             });
         };
-        SuppliersView.prototype.deattachEvents = function (viewModel) {
+        SuppliersView.prototype.detachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.detachEvents.call(this, viewModel);
             _.each('change:suppliers'.split(' '), function (en) {
                 $(viewModel).off(en, _this.setSuppliersDelegate);
             });
-        };
-        SuppliersView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        SuppliersView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        SuppliersView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         SuppliersView.prototype.render = function () {
             return template.call(this);
@@ -2085,29 +2064,23 @@ define("app/jira/views/products/order_item_view", ["require", "exports", 'unders
                 order: this.props.viewModel,
                 isSelected: false
             };
+            this.setOrderDelegate = _.bind(this.setOrder, this);
         }
         OrderItemView.prototype.setOrder = function () {
             this.setState(_.extend(this.state, {
                 order: this.props.viewModel
             }));
         };
-        OrderItemView.prototype.componentWillMount = function () {
+        OrderItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
             _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
-                $(_this.props.viewModel).on(en, _.bind(_this.setOrder, _this));
+                $(viewModel).on(en, _this.setOrderDelegate);
             });
         };
-        OrderItemView.prototype.componentWillUnmount = function () {
+        OrderItemView.prototype.detachEvents = function (viewModel) {
             var _this = this;
             _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-            });
-        };
-        OrderItemView.prototype.componentWillReceiveProps = function (props) {
-            var _this = this;
-            _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en);
-                $(props.viewModel).on(en, _.bind(_this.setOrder, _this));
+                $(viewModel).off(en, _this.setOrderDelegate);
             });
         };
         OrderItemView.prototype.isSelected = function () {
@@ -2155,15 +2128,11 @@ define("app/jira/views/products/orders_view", ["require", "exports", 'jquery', '
                 orders: this.props.viewModel.getOrders()
             });
         };
-        OrdersView.prototype.componentWillMount = function () {
-            $(this.props.viewModel).on('change:orders', this.setOrdersDelegate);
+        OrdersView.prototype.attachEvents = function (viewModel) {
+            $(viewModel).on('change:orders', this.setOrdersDelegate);
         };
-        OrdersView.prototype.componentWillUnmount = function () {
-            $(this.props.viewModel).off('change:orders', this.setOrdersDelegate);
-        };
-        OrdersView.prototype.componentWillReceiveProps = function (props) {
-            $(this.props.viewModel).off('change:orders', this.setOrdersDelegate);
-            $(props.viewModel).on('change:orders', this.setOrdersDelegate);
+        OrdersView.prototype.detachEvents = function (viewModel) {
+            $(viewModel).off('change:orders', this.setOrdersDelegate);
         };
         OrdersView.prototype.render = function () {
             return template.call(this);
@@ -2201,25 +2170,17 @@ define("app/jira/views/products/cart_item_view", ["require", "exports", 'undersc
         };
         CartItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.attachEvents.call(this, viewModel);
             _.each('change:CartDate change:CartDetail'.split(' '), function (en) {
                 $(viewModel).on(en, _this.setCartDelegate);
             });
         };
-        CartItemView.prototype.deattachEvents = function (viewModel) {
+        CartItemView.prototype.detachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.detachEvents.call(this, viewModel);
             _.each('change:CartDate change:CartDetail'.split(' '), function (en) {
                 $(viewModel).off(en, _this.setCartDelegate);
             });
-        };
-        CartItemView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        CartItemView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        CartItemView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         CartItemView.prototype.isSelected = function () {
             return this.state.isSelected;
@@ -2270,20 +2231,12 @@ define("app/jira/views/products/cart_view", ["require", "exports", 'jquery', 'un
             });
         };
         CartView.prototype.attachEvents = function (viewModel) {
+            _super.prototype.attachEvents.call(this, viewModel);
             $(viewModel).on('change:carts', this.setCartsDelegate);
         };
-        CartView.prototype.deattachEvents = function (viewModel) {
+        CartView.prototype.detachEvents = function (viewModel) {
+            _super.prototype.detachEvents.call(this, viewModel);
             $(viewModel).off('change:carts', this.setCartsDelegate);
-        };
-        CartView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        CartView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        CartView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         CartView.prototype.render = function () {
             return template.call(this);
@@ -2320,20 +2273,12 @@ define("app/jira/views/products/report_view", ["require", "exports", 'jquery', '
             });
         };
         ReportView.prototype.attachEvents = function (viewModel) {
+            _super.prototype.attachEvents.call(this, viewModel);
             $(viewModel).on('change:report', this.setReportDelegate);
         };
-        ReportView.prototype.deattachEvents = function (viewModel) {
+        ReportView.prototype.detachEvents = function (viewModel) {
+            _super.prototype.detachEvents.call(this, viewModel);
             $(viewModel).off('change:report', this.setReportDelegate);
-        };
-        ReportView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        ReportView.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        ReportView.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         ReportView.prototype.render = function () {
             return template.call(this);
@@ -2434,24 +2379,16 @@ define("app/jira/views/products/create_product_view", ["require", "exports", 'jq
             }));
         };
         CreateProductView.prototype.attachEvents = function (viewModel) {
+            _super.prototype.attachEvents.call(this, viewModel);
             $(viewModel).on('change:CurentProduct', this.setProductDelegate);
             $(viewModel).on('change:categories', this.setProductDelegate);
             $(viewModel).on('change:suppliers', this.setProductDelegate);
         };
-        CreateProductView.prototype.deatachEvents = function (viewModel) {
+        CreateProductView.prototype.detachEvents = function (viewModel) {
+            _super.prototype.detachEvents.call(this, viewModel);
             $(viewModel).off('change:CurentProduct', this.setProductDelegate);
             $(viewModel).off('change:categories', this.setProductDelegate);
             $(viewModel).off('change:suppliers', this.setProductDelegate);
-        };
-        CreateProductView.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        CreateProductView.prototype.componentWillUnmount = function () {
-            this.deatachEvents(this.props.viewModel);
-        };
-        CreateProductView.prototype.componentWillReceiveProps = function (props) {
-            this.deatachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         CreateProductView.prototype.updateProductName = function (evnt) {
             evnt.preventDefault();
@@ -2616,24 +2553,16 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
             Base.prototype.finish.apply(this, arguments);
         };
         FeedingPage.prototype.attachEvents = function (viewModel) {
+            _super.prototype.attachEvents.call(this, viewModel);
             $(viewModel).on('change:products', this.setProductsTotalDelegate);
             $(viewModel).on('change:carts', this.updateCartDelegate);
             $(viewModel).on('change:CurentProduct', this.changeCurrentProductDelegate);
         };
-        FeedingPage.prototype.deattachEvents = function (viewModel) {
+        FeedingPage.prototype.detachEvents = function (viewModel) {
+            _super.prototype.detachEvents.call(this, viewModel);
             $(viewModel).off('change:products', this.setProductsTotalDelegate);
             $(viewModel).off('change:carts', this.updateCartDelegate);
             $(viewModel).off('change:CurentProduct', this.changeCurrentProductDelegate);
-        };
-        FeedingPage.prototype.componentWillMount = function () {
-            this.attachEvents(this.props.viewModel);
-        };
-        FeedingPage.prototype.componentWillUnmount = function () {
-            this.deattachEvents(this.props.viewModel);
-        };
-        FeedingPage.prototype.componentWillReceiveProps = function (props) {
-            this.deattachEvents(this.props.viewModel);
-            this.attachEvents(props.viewModel);
         };
         FeedingPage.prototype.onNavigateTo = function () {
             this.handlers.onDraw.call(this);

@@ -47,6 +47,7 @@ class FeedingViewModel extends PageViewModel {
     setCurentProduct (value: ProductEntryViewModel): any {
         this.curentProduct = value;
         this.triggerProperyChanged('change:CurentProduct');
+        this.onPropertyChange('CurentProduct', value);
     }
     
     getProducts (): any {
@@ -62,6 +63,7 @@ class FeedingViewModel extends PageViewModel {
         }, 0);
         this.products = value;
         this.triggerProperyChanged('change:products');
+        this.onPropertyChange('Products', value);
     }
     
     getProductsTotal () {
@@ -85,6 +87,7 @@ class FeedingViewModel extends PageViewModel {
         }, 0);
         this.categories = value;
         this.triggerProperyChanged('change:categories');
+        this.onPropertyChange('Categories', value);
     }
     
     getSuppliers (): any {
@@ -100,6 +103,7 @@ class FeedingViewModel extends PageViewModel {
         }, 0);
         this.suppliers = value;
         this.triggerProperyChanged('change:suppliers');
+        this.onPropertyChange('Suppliers', value);
     }
 
     getOrders (): any {
@@ -115,6 +119,7 @@ class FeedingViewModel extends PageViewModel {
         }, 0);
         this.orders = value;
         this.triggerProperyChanged('change:orders');
+        this.onPropertyChange('Orders', value);
     }
     
     getCarts (): any {
@@ -130,6 +135,7 @@ class FeedingViewModel extends PageViewModel {
         }, 0);
         this.carts = value;
         this.triggerProperyChanged('change:carts');
+        this.onPropertyChange('Carts', value);
     }
     
     getCart (): any {
@@ -143,6 +149,7 @@ class FeedingViewModel extends PageViewModel {
     setReport (value: any) : void {
         this.report = value;
         this.triggerProperyChanged('change:report');
+        this.onPropertyChange('Report', value);
     }
 
     init (opts: any): void {

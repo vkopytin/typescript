@@ -75,6 +75,7 @@ class JiraViewModel extends BaseViewModel {
         }, 0);
         this.issues = value;
         this.triggerProperyChanged('change:issues');
+        this.onPropertyChange('Issues', value);
     }
     getStatuses () : FilterEntryViewModel[] {
         return this.statuses;
@@ -88,6 +89,7 @@ class JiraViewModel extends BaseViewModel {
         }, 0);
         this.statuses = value;
         this.triggerProperyChanged('change:statuses');
+        this.onPropertyChange('Statuses', value);
     }
     getEpics () : FilterEpicViewModel[] {
         return this.epics;
@@ -101,6 +103,7 @@ class JiraViewModel extends BaseViewModel {
         }, 0);
         this.epics = value;
         this.triggerProperyChanged('change:epics');
+        this.onPropertyChange('Statuses', value);
     }
     getFilter () : any {
         var filterItems = _.reduce(this.statuses, (res: any[], item: FilterEntryViewModel) => {

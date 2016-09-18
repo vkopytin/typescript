@@ -27,6 +27,7 @@ class FilterEpicViewModel extends BaseViewModel implements IFilterEntryViewModel
         this.opts.selected = value;
         
         this.triggerProperyChanged('change:selected');
+        this.onPropertyChange('Selected', value);
         
         model.toggleFilter('epicLink', this.getId(), value);
     }

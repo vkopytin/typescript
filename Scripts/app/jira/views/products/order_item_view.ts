@@ -12,6 +12,7 @@ interface IOrderItemView {
 }
 
 class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
+    setOrderDelegate: any
 
     constructor(opts: any) {
         super(opts);
@@ -20,6 +21,8 @@ class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
             order: this.props.viewModel,
             isSelected: false
         };
+        
+        this.setOrderDelegate = _.bind(this.setOrder, this);
     }
     
     setOrder () {
@@ -27,23 +30,16 @@ class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
             order: this.props.viewModel
             }));
     }
-    
-    componentWillMount () {
+
+    attachEvents(viewModel: any) {
         _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
-            $(this.props.viewModel).on(en, _.bind(this.setOrder, this));
+            $(viewModel).on(en, this.setOrderDelegate);
         });
     }
     
-    componentWillUnmount () {
+    detachEvents(viewModel: any) {
         _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-        });
-    }
-    
-    componentWillReceiveProps (props: IOrderItemView) {
-        _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
-            $(this.props.viewModel).off(en);
-            $(props.viewModel).on(en, _.bind(this.setOrder, this));
+            $(viewModel).off(en, this.setOrderDelegate);
         });
     }
     

@@ -35,28 +35,17 @@ class SuppliersView extends BaseView<FeedingViewModel, ISuppliersView> {
     }
 
     attachEvents (viewModel: FeedingViewModel): void {
+        super.attachEvents(viewModel);
         _.each('change:suppliers'.split(' '), (en) => {
             $(viewModel).on(en, this.setSuppliersDelegate);
         });
     }
     
-    deattachEvents (viewModel: FeedingViewModel): void {
+    detachEvents (viewModel: FeedingViewModel): void {
+        super.detachEvents(viewModel);
         _.each('change:suppliers'.split(' '), (en) => {
             $(viewModel).off(en, this.setSuppliersDelegate);
         });
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: ISuppliersView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
 
     render () {

@@ -34,17 +34,12 @@ class OrdersView extends BaseView<FeedingViewModel, IOrdersView> {
         });
     }
     
-    componentWillMount () {
-        $(this.props.viewModel).on('change:orders', this.setOrdersDelegate);
+    attachEvents(viewModel: any) {
+        $(viewModel).on('change:orders', this.setOrdersDelegate);
     }
     
-    componentWillUnmount () {
-        $(this.props.viewModel).off('change:orders', this.setOrdersDelegate);
-    }
-    
-    componentWillReceiveProps (props: IOrdersView) {
-        $(this.props.viewModel).off('change:orders', this.setOrdersDelegate);
-        $(props.viewModel).on('change:orders', this.setOrdersDelegate);
+    detachEvents(viewModel: any) {
+        $(viewModel).off('change:orders', this.setOrdersDelegate);
     }
     
     render () {

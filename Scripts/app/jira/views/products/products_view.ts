@@ -41,28 +41,17 @@ class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
     }
     
     attachEvents (viewModel: FeedingViewModel): void {
+        super.attachEvents(viewModel);
         _.each('change:products'.split(' '), (en) => {
             $(viewModel).on(en, this.setProductsDelegate);
         });
     }
     
-    deattachEvents (viewModel: FeedingViewModel): void {
+    detachEvents (viewModel: FeedingViewModel): void {
+        super.detachEvents(viewModel);
         _.each('change:products'.split(' '), (en) => {
             $(viewModel).off(en, this.setProductsDelegate);
         });
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: IProductsView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     render () {

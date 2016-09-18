@@ -31,28 +31,17 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
     }
     
     attachEvents (viewModel: SupplierEntryViewModel): void {
+        super.attachEvents(viewModel);
         _.each('change:CompanyName change:Address'.split(' '), (en) => {
             $(viewModel).on(en, this.setSupplierDelegate);
         });
     }
     
-    deattachEvents (viewModel: SupplierEntryViewModel): void {
+    detachEvents (viewModel: SupplierEntryViewModel): void {
+        super.detachEvents(viewModel);
         _.each('change:CompanyName change:Address'.split(' '), (en) => {
             $(viewModel).off(en, this.setSupplierDelegate);
         });
-    }
-
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: ISupplierItemView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     onClick (evnt: any): any {

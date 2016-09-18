@@ -35,24 +35,13 @@ class ReportView extends BaseView<FeedingViewModel, IReportView> {
     }
     
     attachEvents (viewModel: FeedingViewModel) {
+        super.attachEvents(viewModel);
         $(viewModel).on('change:report', this.setReportDelegate);
     }
     
-    deattachEvents (viewModel: FeedingViewModel) {
+    detachEvents (viewModel: FeedingViewModel) {
+        super.detachEvents(viewModel);
         $(viewModel).off('change:report', this.setReportDelegate);
-    }
-
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: IReportView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     render () {

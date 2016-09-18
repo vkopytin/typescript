@@ -31,28 +31,17 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
     }
     
     attachEvents (viewModel: any) {
+        super.attachEvents(viewModel);
         _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), (en) => {
             $(viewModel).on(en, _.bind(this.setProduct, this));
         });
     }
     
-    deattachEvents (viewModel: any) {
+    detachEvents (viewModel: any) {
+        super.detachEvents(viewModel);
         _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), (en) => {
             $(viewModel).off(en);
         });
-    }
-    
-    componentWillMount () {
-        this.attachEvents(this.props.viewModel);
-    }
-    
-    componentWillUnmount () {
-        this.deattachEvents(this.props.viewModel);
-    }
-    
-    componentWillReceiveProps (props: IProductItemView) {
-        this.deattachEvents(this.props.viewModel);
-        this.attachEvents(props.viewModel);
     }
     
     onClick (evnt: any): any {

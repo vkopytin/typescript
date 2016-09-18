@@ -32,12 +32,14 @@ class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
     }
 
     attachEvents(viewModel: any) {
+        super.attachEvents(viewModel);
         _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
             $(viewModel).on(en, this.setOrderDelegate);
         });
     }
     
     detachEvents(viewModel: any) {
+        super.detachEvents(viewModel);
         _.each('change:OrderDate change:OrderDetail'.split(' '), (en) => {
             $(viewModel).off(en, this.setOrderDelegate);
         });

@@ -35,10 +35,12 @@ class OrdersView extends BaseView<FeedingViewModel, IOrdersView> {
     }
     
     attachEvents(viewModel: any) {
+        super.attachEvents(viewModel);
         $(viewModel).on('change:orders', this.setOrdersDelegate);
     }
     
     detachEvents(viewModel: any) {
+        super.detachEvents(viewModel);
         $(viewModel).off('change:orders', this.setOrdersDelegate);
     }
     

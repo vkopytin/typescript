@@ -27,6 +27,7 @@ class ViewModelBase extends Base {
                 this.opts[key] = value;
                 
                 this.triggerProperyChanged('change:' + key, value);
+                this.onPropertyChange(key, value);
                 
                 return this;
             };
@@ -56,6 +57,11 @@ class ViewModelBase extends Base {
         //console.log('ViewModel.trigger: ' + propertyName);
         $(this).trigger(propertyName);
     }
+    
+    onPropertyChange (propertyName: string, value: any): void {
+        $(this).trigger('change', { name: propertyName, value: value });
+    }
+    
     navigateTo (): void {
         
     }

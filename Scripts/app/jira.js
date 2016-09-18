@@ -198,6 +198,7 @@ define("app/jira/base/base_view_model", ["require", "exports", 'jquery', 'unders
                     }
                     _this.opts[key] = value;
                     _this.triggerProperyChanged('change:' + key, value);
+                    _this.onPropertyChange(key, value);
                     return _this;
                 };
                 _this['get' + key] = function () {
@@ -221,6 +222,9 @@ define("app/jira/base/base_view_model", ["require", "exports", 'jquery', 'unders
         ViewModelBase.prototype.triggerProperyChanged = function (propertyName, opts) {
             //console.log('ViewModel.trigger: ' + propertyName);
             $(this).trigger(propertyName);
+        };
+        ViewModelBase.prototype.onPropertyChange = function (propertyName, value) {
+            $(this).trigger('change', { name: propertyName, value: value });
         };
         ViewModelBase.prototype.navigateTo = function () {
         };
@@ -2195,24 +2199,27 @@ define("app/jira/views/products/cart_item_view", ["require", "exports", 'undersc
                 cart: this.props.viewModel
             }));
         };
-        CartItemView.prototype.componentWillMount = function () {
+        CartItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
             _.each('change:CartDate change:CartDetail'.split(' '), function (en) {
-                $(_this.props.viewModel).on(en, _this.setCartDelegate);
+                $(viewModel).on(en, _this.setCartDelegate);
             });
+        };
+        CartItemView.prototype.deattachEvents = function (viewModel) {
+            var _this = this;
+            _.each('change:CartDate change:CartDetail'.split(' '), function (en) {
+                $(viewModel).off(en, _this.setCartDelegate);
+            });
+        };
+        CartItemView.prototype.componentWillMount = function () {
+            this.attachEvents(this.props.viewModel);
         };
         CartItemView.prototype.componentWillUnmount = function () {
-            var _this = this;
-            _.each('change:CartDate change:CartDetail'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en, _this.setCartDelegate);
-            });
+            this.deattachEvents(this.props.viewModel);
         };
         CartItemView.prototype.componentWillReceiveProps = function (props) {
-            var _this = this;
-            _.each('change:CartDate change:CartDetail'.split(' '), function (en) {
-                $(_this.props.viewModel).off(en, _this.setCartDelegate);
-                $(props.viewModel).on(en, _this.setCartDelegate);
-            });
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         CartItemView.prototype.isSelected = function () {
             return this.state.isSelected;
@@ -2262,15 +2269,21 @@ define("app/jira/views/products/cart_view", ["require", "exports", 'jquery', 'un
                 cart: this.props.viewModel.getCart()
             });
         };
+        CartView.prototype.attachEvents = function (viewModel) {
+            $(viewModel).on('change:carts', this.setCartsDelegate);
+        };
+        CartView.prototype.deattachEvents = function (viewModel) {
+            $(viewModel).off('change:carts', this.setCartsDelegate);
+        };
         CartView.prototype.componentWillMount = function () {
-            $(this.props.viewModel).on('change:carts', this.setCartsDelegate);
+            this.attachEvents(this.props.viewModel);
         };
         CartView.prototype.componentWillUnmount = function () {
-            $(this.props.viewModel).off('change:carts', this.setCartsDelegate);
+            this.deattachEvents(this.props.viewModel);
         };
         CartView.prototype.componentWillReceiveProps = function (props) {
-            $(this.props.viewModel).off('change:carts', this.setCartsDelegate);
-            $(props.viewModel).on('change:carts', this.setCartsDelegate);
+            this.deattachEvents(this.props.viewModel);
+            this.attachEvents(props.viewModel);
         };
         CartView.prototype.render = function () {
             return template.call(this);

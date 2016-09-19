@@ -12,7 +12,7 @@ interface IProductItemView {
 }
 
 class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> {
-    setProductDelegate: any
+    setProductDelegate = () => this.setProduct()
 
     constructor(opts: any) {
         super(opts);
@@ -20,8 +20,6 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
         this.state = {
             product: this.props.viewModel
         };
-        
-        this.setProductDelegate = _.bind(this.setProduct, this);
     }
     
     setProduct () {
@@ -32,15 +30,15 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
     
     attachEvents (viewModel: any) {
         super.attachEvents(viewModel);
-        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), (en) => {
-            $(viewModel).on(en, _.bind(this.setProduct, this));
+        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Category change:Supplier'.split(' '), (en) => {
+            $(viewModel).on(en, this.setProductDelegate);
         });
     }
     
     detachEvents (viewModel: any) {
         super.detachEvents(viewModel);
-        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), (en) => {
-            $(viewModel).off(en);
+        _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Category change:Supplier'.split(' '), (en) => {
+            $(viewModel).off(en, this.setProductDelegate);
         });
     }
     

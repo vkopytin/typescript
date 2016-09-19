@@ -15,11 +15,11 @@ interface ICreateProductView extends React.Props<any> {
 }
 
 class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
-    setProductDelegate: any
-    setCategoriesDelegate: any
-    setSuppliersDelegate: any
+    setProductDelegate = () => this.setProduct()
+    setCategoriesDelegate = () => this.setProduct()
+    setSuppliersDelegate = () => this.setProduct()
 
-    constructor(opts: any) {
+    constructor (opts: any) {
         super(opts);
         
         this.state = {
@@ -27,18 +27,14 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
             categories: this.props.viewModel.getCategories(),
             suppliers: this.props.viewModel.getSuppliers()
         };
-        
-        this.setProductDelegate = _.bind(this.setProduct, this);
-        this.setCategoriesDelegate = _.bind(this.setProduct, this);
-        this.setSuppliersDelegate = _.bind(this.setProduct, this);
     }
     
     setProduct () {
-        this.setState(_.extend(this.state, {
+        this.setState({
             product: this.props.viewModel.getCurentProduct(),
             categories: this.props.viewModel.getCategories(),
             suppliers: this.props.viewModel.getSuppliers()
-        }));
+        });
     }
 
     attachEvents (viewModel: FeedingViewModel): void {

@@ -33,18 +33,18 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
         }
     }
     
-    setProductsTotal (value: number): void {
-        this.setState(_.extend(this.state, {
+    setProductsTotal (): void {
+        this.setState({
             productsTotal: this.props.viewModel.getProductsTotal()
-        }));
+        });
     }
     
     updateCart (): void {
         var cart = this.props.viewModel.getCart();
-        cart && this.setState(_.extend(this.state, {
+        cart && this.setState({
             cartDate: new Date(cart.getCartDate()).toLocaleString(),
             cartName: cart.getId()
-        }));
+        });
     }
     
     constructor(opts: any) {
@@ -100,7 +100,7 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
     }
     
     changeCurrentProduct () {
-        
+        console.log('toDO: Implement')
     }
     
     fetchProducts (evnt: any, from: number, count: number): void {

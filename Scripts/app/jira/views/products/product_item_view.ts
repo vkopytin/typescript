@@ -6,6 +6,7 @@ import template = require('app/jira/templates/products/product_item_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface IProductItemView {
     viewModel: ProductEntryViewModel
     onSelect?: Function
@@ -13,6 +14,12 @@ interface IProductItemView {
 
 class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> {
     setProductDelegate = () => this.setProduct()
+    
+    setProduct () {
+        this.setState({
+            product: this.props.viewModel
+        });
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -20,12 +27,6 @@ class ProductItemView extends BaseView<ProductEntryViewModel, IProductItemView> 
         this.state = {
             product: this.props.viewModel
         };
-    }
-    
-    setProduct () {
-        this.setState({
-            product: this.props.viewModel
-        });
     }
     
     attachEvents (viewModel: any) {

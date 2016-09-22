@@ -6,13 +6,20 @@ import template = require('app/jira/templates/products/supplier_item_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface ISupplierItemView {
     viewModel: SupplierEntryViewModel
     onSelect?: Function
 }
 
 class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemView> {
-    setSupplierDelegate: any
+    setSupplierDelegate = () => this.setSupplier()
+    
+    setSupplier () {
+        this.setState({
+            supplier: this.props.viewModel
+        });
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -20,14 +27,6 @@ class SupplierItemView extends BaseView<SupplierEntryViewModel, ISupplierItemVie
         this.state = {
             supplier: this.props.viewModel
         };
-        
-        this.setSupplierDelegate = _.bind(this.setSupplier, this);
-    }
-    
-    setSupplier () {
-        this.setState({
-            supplier: this.props.viewModel
-        });
     }
     
     attachEvents (viewModel: SupplierEntryViewModel): void {

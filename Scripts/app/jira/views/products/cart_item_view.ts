@@ -6,13 +6,20 @@ import template = require('app/jira/templates/products/cart_item_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface ICartViewItem {
     viewModel: CartEntryViewModel
     onSelect?: Function
 }
 
 class CartItemView extends BaseView<CartEntryViewModel, ICartViewItem> {
-    setCartDelegate: any
+    setCartDelegate = () => this.setCart()
+    
+    setCart () {
+        this.setState(_.extend(this.state, {
+            cart: this.props.viewModel
+        }));
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -21,14 +28,6 @@ class CartItemView extends BaseView<CartEntryViewModel, ICartViewItem> {
             cart: this.props.viewModel,
             isSelected: false
         };
-        
-        this.setCartDelegate = _.bind(this.setCart, this);
-    }
-    
-    setCart () {
-        this.setState(_.extend(this.state, {
-            cart: this.props.viewModel
-        }));
     }
     
     attachEvents (viewModel: CartEntryViewModel): void {

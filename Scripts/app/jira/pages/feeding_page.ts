@@ -21,9 +21,9 @@ interface IFeedingPage extends IBaseView {
 }
 
 class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
-    setProductsTotalDelegate: any
-    updateCartDelegate: any
-    changeCurrentProductDelegate: any
+    setProductsTotalDelegate = () => this.setProductsTotal()
+    updateCartDelegate = () => this.updateCart()
+    changeCurrentProductDelegate = () => this.changeCurrentProduct()
 
     handlers = {
         onDraw: function () {
@@ -59,9 +59,6 @@ class FeedingPage extends BaseView<FeedingViewModel, IFeedingPage> {
         };
         
         this.searchProductsInternal = _.debounce(this.searchProductsInternal, 500);
-        this.setProductsTotalDelegate = _.bind(this.setProductsTotal, this);
-        this.updateCartDelegate = _.bind(this.updateCart, this);
-        this.changeCurrentProductDelegate = _.bind(this.changeCurrentProduct, this);
     }
     
     init (options: any): void {

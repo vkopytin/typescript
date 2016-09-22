@@ -16,7 +16,13 @@ interface ISuppliersView extends React.Props<any> {
 }
 
 class SuppliersView extends BaseView<FeedingViewModel, ISuppliersView> {
-    setSuppliersDelegate: any
+    setSuppliersDelegate = () => this.setSuppliers()
+    
+    setSuppliers () {
+        this.setState({
+            suppliers: this.props.viewModel.getSuppliers()
+        });
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -24,14 +30,6 @@ class SuppliersView extends BaseView<FeedingViewModel, ISuppliersView> {
         this.state = {
             suppliers: this.props.viewModel.getSuppliers()
         };
-        
-        this.setSuppliersDelegate = _.bind(this.setSuppliers, this);
-    }
-    
-    setSuppliers () {
-        this.setState({
-            suppliers: this.props.viewModel.getSuppliers()
-        });
     }
 
     attachEvents (viewModel: FeedingViewModel): void {

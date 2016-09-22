@@ -10,6 +10,7 @@ import template = require('app/jira/templates/products/create_product_template')
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface ICreateProductView extends React.Props<any> {
     viewModel: FeedingViewModel
 }
@@ -18,6 +19,14 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
     setProductDelegate = () => this.setProduct()
     setCategoriesDelegate = () => this.setProduct()
     setSuppliersDelegate = () => this.setProduct()
+    
+    setProduct () {
+        this.setState({
+            product: this.props.viewModel.getCurentProduct(),
+            categories: this.props.viewModel.getCategories(),
+            suppliers: this.props.viewModel.getSuppliers()
+        });
+    }
 
     constructor (opts: any) {
         super(opts);
@@ -27,14 +36,6 @@ class CreateProductView extends BaseView<FeedingViewModel, ICreateProductView> {
             categories: this.props.viewModel.getCategories(),
             suppliers: this.props.viewModel.getSuppliers()
         };
-    }
-    
-    setProduct () {
-        this.setState({
-            product: this.props.viewModel.getCurentProduct(),
-            categories: this.props.viewModel.getCategories(),
-            suppliers: this.props.viewModel.getSuppliers()
-        });
     }
 
     attachEvents (viewModel: FeedingViewModel): void {

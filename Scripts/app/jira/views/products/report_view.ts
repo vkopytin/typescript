@@ -16,7 +16,7 @@ interface IReportView extends React.Props<any> {
 }
 
 class ReportView extends BaseView<FeedingViewModel, IReportView> {
-    setReportDelegate: any
+    setReportDelegate = () => this.setReport()
 
     constructor(opts: any) {
         super(opts);
@@ -24,8 +24,6 @@ class ReportView extends BaseView<FeedingViewModel, IReportView> {
         this.state = {
             report: this.props.viewModel.getReport()
         };
-        
-        this.setReportDelegate = _.bind(this.setReport, this);
     }
     
     setReport () {

@@ -16,7 +16,7 @@ interface ICategoriesView extends React.Props<any> {
 }
 
 class CategoriesView extends BaseView<FeedingViewModel, ICategoriesView> {
-    setCategoriesDelegate: any
+    setCategoriesDelegate = () => this.setCategories()
 
     constructor(opts: any) {
         super(opts);
@@ -24,8 +24,6 @@ class CategoriesView extends BaseView<FeedingViewModel, ICategoriesView> {
         this.state = {
             categories: this.props.viewModel.getCategories()
         };
-        
-        this.setCategoriesDelegate = _.bind(this.setCategories, this);
     }
     
     setCategories () {

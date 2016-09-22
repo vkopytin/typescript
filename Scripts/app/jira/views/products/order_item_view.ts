@@ -6,13 +6,20 @@ import template = require('app/jira/templates/products/order_item_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface IOrderItemView {
     viewModel: ProductEntryViewModel
     onSelect?: Function
 }
 
 class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
-    setOrderDelegate: any
+    setOrderDelegate = () => this.setOrder()
+    
+    setOrder () {
+        this.setState(_.extend(this.state, {
+            order: this.props.viewModel
+            }));
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -21,14 +28,6 @@ class OrderItemView extends BaseView<ProductEntryViewModel, IOrderItemView> {
             order: this.props.viewModel,
             isSelected: false
         };
-        
-        this.setOrderDelegate = _.bind(this.setOrder, this);
-    }
-    
-    setOrder () {
-        this.setState(_.extend(this.state, {
-            order: this.props.viewModel
-            }));
     }
 
     attachEvents(viewModel: any) {

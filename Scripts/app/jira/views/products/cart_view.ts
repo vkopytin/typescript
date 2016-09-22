@@ -16,7 +16,13 @@ interface ICartView extends React.Props<any> {
 }
 
 class CartView extends BaseView<FeedingViewModel, ICartView> {
-    setCartsDelegate: any
+    setCartsDelegate = () => this.setCart()
+    
+    setCart () {
+        this.setState({
+            cart: this.props.viewModel.getCart()
+        });
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -24,14 +30,6 @@ class CartView extends BaseView<FeedingViewModel, ICartView> {
         this.state = {
             cart: this.props.viewModel.getCart()
         };
-        
-        this.setCartsDelegate = _.bind(this.setCart, this);
-    }
-    
-    setCart () {
-        this.setState({
-            cart: this.props.viewModel.getCart()
-        });
     }
     
     attachEvents (viewModel: FeedingViewModel): void {

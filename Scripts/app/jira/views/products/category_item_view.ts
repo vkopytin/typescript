@@ -6,13 +6,14 @@ import template = require('app/jira/templates/products/category_item_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface IProductItemView {
     viewModel: CategoryEntryViewModel
     onSelect?: Function
 }
 
 class CategoryItemView extends BaseView<CategoryEntryViewModel, IProductItemView> {
-    setCategoryDelegate: any
+    setCategoryDelegate = () => this.setCategory()
 
     constructor(opts: any) {
         super(opts);
@@ -20,8 +21,6 @@ class CategoryItemView extends BaseView<CategoryEntryViewModel, IProductItemView
         this.state = {
             category: this.props.viewModel
         };
-        
-        this.setCategoryDelegate = _.bind(this.setCategory, this);
     }
     
     setCategory () {

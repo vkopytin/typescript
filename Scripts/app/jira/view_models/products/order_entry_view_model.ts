@@ -1,6 +1,7 @@
 /// <reference path="../../base/base_view_model.ts" />
 import _ = require('underscore');
 import BaseViewModel = require('app/jira/base/base_view_model');
+ 
     
 class OrderEntryViewModel extends BaseViewModel {
 

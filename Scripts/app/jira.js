@@ -1716,11 +1716,12 @@ define("app/jira/views/products/product_item_view", ["require", "exports", 'unde
     var ProductItemView = (function (_super) {
         __extends(ProductItemView, _super);
         function ProductItemView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setProductDelegate = function () { return _this.setProduct(); };
             this.state = {
                 product: this.props.viewModel
             };
-            this.setProductDelegate = _.bind(this.setProduct, this);
         }
         ProductItemView.prototype.setProduct = function () {
             this.setState({
@@ -1730,14 +1731,15 @@ define("app/jira/views/products/product_item_view", ["require", "exports", 'unde
         ProductItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
             _super.prototype.attachEvents.call(this, viewModel);
-            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), function (en) {
-                $(viewModel).on(en, _.bind(_this.setProduct, _this));
+            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Category change:Supplier'.split(' '), function (en) {
+                $(viewModel).on(en, _this.setProductDelegate);
             });
         };
         ProductItemView.prototype.detachEvents = function (viewModel) {
+            var _this = this;
             _super.prototype.detachEvents.call(this, viewModel);
-            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Categorie change:Supplier'.split(' '), function (en) {
-                $(viewModel).off(en);
+            _.each('change:ProductName change:UnitPrice change:UnitsOnOrder change:QuantityPerUnit change:Category change:Supplier'.split(' '), function (en) {
+                $(viewModel).off(en, _this.setProductDelegate);
             });
         };
         ProductItemView.prototype.onClick = function (evnt) {
@@ -1781,11 +1783,12 @@ define("app/jira/views/products/products_view", ["require", "exports", 'jquery',
     var ProductsView = (function (_super) {
         __extends(ProductsView, _super);
         function ProductsView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setProductsDelegate = function () { return _this.setProducts(); };
             this.state = {
                 products: this.props.products(this.props.viewModel)
             };
-            this.setProductsDelegate = _.bind(this.setProducts, this);
         }
         ProductsView.prototype.setProducts = function () {
             this.setState({
@@ -1826,11 +1829,12 @@ define("app/jira/views/products/category_item_view", ["require", "exports", 'und
     var CategoryItemView = (function (_super) {
         __extends(CategoryItemView, _super);
         function CategoryItemView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setCategoryDelegate = function () { return _this.setCategory(); };
             this.state = {
                 category: this.props.viewModel
             };
-            this.setCategoryDelegate = _.bind(this.setCategory, this);
         }
         CategoryItemView.prototype.setCategory = function () {
             this.setState({
@@ -1892,16 +1896,17 @@ define("app/jira/templates/products/categories_template", ["require", "exports",
 });
 /// <reference path="../../../../vendor.d.ts" />
 /// <reference path="../../base/base_view.ts" />
-define("app/jira/views/products/categories_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/categories_template"], function (require, exports, $, _, BaseView, template) {
+define("app/jira/views/products/categories_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/templates/products/categories_template"], function (require, exports, $, BaseView, template) {
     "use strict";
     var CategoriesView = (function (_super) {
         __extends(CategoriesView, _super);
         function CategoriesView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setCategoriesDelegate = function () { return _this.setCategories(); };
             this.state = {
                 categories: this.props.viewModel.getCategories()
             };
-            this.setCategoriesDelegate = _.bind(this.setCategories, this);
         }
         CategoriesView.prototype.setCategories = function () {
             this.setState({
@@ -1936,11 +1941,12 @@ define("app/jira/views/products/supplier_item_view", ["require", "exports", 'und
     var SupplierItemView = (function (_super) {
         __extends(SupplierItemView, _super);
         function SupplierItemView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setSupplierDelegate = function () { return _this.setSupplier(); };
             this.state = {
                 supplier: this.props.viewModel
             };
-            this.setSupplierDelegate = _.bind(this.setSupplier, this);
         }
         SupplierItemView.prototype.setSupplier = function () {
             this.setState({
@@ -2007,11 +2013,12 @@ define("app/jira/views/products/suppliers_view", ["require", "exports", 'jquery'
     var SuppliersView = (function (_super) {
         __extends(SuppliersView, _super);
         function SuppliersView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setSuppliersDelegate = function () { return _this.setSuppliers(); };
             this.state = {
                 suppliers: this.props.viewModel.getSuppliers()
             };
-            this.setSuppliersDelegate = _.bind(this.setSuppliers, this);
         }
         SuppliersView.prototype.setSuppliers = function () {
             this.setState({
@@ -2059,12 +2066,13 @@ define("app/jira/views/products/order_item_view", ["require", "exports", 'unders
     var OrderItemView = (function (_super) {
         __extends(OrderItemView, _super);
         function OrderItemView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setOrderDelegate = function () { return _this.setOrder(); };
             this.state = {
                 order: this.props.viewModel,
                 isSelected: false
             };
-            this.setOrderDelegate = _.bind(this.setOrder, this);
         }
         OrderItemView.prototype.setOrder = function () {
             this.setState(_.extend(this.state, {
@@ -2073,12 +2081,14 @@ define("app/jira/views/products/order_item_view", ["require", "exports", 'unders
         };
         OrderItemView.prototype.attachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.attachEvents.call(this, viewModel);
             _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
                 $(viewModel).on(en, _this.setOrderDelegate);
             });
         };
         OrderItemView.prototype.detachEvents = function (viewModel) {
             var _this = this;
+            _super.prototype.detachEvents.call(this, viewModel);
             _.each('change:OrderDate change:OrderDetail'.split(' '), function (en) {
                 $(viewModel).off(en, _this.setOrderDelegate);
             });
@@ -2112,16 +2122,17 @@ define("app/jira/templates/products/orders_template", ["require", "exports", 're
 });
 /// <reference path="../../../../vendor.d.ts" />
 /// <reference path="../../base/base_view.ts" />
-define("app/jira/views/products/orders_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/orders_template"], function (require, exports, $, _, BaseView, template) {
+define("app/jira/views/products/orders_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/templates/products/orders_template"], function (require, exports, $, BaseView, template) {
     "use strict";
     var OrdersView = (function (_super) {
         __extends(OrdersView, _super);
         function OrdersView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setOrdersDelegate = function () { return _this.setOrders(); };
             this.state = {
                 orders: this.props.viewModel.getOrders()
             };
-            this.setOrdersDelegate = _.bind(this.setOrders, this);
         }
         OrdersView.prototype.setOrders = function () {
             this.setState({
@@ -2129,9 +2140,11 @@ define("app/jira/views/products/orders_view", ["require", "exports", 'jquery', '
             });
         };
         OrdersView.prototype.attachEvents = function (viewModel) {
+            _super.prototype.attachEvents.call(this, viewModel);
             $(viewModel).on('change:orders', this.setOrdersDelegate);
         };
         OrdersView.prototype.detachEvents = function (viewModel) {
+            _super.prototype.detachEvents.call(this, viewModel);
             $(viewModel).off('change:orders', this.setOrdersDelegate);
         };
         OrdersView.prototype.render = function () {
@@ -2156,12 +2169,13 @@ define("app/jira/views/products/cart_item_view", ["require", "exports", 'undersc
     var CartItemView = (function (_super) {
         __extends(CartItemView, _super);
         function CartItemView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setCartDelegate = function () { return _this.setCart(); };
             this.state = {
                 cart: this.props.viewModel,
                 isSelected: false
             };
-            this.setCartDelegate = _.bind(this.setCart, this);
         }
         CartItemView.prototype.setCart = function () {
             this.setState(_.extend(this.state, {
@@ -2214,16 +2228,17 @@ define("app/jira/templates/products/cart_template", ["require", "exports", 'reac
 });
 /// <reference path="../../../../vendor.d.ts" />
 /// <reference path="../../base/base_view.ts" />
-define("app/jira/views/products/cart_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/cart_template"], function (require, exports, $, _, BaseView, template) {
+define("app/jira/views/products/cart_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/templates/products/cart_template"], function (require, exports, $, BaseView, template) {
     "use strict";
     var CartView = (function (_super) {
         __extends(CartView, _super);
         function CartView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setCartsDelegate = function () { return _this.setCart(); };
             this.state = {
                 cart: this.props.viewModel.getCart()
             };
-            this.setCartsDelegate = _.bind(this.setCart, this);
         }
         CartView.prototype.setCart = function () {
             this.setState({
@@ -2256,16 +2271,17 @@ define("app/jira/templates/products/report_template", ["require", "exports", 'un
 });
 /// <reference path="../../../../vendor.d.ts" />
 /// <reference path="../../base/base_view.ts" />
-define("app/jira/views/products/report_view", ["require", "exports", 'jquery', 'underscore', "app/jira/base/base_view", "app/jira/templates/products/report_template"], function (require, exports, $, _, BaseView, template) {
+define("app/jira/views/products/report_view", ["require", "exports", 'jquery', "app/jira/base/base_view", "app/jira/templates/products/report_template"], function (require, exports, $, BaseView, template) {
     "use strict";
     var ReportView = (function (_super) {
         __extends(ReportView, _super);
         function ReportView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setReportDelegate = function () { return _this.setReport(); };
             this.state = {
                 report: this.props.viewModel.getReport()
             };
-            this.setReportDelegate = _.bind(this.setReport, this);
         }
         ReportView.prototype.setReport = function () {
             this.setState({
@@ -2361,22 +2377,23 @@ define("app/jira/views/products/create_product_view", ["require", "exports", 'jq
     var CreateProductView = (function (_super) {
         __extends(CreateProductView, _super);
         function CreateProductView(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setProductDelegate = function () { return _this.setProduct(); };
+            this.setCategoriesDelegate = function () { return _this.setProduct(); };
+            this.setSuppliersDelegate = function () { return _this.setProduct(); };
             this.state = {
                 product: this.props.viewModel.getCurentProduct(),
                 categories: this.props.viewModel.getCategories(),
                 suppliers: this.props.viewModel.getSuppliers()
             };
-            this.setProductDelegate = _.bind(this.setProduct, this);
-            this.setCategoriesDelegate = _.bind(this.setProduct, this);
-            this.setSuppliersDelegate = _.bind(this.setProduct, this);
         }
         CreateProductView.prototype.setProduct = function () {
-            this.setState(_.extend(this.state, {
+            this.setState({
                 product: this.props.viewModel.getCurentProduct(),
                 categories: this.props.viewModel.getCategories(),
                 suppliers: this.props.viewModel.getSuppliers()
-            }));
+            });
         };
         CreateProductView.prototype.attachEvents = function (viewModel) {
             _super.prototype.attachEvents.call(this, viewModel);
@@ -2514,7 +2531,11 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
     var FeedingPage = (function (_super) {
         __extends(FeedingPage, _super);
         function FeedingPage(opts) {
+            var _this = this;
             _super.call(this, opts);
+            this.setProductsTotalDelegate = function () { return _this.setProductsTotal(); };
+            this.updateCartDelegate = function () { return _this.updateCart(); };
+            this.changeCurrentProductDelegate = function () { return _this.changeCurrentProduct(); };
             this.handlers = {
                 onDraw: function () {
                     _.defer(function () {
@@ -2529,21 +2550,18 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
                 productsTotal: this.props.viewModel.getProductsTotal()
             };
             this.searchProductsInternal = _.debounce(this.searchProductsInternal, 500);
-            this.setProductsTotalDelegate = _.bind(this.setProductsTotal, this);
-            this.updateCartDelegate = _.bind(this.updateCart, this);
-            this.changeCurrentProductDelegate = _.bind(this.changeCurrentProduct, this);
         }
-        FeedingPage.prototype.setProductsTotal = function (value) {
-            this.setState(_.extend(this.state, {
+        FeedingPage.prototype.setProductsTotal = function () {
+            this.setState({
                 productsTotal: this.props.viewModel.getProductsTotal()
-            }));
+            });
         };
         FeedingPage.prototype.updateCart = function () {
             var cart = this.props.viewModel.getCart();
-            cart && this.setState(_.extend(this.state, {
+            cart && this.setState({
                 cartDate: new Date(cart.getCartDate()).toLocaleString(),
                 cartName: cart.getId()
-            }));
+            });
         };
         FeedingPage.prototype.init = function (options) {
             _.extend(this.handlers, options.handlers || {});
@@ -2572,6 +2590,7 @@ define("app/jira/pages/feeding_page", ["require", "exports", 'underscore', 'jque
             return master_page_template.call(this, template.call(this, this.props.viewModel));
         };
         FeedingPage.prototype.changeCurrentProduct = function () {
+            console.log('toDO: Implement');
         };
         FeedingPage.prototype.fetchProducts = function (evnt, from, count) {
             evnt.preventDefault();

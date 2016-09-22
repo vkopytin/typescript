@@ -16,7 +16,13 @@ interface IOrdersView extends React.Props<any> {
 }
 
 class OrdersView extends BaseView<FeedingViewModel, IOrdersView> {
-    setOrdersDelegate: any
+    setOrdersDelegate = () => this.setOrders()
+    
+    setOrders () {
+        this.setState({
+            orders: this.props.viewModel.getOrders()
+        });
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -24,14 +30,6 @@ class OrdersView extends BaseView<FeedingViewModel, IOrdersView> {
         this.state = {
             orders: this.props.viewModel.getOrders()
         };
-        
-        this.setOrdersDelegate = _.bind(this.setOrders, this);
-    }
-    
-    setOrders () {
-        this.setState({
-            orders: this.props.viewModel.getOrders()
-        });
     }
     
     attachEvents(viewModel: any) {

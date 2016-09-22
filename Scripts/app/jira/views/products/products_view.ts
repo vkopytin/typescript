@@ -12,6 +12,7 @@ import template = require('app/jira/templates/products/products_template');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface IProductsViewOptions {
     viewModel: FeedingViewModel
 }
@@ -22,7 +23,13 @@ interface IProductsView extends React.Props<any> {
 }
 
 class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
-    setProductsDelegate: any
+    setProductsDelegate = () => this.setProducts()
+    
+    setProducts () {
+        this.setState({
+            products: this.props.products(this.props.viewModel)
+        });
+    }
 
     constructor(opts: any) {
         super(opts);
@@ -30,14 +37,6 @@ class ProductsView extends BaseView<FeedingViewModel, IProductsView> {
         this.state = {
             products: this.props.products(this.props.viewModel)
         };
-        
-        this.setProductsDelegate = _.bind(this.setProducts, this);
-    }
-    
-    setProducts () {
-        this.setState({
-            products: this.props.products(this.props.viewModel)
-        });
     }
     
     attachEvents (viewModel: FeedingViewModel): void {

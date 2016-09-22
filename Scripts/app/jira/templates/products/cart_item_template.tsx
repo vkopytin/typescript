@@ -1,6 +1,7 @@
 import _ = require('underscore');
 import React = require('react');
 
+
 var template = function (data: any) {
     return (
         <div>

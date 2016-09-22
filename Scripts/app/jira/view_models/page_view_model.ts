@@ -4,7 +4,8 @@
 import BaseViewModel = require('app/jira/base/base_view_model');
 import Command = require('app/jira/command');
 import Navigation = require('app/jira/navigation');
-    
+
+
 class PageViewModel extends BaseViewModel {
     DeployEmailNavigateCommand: Command
     JiraReportNavigateCommand: Command

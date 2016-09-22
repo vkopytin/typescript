@@ -2,7 +2,8 @@
 
 import $ = require('jquery');
 import Base = require('app/jira/base/base');
-        
+
+  
 class ModelBase extends Base {
     constructor (opts: any) {
         super();

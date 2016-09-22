@@ -2,6 +2,8 @@
 
 import _ = require('underscore');
 import Utils = require('app/jira/utils');
+
+
 var report: { [key: string]: number } = {};
 
 window.report = report;

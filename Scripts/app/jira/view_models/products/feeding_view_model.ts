@@ -15,6 +15,7 @@ import Command = require('app/jira/command');
 import Model = require('app/jira/models/accounting_model');
 import Utils = require('app/jira/utils');
 
+
 class FeedingViewModel extends PageViewModel {
     changeProductsDelegate: any
     changeCategoriesDelegate: any

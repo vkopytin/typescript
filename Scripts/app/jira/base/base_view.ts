@@ -11,6 +11,7 @@ import IBaseView = require('app/jira/base/i_base_view');
 import Command = require('app/jira/command');
 import React = require('react');
 
+
 class BaseView<TViewModel extends BaseViewModel, TBaseView extends IBaseView> extends React.Component<TBaseView, any> {
     __name: string
     $el: any

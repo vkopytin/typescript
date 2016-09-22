@@ -7,6 +7,7 @@ import BaseViewModel = require('app/jira/base/base_view_model');
 import IBaseView = require('app/jira/base/i_base_view');
 import React = require('react');
 
+
 interface ITabsView extends React.Props<any> {
     viewModel?: BaseViewModel
     active?: number

@@ -15,6 +15,7 @@ import FeedingViewModel = require('app/jira/view_models/products/feeding_view_mo
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface IFeedingPage extends IBaseView {
     viewModel: FeedingViewModel
     productsTotal: number

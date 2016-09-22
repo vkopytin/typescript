@@ -1,6 +1,7 @@
 import React = require('react');
 import ProductItemView = require('app/jira/views/products/product_item_view');
 
+
 var template = function () {
     return (
         <div className="list-group">

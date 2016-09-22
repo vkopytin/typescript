@@ -14,6 +14,7 @@ import JiraViewModel = require('app/jira/view_models/issues/jira_view_model');
 import React = require('react');
 import ReactDOM = require('react-dom');
 
+
 interface IJiraPage extends IBaseView {
     
 }

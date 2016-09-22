@@ -1,5 +1,6 @@
 import React = require('react');
 
+
 var template = function (data: any) {
 	return (
 		<a href="#" className="list-group-item" onClick={(e) => this.onClick(e)}>

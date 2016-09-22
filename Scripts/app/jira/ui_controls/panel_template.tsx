@@ -1,5 +1,6 @@
 import React = require('react');
 
+
 var template = {
     body: function () {return (
     <div className={"panel panel-default highlight"}>

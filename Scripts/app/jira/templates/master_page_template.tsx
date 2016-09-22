@@ -1,5 +1,6 @@
 import React = require('react');
 
+
 var template = function (view: any) {
     return (<div>
     <div id={"wrapper"}>

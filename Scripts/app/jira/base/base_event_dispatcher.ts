@@ -2,6 +2,7 @@
 
 import Base = require('app/jira/base/base');
 
+
 class BaseEventDispatcher extends Base {
     constructor (opts: any) {
         super();

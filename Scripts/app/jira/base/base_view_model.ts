@@ -6,6 +6,7 @@ import _ = require('underscore');
 import Base = require('app/jira/base/base');
 import Command = require('app/jira/command');
 
+
 class ViewModelBase extends Base {
     [key: string]: any
     
@@ -65,9 +66,11 @@ class ViewModelBase extends Base {
     navigateTo (): void {
         
     }
+    
     navigateFrom (): void {
         this.finish();
     }
+    
     toJSON (): any {
         return this.opts;
     }

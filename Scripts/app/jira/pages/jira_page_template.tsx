@@ -5,6 +5,7 @@ import PanelView = require('app/jira/ui_controls/panel_view');
 import EpicsView = require('app/jira/views/issues/epics_view');
 import JiraViewModel = require('app/jira/view_models/issues/jira_view_model');
 
+
 var template = function (viewModel: any) {
 	return (
 		<JiraView viewModel={viewModel} issues={(vm: JiraViewModel) => vm.getIssues()}>

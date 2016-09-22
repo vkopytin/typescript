@@ -14,6 +14,7 @@ import master_page_template = require('app/jira/templates/master_page_template')
 import EmailViewModel = require('app/jira/view_models/email_report/email_view_model');
 import React = require('react');
 
+
 interface IEmailPage extends IBaseView {
     
 }

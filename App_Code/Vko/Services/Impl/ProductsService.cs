@@ -17,7 +17,7 @@ namespace Vko.Services.Impl
 			using (var repo = new General())
 			{
 				var items = ListCarts(repo, from, count).ToList();
-				return new PagedResult<Cart>()
+				return new PagedResult<Cart>
 				{
 					Total = TotalCarts(repo),
 					Items = items
@@ -46,7 +46,7 @@ namespace Vko.Services.Impl
 			using (var repo = new General())
 			{
 				var items = FindProducts(repo, new { search = search }).ToList();
-				return new PagedResult<Product>()
+				return new PagedResult<Product>
 				{
 					Total = items.Count,
 					Items = items
@@ -85,7 +85,7 @@ namespace Vko.Services.Impl
 		{
 			using (var repo = new General())
 			{
-				return new PagedResult<Product>()
+				return new PagedResult<Product>
 				{
 					Total = TotalProducts(repo),
 					Items = ListProducts(repo, from, count).ToList()
@@ -253,7 +253,7 @@ namespace Vko.Services.Impl
 					}).ToList();
 					if (details.Count == 0)
 					{
-						var newDetail = orderDetailsRepo.Create(new OrderDetail () {
+						var newDetail = orderDetailsRepo.Create(new OrderDetail {
 							Id = cart.Id + "/" + product.Id,
 							OrderId = cart.Id,
 							ProductId = product.Id,
@@ -264,7 +264,7 @@ namespace Vko.Services.Impl
 					}
 					else
 					{
-						var existingDetail = orderDetailsRepo.Update(details[0].Id, new OrderDetail () {
+						var existingDetail = orderDetailsRepo.Update(details[0].Id, new OrderDetail {
 							Id = details[0].Id,
 							OrderId = cart.Id,
 							ProductId = product.Id,
@@ -308,7 +308,7 @@ namespace Vko.Services.Impl
 						}
 						else
 						{
-							var existingDetail = orderDetailsRepo.Update(details[0].Id, new OrderDetail () {
+							var existingDetail = orderDetailsRepo.Update(details[0].Id, new OrderDetail {
 								Id = details[0].Id,
 								OrderId = cart.Id,
 								ProductId = product.Id,
@@ -328,7 +328,7 @@ namespace Vko.Services.Impl
 		{
 			using (var repo = new General())
 			{
-				var order = repo.Make<IOrdersRepository<Order>>().Create(new Order () {
+				var order = repo.Make<IOrdersRepository<Order>>().Create(new Order {
 					CustomerId = "ALFKI",
 					EmployeeId = 1,
 					OrderDate = DateTime.Now

@@ -45,8 +45,9 @@ namespace Vko.Repository
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     var pInfoCollection = typeof(T).GetProperties()
-                    .Where(x => reader.GetOrdinal(x.Name) != -1)
-                    .ToList();
+                        .Where(x => reader.GetOrdinal(x.Name) != -1)
+                        .ToList();
+                        
                     while (reader.Read())
                     {
                         var inst = Activator.CreateInstance<T>();
@@ -75,11 +76,12 @@ namespace Vko.Repository
                 {
                     command.Parameters.AddWithValue(":" + pInfo.Name, pInfo.GetValue(args));
                 }
-                using(SQLiteDataReader reader = command.ExecuteReader())
+                
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     var pInfoCollection = typeof(T).GetProperties()
-                    .Where(x => reader.GetOrdinal(x.Name) != -1)
-                    .ToList();
+                        .Where(x => reader.GetOrdinal(x.Name) != -1)
+                        .ToList();
                     
                     while (reader.Read())
                     {
@@ -113,11 +115,11 @@ namespace Vko.Repository
                     command.Parameters.AddWithValue(kvp.Key, kvp.Value);
                 }
                 
-                using(SQLiteDataReader reader = command.ExecuteReader())
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     var pInfoCollection = typeof(T).GetProperties()
-                    .Where(x => reader.GetOrdinal(x.Name) != -1)
-                    .ToList();
+                        .Where(x => reader.GetOrdinal(x.Name) != -1)
+                        .ToList();
                     
                     while (reader.Read())
                     {
@@ -128,7 +130,7 @@ namespace Vko.Repository
                             object value = Convert.ChangeType(reader[pInfo.Name], pInfo.PropertyType);
                             pInfo.SetValue(inst, value, new object[] { });
                         }
-                                
+
                         yield return inst;
                     }
                 }

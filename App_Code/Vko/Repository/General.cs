@@ -100,10 +100,10 @@ namespace Vko.Repository
 	        if (disposing) 
 	        {
 	            // free managed resources
-	            if (connection != null)
+	            if (this.connection != null)
 	            {
-	                connection.Dispose();
-	                connection = null;
+	                this.connection.Dispose();
+	                this.connection = null;
 	            }
 	        }
 	        // free native resources if there are any.

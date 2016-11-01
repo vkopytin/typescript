@@ -18,7 +18,7 @@ namespace hellomvc.Controllers
     {
         public ActionResult Index ()
         {
-            var mvcName = typeof(Controller).Assembly.GetName ();
+            var mvcName = typeof(Controller).Assembly.GetName();
             var isMono = Type.GetType ("Mono.Runtime") != null;
 
             ViewData ["Version"] = mvcName.Version.Major + "." + mvcName.Version.Minor;
@@ -86,7 +86,8 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Statuses() {
+        public ActionResult Statuses()
+        {
             var jiraClient = new JiraClient(URL, jUserID, jPassword);
             var items = jiraClient.Statuses;
 
@@ -94,7 +95,8 @@ namespace hellomvc.Controllers
         }
         
         [HttpGet]
-        public ActionResult Items(string jql="") {
+        public ActionResult Items(string jql="")
+        {
             var jiraManager = new JiraManager();
             var items = jiraManager.GetIssues2();
 
@@ -102,14 +104,16 @@ namespace hellomvc.Controllers
         }
 
         [HttpGet]
-        public ActionResult Epics() {
+        public ActionResult Epics()
+        {
             var jiraClient = new JiraClient(URL, jUserID, jPassword);
             var items = jiraClient.Epics;
 
             return Json(items, JsonRequestBehavior.AllowGet);
         }
 
-        public string CalculateMD5Hash(string input) {
+        private string CalculateMD5Hash(string input)
+        {
             // step 1, calculate MD5 hash from input
             MD5 md5 = MD5.Create();
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
@@ -124,10 +128,13 @@ namespace hellomvc.Controllers
             return sb.ToString();
         }
 
-        private string GetAssemblies() {
+        private string GetAssemblies()
+        {
             var itemTpl = "<li><div>{0}</div><div>{1}</div></li>";
             var assemblies = "<ul>";
-            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies()) {
+            
+            foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
+            {
                 var fullName = a.GetName().FullName;
                 var location = "";
                 try {
@@ -139,19 +146,25 @@ namespace hellomvc.Controllers
                 assemblies += string.Format(itemTpl,fullName, location);
             }
             assemblies += "</ul>";
+            
             return assemblies;
         }
 
         private static string GetPublicKeyTokenFromAssembly(Assembly assembly)
         {
             var bytes = assembly.GetName().GetPublicKeyToken();
+            
             if (bytes == null || bytes.Length == 0)
+            {
                 return "None";
-
+            }
+            
             var publicKeyToken = string.Empty;
             for (int i = 0; i < bytes.GetLength(0); i++)
+            {
                 publicKeyToken += string.Format("{0:x2}", bytes[i]);
-
+            }
+                
             return publicKeyToken;
         }
     }

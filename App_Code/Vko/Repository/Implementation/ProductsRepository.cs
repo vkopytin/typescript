@@ -19,14 +19,14 @@ namespace Vko.Repository.Implementation
         
         public ProductsRepository(SQLiteConnection conn)
         {
-            query = new DataQuery<T>(conn);
+            this.query = new DataQuery<T>(conn);
         }
         
         public T GetById(object id)
         {
             string sqlGetById = "SELECT * FROM Product WHERE Id = :id";
             
-            return query.SingleResult(sqlGetById, new {
+            return this.query.SingleResult(sqlGetById, new {
                 Id = id
             });
         }
@@ -35,7 +35,7 @@ namespace Vko.Repository.Implementation
         {
             string strSql = @"SELECT * FROM Product ORDER BY Id DESC LIMIT :count OFFSET :from";
             
-            return query.Run(strSql, new {
+            return this.query.Run(strSql, new {
                 from = from,
                 count = count
             });
@@ -80,16 +80,17 @@ namespace Vko.Repository.Implementation
             var tupleWhere = WhereStatements.FromArgs(args);
             string sqlWhere = string.Format(tupleWhere.Item1.ToString(), strSqlSearch);
             string strSql = "SELECT * FROM Product WHERE " + sqlWhere;
+            
             if (tupleWhere.Item2.ContainsKey(":search"))
             {
                 strSql = string.Format("SELECT p.* FROM Product p, {0} WHERE p.Id = res.Id ORDER BY res.seed DESC", strSqlSearch);
-                return query.Run(strSql, new {
+                return this.query.Run(strSql, new {
                     search = tupleWhere.Item2[":search"],
                     searchExact = tupleWhere.Item2[":searchExact"]
                 }, tupleWhere.Item2);
             }
             
-            return query.Run(strSql, new {}, tupleWhere.Item2);
+            return this.query.Run(strSql, new {}, tupleWhere.Item2);
 	    }
         
         public T Create(T product)
@@ -104,12 +105,12 @@ namespace Vko.Repository.Implementation
                 string.Join(", ", pInfoCollection.Select(x => ":" + x.Name))
                 );
             
-            int rows = query.Insert(strSql, product);
+            int rows = this.query.Insert(strSql, product);
             if (rows > 0)
             {
                 object lastId = query.Scalar("SELECT last_insert_rowid()", new {});
                 
-                return GetById(lastId);
+                return this.GetById(lastId);
             }
                 
             return default(T);
@@ -126,11 +127,11 @@ namespace Vko.Repository.Implementation
                 string.Join(", ", pInfoCollection.Select(x => x.Name + " = :" + x.Name))
                 );
                 
-            var res = query.Update(strSql, product, new {
+            var res = this.query.Update(strSql, product, new {
                 Id = id
             });
             
-            return GetById(id);
+            return this.GetById(id);
         }
         
         public int GetCount()
@@ -142,7 +143,7 @@ namespace Vko.Repository.Implementation
         {
             string strSql = @"DELETE FROM Product WHERE Id = :id";
 
-            return query.Delete(strSql, new {
+            return this.query.Delete(strSql, new {
                 Id = id
             });
         }

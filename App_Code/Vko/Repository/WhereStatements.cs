@@ -13,6 +13,7 @@ namespace Vko.Repository
         {
             get { return new Statement[] { this }; }
         }
+        
         public override string ToString()
         {
             return "";
@@ -22,10 +23,12 @@ namespace Vko.Repository
     public class ValueStatement : Statement
     {
         object value;
+        
         public ValueStatement(object value)
         {
             this.value = value;
         }
+        
         public override string ToString()
         {
             return System.Convert.ToString(this.value);
@@ -35,6 +38,7 @@ namespace Vko.Repository
     public class NameStatement : Statement
     {
         private string name;
+        
         public NameStatement(string name)
         {
             this.name = name;
@@ -50,6 +54,7 @@ namespace Vko.Repository
     {
         Statement left;
         Statement right;
+        
         public EqStatement(Statement left, Statement right)
         {
             this.left = left;
@@ -63,7 +68,7 @@ namespace Vko.Repository
 
         public override string ToString()
         {
-            return left.ToString() + "=" + right.ToString();
+            return this.left.ToString() + "=" + this.right.ToString();
         }
     }
 
@@ -76,19 +81,20 @@ namespace Vko.Repository
         }
         public override string ToString()
         {
-            return "(" + string.Join(" AND ", statements.Select(x => x.ToString())) + ")";
+            return "(" + string.Join(" AND ", this.statements.Select(x => x.ToString())) + ")";
         }
     }
     public class OrStatement : Statement
     {
         List<Statement> statements;
+        
         public OrStatement(Statement[] statements)
         {
             this.statements = new List<Statement>(statements);
         }
         public override string ToString()
         {
-            return "(" + string.Join(" OR ", statements.Select(x => x.ToString())) + ")";
+            return "(" + string.Join(" OR ", this.statements.Select(x => x.ToString())) + ")";
         }
     }
 
@@ -96,6 +102,7 @@ namespace Vko.Repository
     {
         List<Statement> statements;
         private NameStatement name;
+        
         public InStatement(ValueStatement[] statements)
         {
             this.name = new NameStatement("");
@@ -108,7 +115,7 @@ namespace Vko.Repository
         }
         public override string ToString()
         {
-            return this.name.ToString() + " IN (" + string.Join(", ", statements.Select(x => x.ToString())) + ")";
+            return this.name.ToString() + " IN (" + string.Join(", ", this.statements.Select(x => x.ToString())) + ")";
         }
     }
 
@@ -116,6 +123,7 @@ namespace Vko.Repository
     {
         Statement name;
         Statement order;
+        
         public OrderByStatement(Statement name, Statement order)
         {
             this.name = name;
@@ -123,13 +131,14 @@ namespace Vko.Repository
         }
         public override string ToString()
         {
-            return " ORDER BY " + name.ToString() + " " + order.ToString();
+            return " ORDER BY " + this.name.ToString() + " " + this.order.ToString();
         }
     }
 
     public class ExpressionStatement : Statement
     {
         List<Statement> statements;
+        
         public ExpressionStatement(Statement[] statements)
         {
             this.statements = new List<Statement>(statements);
@@ -143,7 +152,7 @@ namespace Vko.Repository
         }
         public override string ToString()
         {
-            return string.Join(" ", statements.Select(x => x.ToString()));
+            return string.Join(" ", this.statements.Select(x => x.ToString()));
         }
     }
 
@@ -152,9 +161,15 @@ namespace Vko.Repository
         public static Dictionary<TKey, TValue> Merge<TKey, TValue>(params Dictionary<TKey, TValue>[] dictionaries)
         {
             var result = new Dictionary<TKey, TValue>();
+            
             foreach (var dict in dictionaries)
+            {
                 foreach (var x in dict)
+                { 
                     result[x.Key] = x.Value;
+                }
+            }
+            
             return result;
         }
 
@@ -162,12 +177,14 @@ namespace Vko.Repository
         {
             if (level > 20)
             {
-                throw new Exception("sorry something wrong");
+                throw new Exception("sorry, something wrong");
             }
+            
             Type t = args.GetType();
             var props = t.GetProperties().ToArray();
             var expr = new List<Statement>();
             var paramList = new Dictionary<string, object>();
+            
             foreach (var prop in props)
             {
                 var value = prop.GetValue(args);

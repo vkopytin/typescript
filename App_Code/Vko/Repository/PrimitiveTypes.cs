@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Vko.Repository
 {
-	static class PrimitiveTypes
+	internal static class PrimitiveTypes
 	{
 		public static readonly Type[] List;
 		
